@@ -1,9 +1,14 @@
+use arrayref::array_ref;
+use byteorder::{ByteOrder, LittleEndian};
+use std::io::{Error, ErrorKind, Result};
 use std::mem::size_of;
 
 const MAGIC_OFFSET: usize = 0;
-const MAGIC_END: usize = MAGIC_OFFSET + size_of::<u32>();
+const MAGIC_LENGTH: usize = size_of::<u32>();
+const MAGIC_END: usize = MAGIC_OFFSET + MAGIC_LENGTH;
 const MAJOR_VERSION_OFFSET: usize = MAGIC_END;
-const MAJOR_VERSION_END: usize = MAJOR_VERSION_OFFSET + size_of::<u32>();
+const MAJOR_VERSION_LENGTH: usize = size_of::<u32>();
+const MAJOR_VERSION_END: usize = MAJOR_VERSION_OFFSET + MAJOR_VERSION_LENGTH;
 const FEATURE_MAP_OFFSET: usize = MAJOR_VERSION_END;
 const FEATURE_MAP_END: usize = FEATURE_MAP_OFFSET + size_of::<u32>();
 const PAD_0_OFFSET: usize = FEATURE_MAP_END;
@@ -84,4 +89,22 @@ const PAD_3_LENGTH: usize = 32;
 const PAD_3_END: usize = PAD_3_OFFSET + size_of::<u8>() * PAD_3_LENGTH;
 const DEV_ROLES_OFFSET: usize = PAD_3_END;
 
-const MAX_SUPERBLOCK_SIZE: usize = 4096;
+const MIN_SUPERBLOCK_LENGTH: usize = DEV_ROLES_OFFSET;
+const MAX_SUPERBLOCK_LENGTH: usize = 4096;
+
+pub struct SuperblockVersion1(Vec<u8>);
+
+impl SuperblockVersion1 {
+    pub fn read<B: Into<Vec<u8>>>(buffer: B) -> Result<Self> {
+        let vec = buffer.into();
+        if vec.len() < MIN_SUPERBLOCK_LENGTH {
+            Err(Error::from(ErrorKind::UnexpectedEof))
+        } else if LittleEndian::read_u32(array_ref![self.0, MAGIC_OFFSET, MAGIC_LENGTH])
+            == 0xa92b4efc
+        {
+            Ok(Self(vec))
+        } else {
+            Err(Error::from(ErrorKind::InvalidData))
+        }
+    }
+}
