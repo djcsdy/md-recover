@@ -99,12 +99,22 @@ impl SuperblockVersion1 {
         let vec = buffer.into();
         if vec.len() < MIN_SUPERBLOCK_LENGTH {
             Err(Error::from(ErrorKind::UnexpectedEof))
-        } else if LittleEndian::read_u32(array_ref![self.0, MAGIC_OFFSET, MAGIC_LENGTH])
-            == 0xa92b4efc
-        {
+        } else if Self::valid_magic(&vec) && Self::valid_major_version(&vec) {
             Ok(Self(vec))
         } else {
             Err(Error::from(ErrorKind::InvalidData))
         }
+    }
+
+    fn valid_magic(buffer: &Vec<u8>) -> bool {
+        LittleEndian::read_u32(array_ref![buffer, MAGIC_OFFSET, MAGIC_LENGTH]) == 0xa92b4efc
+    }
+
+    fn valid_major_version(buffer: &Vec<u8>) -> bool {
+        LittleEndian::read_u32(array_ref![
+            buffer,
+            MAJOR_VERSION_OFFSET,
+            MAJOR_VERSION_LENGTH
+        ]) == 1
     }
 }
