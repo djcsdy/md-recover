@@ -1,3 +1,5 @@
+mod superblock;
+
 use clap::Parser;
 use os_display::Quotable;
 use std::path::PathBuf;
