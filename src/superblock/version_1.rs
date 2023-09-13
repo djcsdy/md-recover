@@ -1,3 +1,4 @@
+use crate::superblock::device_flags::DeviceFlags;
 use crate::superblock::features::Features;
 use crate::superblock::ppl_info::PplInfo;
 use crate::superblock::reshape_info::ReshapeInfo;
@@ -257,5 +258,9 @@ impl SuperblockVersion1 {
 
     pub fn device_uuid(&self) -> &[u8; DEVICE_UUID_LENGTH] {
         array_ref![self.0, DEVICE_UUID_OFFSET, DEVICE_UUID_LENGTH]
+    }
+
+    pub fn device_flags(&self) -> DeviceFlags {
+        DeviceFlags::from_bits_retain(self.0[DEVICE_FLAGS_OFFSET])
     }
 }
