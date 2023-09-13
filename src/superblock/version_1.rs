@@ -17,10 +17,10 @@ const PAD_0_END: usize = PAD_0_OFFSET + size_of::<u32>();
 const ARRAY_UUID_OFFSET: usize = PAD_0_END;
 const ARRAY_UUID_LENGTH: usize = 16 * size_of::<u8>();
 const ARRAY_UUID_END: usize = ARRAY_UUID_OFFSET + ARRAY_UUID_LENGTH;
-const SET_NAME_OFFSET: usize = ARRAY_UUID_END;
-const SET_NAME_LENGTH: usize = 32;
-const SET_NAME_END: usize = SET_NAME_OFFSET + size_of::<u8>() * SET_NAME_LENGTH;
-const CTIME_OFFSET: usize = SET_NAME_END;
+const ARRAY_NAME_OFFSET: usize = ARRAY_UUID_END;
+const ARRAY_NAME_LENGTH: usize = 32 * size_of::<u8>();
+const ARRAY_NAME_END: usize = ARRAY_NAME_OFFSET + ARRAY_NAME_LENGTH;
+const CTIME_OFFSET: usize = ARRAY_NAME_END;
 const CTIME_END: usize = CTIME_OFFSET + size_of::<u64>();
 const LEVEL_OFFSET: usize = CTIME_END;
 const LEVEL_END: usize = LEVEL_OFFSET + size_of::<u32>();
@@ -125,5 +125,9 @@ impl SuperblockVersion1 {
 
     fn array_uuid(&self) -> &[u8; ARRAY_UUID_LENGTH] {
         array_ref![self.0, ARRAY_UUID_OFFSET, ARRAY_UUID_LENGTH]
+    }
+
+    fn array_name(&self) -> &[u8; ARRAY_NAME_LENGTH] {
+        array_ref![self.0, ARRAY_NAME_OFFSET, ARRAY_NAME_LENGTH]
     }
 }
