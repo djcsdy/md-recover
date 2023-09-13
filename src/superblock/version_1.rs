@@ -263,4 +263,8 @@ impl SuperblockVersion1 {
     pub fn device_flags(&self) -> DeviceFlags {
         DeviceFlags::from_bits_retain(self.0[DEVICE_FLAGS_OFFSET])
     }
+
+    pub fn bad_block_log_shift(&self) -> u8 {
+        self.0[BAD_BLOCK_LOG_SHIFT_OFFSET]
+    }
 }
