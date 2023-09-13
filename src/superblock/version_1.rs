@@ -61,7 +61,8 @@ const SUPER_OFFSET_OFFSET: usize = DATA_SIZE_END;
 const SUPER_OFFSET_LENGTH: usize = size_of::<u64>();
 const SUPER_OFFSET_END: usize = SUPER_OFFSET_OFFSET + SUPER_OFFSET_LENGTH;
 const RECOVERY_OFFSET_OFFSET: usize = SUPER_OFFSET_END;
-const RECOVERY_OFFSET_END: usize = RECOVERY_OFFSET_OFFSET + size_of::<u64>();
+const RECOVERY_OFFSET_LENGTH: usize = size_of::<u64>();
+const RECOVERY_OFFSET_END: usize = RECOVERY_OFFSET_OFFSET + RECOVERY_OFFSET_LENGTH;
 const JOURNAL_TAIL_OFFSET: usize = SUPER_OFFSET_END;
 const JOURNAL_TAIL_END: usize = JOURNAL_TAIL_OFFSET + size_of::<u64>();
 const DEV_NUMBER_OFFSET: usize = SUPER_OFFSET_END + size_of::<u64>();
@@ -210,5 +211,17 @@ impl SuperblockVersion1 {
 
     pub fn super_offset(&self) -> u64 {
         LittleEndian::read_u64(array_ref![self.0, SUPER_OFFSET_OFFSET, SUPER_OFFSET_LENGTH])
+    }
+
+    pub fn recovery_offset(&self) -> Option<u64> {
+        if self.features().contains(Features::RECOVERY_OFFSET) {
+            Some(LittleEndian::read_u64(array_ref![
+                self.0,
+                RECOVERY_OFFSET_OFFSET,
+                RECOVERY_OFFSET_LENGTH
+            ]))
+        } else {
+            None
+        }
     }
 }
