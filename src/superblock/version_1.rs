@@ -1,3 +1,4 @@
+use crate::superblock::features::Features;
 use arrayref::array_ref;
 use byteorder::{ByteOrder, LittleEndian};
 use std::io::{Error, ErrorKind, Result};
@@ -9,10 +10,10 @@ const MAGIC_END: usize = MAGIC_OFFSET + MAGIC_LENGTH;
 const MAJOR_VERSION_OFFSET: usize = MAGIC_END;
 const MAJOR_VERSION_LENGTH: usize = size_of::<u32>();
 const MAJOR_VERSION_END: usize = MAJOR_VERSION_OFFSET + MAJOR_VERSION_LENGTH;
-const FEATURE_MAP_OFFSET: usize = MAJOR_VERSION_END;
-const FEATURE_MAP_LENGTH: usize = size_of::<u32>();
-const FEATURE_MAP_END: usize = FEATURE_MAP_OFFSET + FEATURE_MAP_LENGTH;
-const PAD_0_OFFSET: usize = FEATURE_MAP_END;
+const FEATURES_OFFSET: usize = MAJOR_VERSION_END;
+const FEATURES_LENGTH: usize = size_of::<u32>();
+const FEATURES_END: usize = FEATURES_OFFSET + FEATURES_LENGTH;
+const PAD_0_OFFSET: usize = FEATURES_END;
 const PAD_0_END: usize = PAD_0_OFFSET + size_of::<u32>();
 const ARRAY_UUID_OFFSET: usize = PAD_0_END;
 const ARRAY_UUID_LENGTH: usize = 16 * size_of::<u8>();
@@ -124,8 +125,13 @@ impl SuperblockVersion1 {
         ]) == 1
     }
 
-    fn feature_map(&self) -> u32 {
-        LittleEndian::read_u32(array_ref![self.0, FEATURE_MAP_OFFSET, FEATURE_MAP_LENGTH])
+    fn features(&self) -> Features {
+        Features::from_bits(LittleEndian::read_u32(array_ref![
+            self.0,
+            FEATURES_OFFSET,
+            FEATURES_LENGTH
+        ]))
+        .unwrap()
     }
 
     fn array_uuid(&self) -> &[u8; ARRAY_UUID_LENGTH] {

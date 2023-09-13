@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate bitflags;
+
 mod superblock;
 
 use clap::Parser;
