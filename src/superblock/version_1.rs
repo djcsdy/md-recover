@@ -73,8 +73,8 @@ const COUNT_CORRECTED_READ_OFFSET: usize = DEVICE_NUMBER_END;
 const COUNT_CORRECTED_READ_LENGTH: usize = size_of::<u32>();
 const COUNT_CORRECTED_READ_END: usize = COUNT_CORRECTED_READ_OFFSET + COUNT_CORRECTED_READ_LENGTH;
 const DEVICE_UUID_OFFSET: usize = COUNT_CORRECTED_READ_END;
-const DEVICE_UUID_LENGTH: usize = 16;
-const DEVICE_UUID_END: usize = DEVICE_UUID_OFFSET + size_of::<u8>() * DEVICE_UUID_LENGTH;
+const DEVICE_UUID_LENGTH: usize = 16 * size_of::<u8>();
+const DEVICE_UUID_END: usize = DEVICE_UUID_OFFSET + DEVICE_UUID_LENGTH;
 const DEVICE_FLAGS_OFFSET: usize = DEVICE_UUID_END;
 const DEVICE_FLAGS_END: usize = DEVICE_FLAGS_OFFSET + size_of::<u8>();
 const BAD_BLOCK_LOG_SHIFT_OFFSET: usize = DEVICE_FLAGS_END;
@@ -254,5 +254,9 @@ impl SuperblockVersion1 {
             COUNT_CORRECTED_READ_OFFSET,
             COUNT_CORRECTED_READ_LENGTH
         ])
+    }
+
+    pub fn device_uuid(&self) -> &[u8; DEVICE_UUID_LENGTH] {
+        array_ref![self.0, DEVICE_UUID_OFFSET, DEVICE_UUID_LENGTH]
     }
 }
