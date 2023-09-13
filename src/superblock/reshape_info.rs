@@ -37,4 +37,12 @@ impl<'superblock> ReshapeInfo<'superblock> {
             ReshapeInfo::NEW_LEVEL_LENGTH
         ])
     }
+
+    pub fn reshape_position(&self) -> u64 {
+        LittleEndian::read_u64(array_ref![
+            self.0,
+            Self::RESHAPE_POSITION_OFFSET,
+            ReshapeInfo::RESHAPE_POSITION_LENGTH
+        ])
+    }
 }
