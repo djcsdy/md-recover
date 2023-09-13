@@ -1,3 +1,5 @@
+use arrayref::array_ref;
+use byteorder::{ByteOrder, LittleEndian};
 use std::mem::size_of;
 
 pub struct ReshapeInfo<'superblock>(&'superblock [u8; ReshapeInfo::LENGTH]);
@@ -26,5 +28,13 @@ impl<'superblock> ReshapeInfo<'superblock> {
 
     pub(super) fn new(buf: &'superblock [u8; ReshapeInfo::LENGTH]) -> Self {
         Self(buf)
+    }
+
+    pub fn new_level(&self) -> u32 {
+        LittleEndian::read_u32(array_ref![
+            self.0,
+            Self::NEW_LEVEL_OFFSET,
+            ReshapeInfo::NEW_LEVEL_LENGTH
+        ])
     }
 }
