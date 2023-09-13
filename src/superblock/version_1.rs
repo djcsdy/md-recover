@@ -66,9 +66,10 @@ const RECOVERY_OFFSET_END: usize = RECOVERY_OFFSET_OFFSET + RECOVERY_OFFSET_LENG
 const JOURNAL_TAIL_OFFSET: usize = SUPER_OFFSET_END;
 const JOURNAL_TAIL_LENGTH: usize = size_of::<u64>();
 const JOURNAL_TAIL_END: usize = JOURNAL_TAIL_OFFSET + JOURNAL_TAIL_LENGTH;
-const DEV_NUMBER_OFFSET: usize = SUPER_OFFSET_END + size_of::<u64>();
-const DEV_NUMBER_END: usize = DEV_NUMBER_OFFSET + size_of::<u32>();
-const COUNT_CORRECTED_READ_OFFSET: usize = DEV_NUMBER_END;
+const DEVICE_NUMBER_OFFSET: usize = SUPER_OFFSET_END + size_of::<u64>();
+const DEVICE_NUMBER_LENGTH: usize = size_of::<u32>();
+const DEVICE_NUMBER_END: usize = DEVICE_NUMBER_OFFSET + DEVICE_NUMBER_LENGTH;
+const COUNT_CORRECTED_READ_OFFSET: usize = DEVICE_NUMBER_END;
 const COUNT_CORRECTED_READ_END: usize = COUNT_CORRECTED_READ_OFFSET + size_of::<u32>();
 const DEVICE_UUID_OFFSET: usize = COUNT_CORRECTED_READ_END;
 const DEVICE_UUID_LENGTH: usize = 16;
@@ -236,5 +237,13 @@ impl SuperblockVersion1 {
         } else {
             None
         }
+    }
+
+    pub fn device_number(&self) -> u32 {
+        LittleEndian::read_u32(array_ref![
+            self.0,
+            DEVICE_NUMBER_OFFSET,
+            DEVICE_NUMBER_LENGTH
+        ])
     }
 }
