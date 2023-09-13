@@ -1,5 +1,6 @@
 use crate::superblock::features::Features;
 use arrayref::array_ref;
+use bitflags::Flags;
 use byteorder::{ByteOrder, LittleEndian};
 use std::io::{Error, ErrorKind, Result};
 use std::mem::size_of;
@@ -40,7 +41,8 @@ const RAID_DISKS_OFFSET: usize = CHUNK_SIZE_END;
 const RAID_DISKS_LENGTH: usize = size_of::<u32>();
 const RAID_DISKS_END: usize = RAID_DISKS_OFFSET + RAID_DISKS_LENGTH;
 const BITMAP_OFFSET_OFFSET: usize = RAID_DISKS_END;
-const BITMAP_OFFSET_END: usize = BITMAP_OFFSET_OFFSET + size_of::<u32>();
+const BITMAP_OFFSET_LENGTH: usize = size_of::<u32>();
+const BITMAP_OFFSET_END: usize = BITMAP_OFFSET_OFFSET + BITMAP_OFFSET_LENGTH;
 const PPL_OFFSET_OFFSET: usize = RAID_DISKS_END;
 const PPL_OFFSET_END: usize = PPL_OFFSET_OFFSET + size_of::<i16>();
 const PPL_SIZE_OFFSET: usize = PPL_OFFSET_END;
@@ -165,5 +167,17 @@ impl SuperblockVersion1 {
 
     pub fn raid_disks(&self) -> u32 {
         LittleEndian::read_u32(array_ref![self.0, RAID_DISKS_OFFSET, RAID_DISKS_LENGTH])
+    }
+
+    pub fn bitmap_offset(&self) -> Option<u32> {
+        if self.features().contains(Features::BITMAP_OFFSET) {
+            Some(LittleEndian::read_u32(array_ref![
+                self.0,
+                BITMAP_OFFSET_OFFSET,
+                BITMAP_OFFSET_LENGTH
+            ]))
+        } else {
+            None
+        }
     }
 }
