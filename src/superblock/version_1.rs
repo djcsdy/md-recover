@@ -27,7 +27,8 @@ const LEVEL_OFFSET: usize = CTIME_END;
 const LEVEL_LENGTH: usize = size_of::<u32>();
 const LEVEL_END: usize = LEVEL_OFFSET + LEVEL_LENGTH;
 const LAYOUT_OFFSET: usize = LEVEL_END;
-const LAYOUT_END: usize = LAYOUT_OFFSET + size_of::<u32>();
+const LAYOUT_LENGTH: usize = size_of::<u32>();
+const LAYOUT_END: usize = LAYOUT_OFFSET + LAYOUT_LENGTH;
 const SIZE_OFFSET: usize = LAYOUT_END;
 const SIZE_END: usize = SIZE_OFFSET + size_of::<u64>();
 const CHUNK_SIZE_OFFSET: usize = SIZE_END;
@@ -139,5 +140,9 @@ impl SuperblockVersion1 {
 
     fn level(&self) -> u32 {
         LittleEndian::read_u32(array_ref![self.0, LEVEL_OFFSET, LEVEL_LENGTH])
+    }
+
+    fn layout(&self) -> u32 {
+        LittleEndian::read_u32(array_ref![self.0, LAYOUT_OFFSET, LAYOUT_LENGTH])
     }
 }
