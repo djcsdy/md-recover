@@ -81,7 +81,8 @@ const DEVICE_FLAGS_END: usize = DEVICE_FLAGS_OFFSET + size_of::<u8>();
 const BAD_BLOCK_LOG_SHIFT_OFFSET: usize = DEVICE_FLAGS_END;
 const BAD_BLOCK_LOG_SHIFT_END: usize = BAD_BLOCK_LOG_SHIFT_OFFSET + size_of::<u8>();
 const BAD_BLOCK_LOG_SIZE_OFFSET: usize = BAD_BLOCK_LOG_SHIFT_END;
-const BAD_BLOCK_LOG_SIZE_END: usize = BAD_BLOCK_LOG_SIZE_OFFSET + size_of::<u16>();
+const BAD_BLOCK_LOG_SIZE_LENGTH: usize = size_of::<u16>();
+const BAD_BLOCK_LOG_SIZE_END: usize = BAD_BLOCK_LOG_SIZE_OFFSET + BAD_BLOCK_LOG_SIZE_LENGTH;
 const BAD_BLOCK_LOG_OFFSET_OFFSET: usize = BAD_BLOCK_LOG_SIZE_END;
 const BAD_BLOCK_LOG_OFFSET_END: usize = BAD_BLOCK_LOG_OFFSET_OFFSET + size_of::<u32>();
 const UTIME_OFFSET: usize = BAD_BLOCK_LOG_OFFSET_END;
@@ -266,5 +267,13 @@ impl SuperblockVersion1 {
 
     pub fn bad_block_log_shift(&self) -> u8 {
         self.0[BAD_BLOCK_LOG_SHIFT_OFFSET]
+    }
+
+    pub fn bad_block_log_size(&self) -> u16 {
+        LittleEndian::read_u16(array_ref![
+            self.0,
+            BAD_BLOCK_LOG_SIZE_OFFSET,
+            BAD_BLOCK_LOG_SIZE_LENGTH
+        ])
     }
 }
