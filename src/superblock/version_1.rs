@@ -55,7 +55,8 @@ const DATA_OFFSET_OFFSET: usize = RESHAPE_INFO_END;
 const DATA_OFFSET_LENGTH: usize = size_of::<u64>();
 const DATA_OFFSET_END: usize = DATA_OFFSET_OFFSET + DATA_OFFSET_LENGTH;
 const DATA_SIZE_OFFSET: usize = DATA_OFFSET_END;
-const DATA_SIZE_END: usize = DATA_SIZE_OFFSET + size_of::<u64>();
+const DATA_SIZE_LENGTH: usize = size_of::<u64>();
+const DATA_SIZE_END: usize = DATA_SIZE_OFFSET + DATA_SIZE_LENGTH;
 const SUPER_OFFSET_OFFSET: usize = DATA_SIZE_END;
 const SUPER_OFFSET_END: usize = SUPER_OFFSET_OFFSET + size_of::<u64>();
 const RECOVERY_OFFSET_OFFSET: usize = SUPER_OFFSET_END;
@@ -200,5 +201,9 @@ impl SuperblockVersion1 {
 
     pub fn data_offset(&self) -> u64 {
         LittleEndian::read_u64(array_ref![self.0, DATA_OFFSET_OFFSET, DATA_OFFSET_LENGTH])
+    }
+
+    pub fn data_size(&self) -> u64 {
+        LittleEndian::read_u64(array_ref![self.0, DATA_SIZE_OFFSET, DATA_SIZE_LENGTH])
     }
 }
