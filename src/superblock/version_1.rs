@@ -47,7 +47,7 @@ const BITMAP_OFFSET_OFFSET: usize = RAID_DISKS_END;
 const BITMAP_OFFSET_LENGTH: usize = size_of::<u32>();
 const BITMAP_OFFSET_END: usize = BITMAP_OFFSET_OFFSET + BITMAP_OFFSET_LENGTH;
 const PPL_INFO_OFFSET: usize = RAID_DISKS_END;
-const PPL_INFO_LENGTH: usize = PplInfo::LENGTH;
+const PPL_INFO_LENGTH: usize = PplInfo::<&[u8]>::LENGTH;
 const PPL_INFO_END: usize = PPL_INFO_OFFSET + PPL_INFO_LENGTH;
 const RESHAPE_INFO_OFFSET: usize = RAID_DISKS_END + size_of::<u32>();
 const RESHAPE_INFO_LENGTH: usize = ReshapeInfo::LENGTH;
@@ -182,7 +182,7 @@ impl SuperblockVersion1 {
         }
     }
 
-    pub fn ppl_info(&self) -> Option<PplInfo> {
+    pub fn ppl_info(&self) -> Option<PplInfo<&[u8]>> {
         if self.features().contains(Features::PPL) {
             Some(PplInfo::new(array_ref![
                 self.0,
