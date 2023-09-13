@@ -70,7 +70,8 @@ const DEVICE_NUMBER_OFFSET: usize = SUPER_OFFSET_END + size_of::<u64>();
 const DEVICE_NUMBER_LENGTH: usize = size_of::<u32>();
 const DEVICE_NUMBER_END: usize = DEVICE_NUMBER_OFFSET + DEVICE_NUMBER_LENGTH;
 const COUNT_CORRECTED_READ_OFFSET: usize = DEVICE_NUMBER_END;
-const COUNT_CORRECTED_READ_END: usize = COUNT_CORRECTED_READ_OFFSET + size_of::<u32>();
+const COUNT_CORRECTED_READ_LENGTH: usize = size_of::<u32>();
+const COUNT_CORRECTED_READ_END: usize = COUNT_CORRECTED_READ_OFFSET + COUNT_CORRECTED_READ_LENGTH;
 const DEVICE_UUID_OFFSET: usize = COUNT_CORRECTED_READ_END;
 const DEVICE_UUID_LENGTH: usize = 16;
 const DEVICE_UUID_END: usize = DEVICE_UUID_OFFSET + size_of::<u8>() * DEVICE_UUID_LENGTH;
@@ -244,6 +245,14 @@ impl SuperblockVersion1 {
             self.0,
             DEVICE_NUMBER_OFFSET,
             DEVICE_NUMBER_LENGTH
+        ])
+    }
+
+    pub fn count_corrected_read(&self) -> u32 {
+        LittleEndian::read_u32(array_ref![
+            self.0,
+            COUNT_CORRECTED_READ_OFFSET,
+            COUNT_CORRECTED_READ_LENGTH
         ])
     }
 }
