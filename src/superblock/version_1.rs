@@ -84,7 +84,8 @@ const BAD_BLOCK_LOG_SIZE_OFFSET: usize = BAD_BLOCK_LOG_SHIFT_END;
 const BAD_BLOCK_LOG_SIZE_LENGTH: usize = size_of::<u16>();
 const BAD_BLOCK_LOG_SIZE_END: usize = BAD_BLOCK_LOG_SIZE_OFFSET + BAD_BLOCK_LOG_SIZE_LENGTH;
 const BAD_BLOCK_LOG_OFFSET_OFFSET: usize = BAD_BLOCK_LOG_SIZE_END;
-const BAD_BLOCK_LOG_OFFSET_END: usize = BAD_BLOCK_LOG_OFFSET_OFFSET + size_of::<u32>();
+const BAD_BLOCK_LOG_OFFSET_LENGTH: usize = size_of::<u32>();
+const BAD_BLOCK_LOG_OFFSET_END: usize = BAD_BLOCK_LOG_OFFSET_OFFSET + BAD_BLOCK_LOG_OFFSET_LENGTH;
 const UTIME_OFFSET: usize = BAD_BLOCK_LOG_OFFSET_END;
 const UTIME_END: usize = UTIME_OFFSET + size_of::<u64>();
 const EVENTS_OFFSET: usize = UTIME_END;
@@ -274,6 +275,14 @@ impl SuperblockVersion1 {
             self.0,
             BAD_BLOCK_LOG_SIZE_OFFSET,
             BAD_BLOCK_LOG_SIZE_LENGTH
+        ])
+    }
+
+    pub fn bad_block_log_offset(&self) -> u32 {
+        LittleEndian::read_u32(array_ref![
+            self.0,
+            BAD_BLOCK_LOG_OFFSET_OFFSET,
+            BAD_BLOCK_LOG_OFFSET_LENGTH
         ])
     }
 }
