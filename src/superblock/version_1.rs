@@ -1,4 +1,5 @@
 use crate::superblock::features::Features;
+use crate::superblock::ppl_info::PplInfo;
 use arrayref::array_ref;
 use bitflags::Flags;
 use byteorder::{ByteOrder, LittleEndian};
@@ -43,10 +44,9 @@ const RAID_DISKS_END: usize = RAID_DISKS_OFFSET + RAID_DISKS_LENGTH;
 const BITMAP_OFFSET_OFFSET: usize = RAID_DISKS_END;
 const BITMAP_OFFSET_LENGTH: usize = size_of::<u32>();
 const BITMAP_OFFSET_END: usize = BITMAP_OFFSET_OFFSET + BITMAP_OFFSET_LENGTH;
-const PPL_OFFSET_OFFSET: usize = RAID_DISKS_END;
-const PPL_OFFSET_END: usize = PPL_OFFSET_OFFSET + size_of::<i16>();
-const PPL_SIZE_OFFSET: usize = PPL_OFFSET_END;
-const PPL_SIZE_END: usize = PPL_SIZE_OFFSET + size_of::<u16>();
+const PPL_INFO_OFFSET: usize = RAID_DISKS_END;
+const PPL_INFO_LENGTH: usize = PplInfo::LENGTH;
+const PPL_INFO_END: usize = PPL_INFO_OFFSET + PPL_INFO_LENGTH;
 const NEW_LEVEL_OFFSET: usize = RAID_DISKS_END + size_of::<u32>();
 const NEW_LEVEL_END: usize = NEW_LEVEL_OFFSET + size_of::<u32>();
 const RESHAPE_POSITION_OFFSET: usize = NEW_LEVEL_END;
@@ -175,6 +175,18 @@ impl SuperblockVersion1 {
                 self.0,
                 BITMAP_OFFSET_OFFSET,
                 BITMAP_OFFSET_LENGTH
+            ]))
+        } else {
+            None
+        }
+    }
+
+    pub fn ppl_info(&self) -> Option<PplInfo> {
+        if self.features().contains(Features::PPL) {
+            Some(PplInfo::new(array_ref![
+                self.0,
+                PPL_INFO_OFFSET,
+                PPL_INFO_LENGTH
             ]))
         } else {
             None
