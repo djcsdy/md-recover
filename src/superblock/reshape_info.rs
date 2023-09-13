@@ -1,80 +1,16 @@
-use arrayref::array_ref;
-use byteorder::{ByteOrder, LittleEndian};
-use std::mem::size_of;
+use binary_layout::prelude::*;
 
-pub struct ReshapeInfo<'superblock>(&'superblock [u8; ReshapeInfo::LENGTH]);
+define_layout!(layout, LittleEndian, {
+    new_level: u32,
+    reshape_position: u64,
+    delta_disks: u32,
+    new_layout: u32,
+    new_chunk_size: u32,
+    new_offset: u32
+});
 
-impl<'superblock> ReshapeInfo<'superblock> {
-    const NEW_LEVEL_OFFSET: usize = 0;
-    const NEW_LEVEL_LENGTH: usize = size_of::<u32>();
-    const NEW_LEVEL_END: usize = Self::NEW_LEVEL_OFFSET + Self::NEW_LEVEL_LENGTH;
-    const RESHAPE_POSITION_OFFSET: usize = Self::NEW_LEVEL_END;
-    const RESHAPE_POSITION_LENGTH: usize = size_of::<u64>();
-    const RESHAPE_POSITION_END: usize =
-        Self::RESHAPE_POSITION_OFFSET + Self::RESHAPE_POSITION_LENGTH;
-    const DELTA_DISKS_OFFSET: usize = Self::RESHAPE_POSITION_END;
-    const DELTA_DISKS_LENGTH: usize = size_of::<u32>();
-    const DELTA_DISKS_END: usize = Self::DELTA_DISKS_OFFSET + Self::DELTA_DISKS_LENGTH;
-    const NEW_LAYOUT_OFFSET: usize = Self::DELTA_DISKS_END;
-    const NEW_LAYOUT_LENGTH: usize = size_of::<u32>();
-    const NEW_LAYOUT_END: usize = Self::NEW_LAYOUT_OFFSET + Self::NEW_LAYOUT_LENGTH;
-    const NEW_CHUNK_SIZE_OFFSET: usize = Self::NEW_LAYOUT_END;
-    const NEW_CHUNK_SIZE_LENGTH: usize = size_of::<u32>();
-    const NEW_CHUNK_SIZE_END: usize = Self::NEW_CHUNK_SIZE_OFFSET + Self::NEW_CHUNK_SIZE_LENGTH;
-    const NEW_OFFSET_OFFSET: usize = Self::NEW_CHUNK_SIZE_END;
-    const NEW_OFFSET_LENGTH: usize = size_of::<u32>();
-    const NEW_OFFSET_END: usize = Self::NEW_OFFSET_OFFSET + Self::NEW_OFFSET_LENGTH;
-    pub(super) const LENGTH: usize = Self::NEW_OFFSET_END;
+pub use layout::View as ReshapeInfo;
 
-    pub(super) fn new(buf: &'superblock [u8; ReshapeInfo::LENGTH]) -> Self {
-        Self(buf)
-    }
-
-    pub fn new_level(&self) -> u32 {
-        LittleEndian::read_u32(array_ref![
-            self.0,
-            Self::NEW_LEVEL_OFFSET,
-            ReshapeInfo::NEW_LEVEL_LENGTH
-        ])
-    }
-
-    pub fn reshape_position(&self) -> u64 {
-        LittleEndian::read_u64(array_ref![
-            self.0,
-            Self::RESHAPE_POSITION_OFFSET,
-            ReshapeInfo::RESHAPE_POSITION_LENGTH
-        ])
-    }
-
-    pub fn delta_disks(&self) -> u32 {
-        LittleEndian::read_u32(array_ref![
-            self.0,
-            Self::DELTA_DISKS_OFFSET,
-            ReshapeInfo::DELTA_DISKS_LENGTH
-        ])
-    }
-
-    pub fn new_layout(&self) -> u32 {
-        LittleEndian::read_u32(array_ref![
-            self.0,
-            Self::NEW_LAYOUT_OFFSET,
-            ReshapeInfo::NEW_LAYOUT_LENGTH
-        ])
-    }
-
-    pub fn new_chunk_size(&self) -> u32 {
-        LittleEndian::read_u32(array_ref![
-            self.0,
-            Self::NEW_CHUNK_SIZE_OFFSET,
-            ReshapeInfo::NEW_CHUNK_SIZE_LENGTH
-        ])
-    }
-
-    pub fn new_offset(&self) -> u32 {
-        LittleEndian::read_u32(array_ref![
-            self.0,
-            Self::NEW_OFFSET_OFFSET,
-            ReshapeInfo::NEW_OFFSET_LENGTH
-        ])
-    }
+impl<B: AsRef<[u8]>> ReshapeInfo<B> {
+    pub const LENGTH: usize = 28;
 }
