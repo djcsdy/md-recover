@@ -14,10 +14,10 @@ const FEATURE_MAP_LENGTH: usize = size_of::<u32>();
 const FEATURE_MAP_END: usize = FEATURE_MAP_OFFSET + FEATURE_MAP_LENGTH;
 const PAD_0_OFFSET: usize = FEATURE_MAP_END;
 const PAD_0_END: usize = PAD_0_OFFSET + size_of::<u32>();
-const SET_UUID_OFFSET: usize = PAD_0_END;
-const SET_UUID_LENGTH: usize = 16;
-const SET_UUID_END: usize = SET_UUID_OFFSET + size_of::<u8>() * SET_UUID_LENGTH;
-const SET_NAME_OFFSET: usize = SET_UUID_END;
+const ARRAY_UUID_OFFSET: usize = PAD_0_END;
+const ARRAY_UUID_LENGTH: usize = 16 * size_of::<u8>();
+const ARRAY_UUID_END: usize = ARRAY_UUID_OFFSET + ARRAY_UUID_LENGTH;
+const SET_NAME_OFFSET: usize = ARRAY_UUID_END;
 const SET_NAME_LENGTH: usize = 32;
 const SET_NAME_END: usize = SET_NAME_OFFSET + size_of::<u8>() * SET_NAME_LENGTH;
 const CTIME_OFFSET: usize = SET_NAME_END;
@@ -121,5 +121,9 @@ impl SuperblockVersion1 {
 
     fn feature_map(&self) -> u32 {
         LittleEndian::read_u32(array_ref![self.0, FEATURE_MAP_OFFSET, FEATURE_MAP_LENGTH])
+    }
+
+    fn array_uuid(&self) -> &[u8; ARRAY_UUID_LENGTH] {
+        array_ref![self.0, ARRAY_UUID_OFFSET, ARRAY_UUID_LENGTH]
     }
 }
