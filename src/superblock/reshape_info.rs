@@ -69,4 +69,12 @@ impl<'superblock> ReshapeInfo<'superblock> {
             ReshapeInfo::NEW_CHUNK_SIZE_LENGTH
         ])
     }
+
+    pub fn new_offset(&self) -> u32 {
+        LittleEndian::read_u32(array_ref![
+            self.0,
+            Self::NEW_OFFSET_OFFSET,
+            ReshapeInfo::NEW_OFFSET_LENGTH
+        ])
+    }
 }
