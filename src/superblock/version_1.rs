@@ -1,288 +1,89 @@
 use crate::superblock::device_flags::DeviceFlags;
 use crate::superblock::features::Features;
 use crate::superblock::ppl_info::PplInfo;
-use crate::superblock::reshape_info::ReshapeInfo;
-use arrayref::array_ref;
-use bitflags::Flags;
+use crate::superblock::reshape_info::NestedReshapeInfo;
+use binary_layout::prelude::*;
 use byteorder::{ByteOrder, LittleEndian};
-use std::io::{Error, ErrorKind, Result};
-use std::mem::size_of;
 
-const MAGIC_OFFSET: usize = 0;
-const MAGIC_LENGTH: usize = size_of::<u32>();
-const MAGIC_END: usize = MAGIC_OFFSET + MAGIC_LENGTH;
-const MAJOR_VERSION_OFFSET: usize = MAGIC_END;
-const MAJOR_VERSION_LENGTH: usize = size_of::<u32>();
-const MAJOR_VERSION_END: usize = MAJOR_VERSION_OFFSET + MAJOR_VERSION_LENGTH;
-const FEATURES_OFFSET: usize = MAJOR_VERSION_END;
-const FEATURES_LENGTH: usize = size_of::<u32>();
-const FEATURES_END: usize = FEATURES_OFFSET + FEATURES_LENGTH;
-const PAD_0_OFFSET: usize = FEATURES_END;
-const PAD_0_END: usize = PAD_0_OFFSET + size_of::<u32>();
-const ARRAY_UUID_OFFSET: usize = PAD_0_END;
-const ARRAY_UUID_LENGTH: usize = 16 * size_of::<u8>();
-const ARRAY_UUID_END: usize = ARRAY_UUID_OFFSET + ARRAY_UUID_LENGTH;
-const ARRAY_NAME_OFFSET: usize = ARRAY_UUID_END;
-const ARRAY_NAME_LENGTH: usize = 32 * size_of::<u8>();
-const ARRAY_NAME_END: usize = ARRAY_NAME_OFFSET + ARRAY_NAME_LENGTH;
-const CTIME_OFFSET: usize = ARRAY_NAME_END;
-const CTIME_LENGTH: usize = size_of::<u64>();
-const CTIME_END: usize = CTIME_OFFSET + CTIME_LENGTH;
-const LEVEL_OFFSET: usize = CTIME_END;
-const LEVEL_LENGTH: usize = size_of::<u32>();
-const LEVEL_END: usize = LEVEL_OFFSET + LEVEL_LENGTH;
-const LAYOUT_OFFSET: usize = LEVEL_END;
-const LAYOUT_LENGTH: usize = size_of::<u32>();
-const LAYOUT_END: usize = LAYOUT_OFFSET + LAYOUT_LENGTH;
-const SIZE_OFFSET: usize = LAYOUT_END;
-const SIZE_LENGTH: usize = size_of::<u64>();
-const SIZE_END: usize = SIZE_OFFSET + SIZE_LENGTH;
-const CHUNK_SIZE_OFFSET: usize = SIZE_END;
-const CHUNK_SIZE_LENGTH: usize = size_of::<u32>();
-const CHUNK_SIZE_END: usize = CHUNK_SIZE_OFFSET + CHUNK_SIZE_LENGTH;
-const RAID_DISKS_OFFSET: usize = CHUNK_SIZE_END;
-const RAID_DISKS_LENGTH: usize = size_of::<u32>();
-const RAID_DISKS_END: usize = RAID_DISKS_OFFSET + RAID_DISKS_LENGTH;
-const BITMAP_OFFSET_OFFSET: usize = RAID_DISKS_END;
-const BITMAP_OFFSET_LENGTH: usize = size_of::<u32>();
-const BITMAP_OFFSET_END: usize = BITMAP_OFFSET_OFFSET + BITMAP_OFFSET_LENGTH;
-const PPL_INFO_OFFSET: usize = RAID_DISKS_END;
-const PPL_INFO_LENGTH: usize = PplInfo::<&[u8]>::LENGTH;
-const PPL_INFO_END: usize = PPL_INFO_OFFSET + PPL_INFO_LENGTH;
-const RESHAPE_INFO_OFFSET: usize = RAID_DISKS_END + size_of::<u32>();
-const RESHAPE_INFO_LENGTH: usize = ReshapeInfo::LENGTH;
-const RESHAPE_INFO_END: usize = RESHAPE_INFO_OFFSET + RESHAPE_INFO_LENGTH;
-const DATA_OFFSET_OFFSET: usize = RESHAPE_INFO_END;
-const DATA_OFFSET_LENGTH: usize = size_of::<u64>();
-const DATA_OFFSET_END: usize = DATA_OFFSET_OFFSET + DATA_OFFSET_LENGTH;
-const DATA_SIZE_OFFSET: usize = DATA_OFFSET_END;
-const DATA_SIZE_LENGTH: usize = size_of::<u64>();
-const DATA_SIZE_END: usize = DATA_SIZE_OFFSET + DATA_SIZE_LENGTH;
-const SUPER_OFFSET_OFFSET: usize = DATA_SIZE_END;
-const SUPER_OFFSET_LENGTH: usize = size_of::<u64>();
-const SUPER_OFFSET_END: usize = SUPER_OFFSET_OFFSET + SUPER_OFFSET_LENGTH;
-const RECOVERY_OFFSET_OFFSET: usize = SUPER_OFFSET_END;
-const RECOVERY_OFFSET_LENGTH: usize = size_of::<u64>();
-const RECOVERY_OFFSET_END: usize = RECOVERY_OFFSET_OFFSET + RECOVERY_OFFSET_LENGTH;
-const JOURNAL_TAIL_OFFSET: usize = SUPER_OFFSET_END;
-const JOURNAL_TAIL_LENGTH: usize = size_of::<u64>();
-const JOURNAL_TAIL_END: usize = JOURNAL_TAIL_OFFSET + JOURNAL_TAIL_LENGTH;
-const DEVICE_NUMBER_OFFSET: usize = SUPER_OFFSET_END + size_of::<u64>();
-const DEVICE_NUMBER_LENGTH: usize = size_of::<u32>();
-const DEVICE_NUMBER_END: usize = DEVICE_NUMBER_OFFSET + DEVICE_NUMBER_LENGTH;
-const COUNT_CORRECTED_READ_OFFSET: usize = DEVICE_NUMBER_END;
-const COUNT_CORRECTED_READ_LENGTH: usize = size_of::<u32>();
-const COUNT_CORRECTED_READ_END: usize = COUNT_CORRECTED_READ_OFFSET + COUNT_CORRECTED_READ_LENGTH;
-const DEVICE_UUID_OFFSET: usize = COUNT_CORRECTED_READ_END;
-const DEVICE_UUID_LENGTH: usize = 16 * size_of::<u8>();
-const DEVICE_UUID_END: usize = DEVICE_UUID_OFFSET + DEVICE_UUID_LENGTH;
-const DEVICE_FLAGS_OFFSET: usize = DEVICE_UUID_END;
-const DEVICE_FLAGS_END: usize = DEVICE_FLAGS_OFFSET + size_of::<u8>();
-const BAD_BLOCK_LOG_SHIFT_OFFSET: usize = DEVICE_FLAGS_END;
-const BAD_BLOCK_LOG_SHIFT_END: usize = BAD_BLOCK_LOG_SHIFT_OFFSET + size_of::<u8>();
-const BAD_BLOCK_LOG_SIZE_OFFSET: usize = BAD_BLOCK_LOG_SHIFT_END;
-const BAD_BLOCK_LOG_SIZE_LENGTH: usize = size_of::<u16>();
-const BAD_BLOCK_LOG_SIZE_END: usize = BAD_BLOCK_LOG_SIZE_OFFSET + BAD_BLOCK_LOG_SIZE_LENGTH;
-const BAD_BLOCK_LOG_OFFSET_OFFSET: usize = BAD_BLOCK_LOG_SIZE_END;
-const BAD_BLOCK_LOG_OFFSET_LENGTH: usize = size_of::<u32>();
-const BAD_BLOCK_LOG_OFFSET_END: usize = BAD_BLOCK_LOG_OFFSET_OFFSET + BAD_BLOCK_LOG_OFFSET_LENGTH;
-const UTIME_OFFSET: usize = BAD_BLOCK_LOG_OFFSET_END;
-const UTIME_END: usize = UTIME_OFFSET + size_of::<u64>();
-const EVENTS_OFFSET: usize = UTIME_END;
-const EVENTS_END: usize = EVENTS_OFFSET + size_of::<u64>();
-const RESYNC_OFFSET_OFFSET: usize = EVENTS_END;
-const RESYNC_OFFSET_END: usize = RESYNC_OFFSET_OFFSET + size_of::<u64>();
-const SUPERBLOCK_CHECKSUM_OFFSET: usize = RESYNC_OFFSET_END;
-const SUPERBLOCK_CHECKSUM_END: usize = SUPERBLOCK_CHECKSUM_OFFSET + size_of::<u32>();
-const MAX_DEV_OFFSET: usize = SUPERBLOCK_CHECKSUM_END;
-const MAX_DEV_END: usize = MAX_DEV_OFFSET + size_of::<u32>();
-const PAD_3_OFFSET: usize = MAX_DEV_END;
-const PAD_3_LENGTH: usize = 32;
-const PAD_3_END: usize = PAD_3_OFFSET + size_of::<u8>() * PAD_3_LENGTH;
-const DEV_ROLES_OFFSET: usize = PAD_3_END;
+define_layout!(layout, LittleEndian, {
+    magic: u32,
+    major_version: u32,
+    features: Features as u32,
+    pad_0: u32,
+    array_uuid: [u8; 16],
+    array_name: [u8; 32],
+    ctime: u64,
+    level: u32,
+    layout: u32,
+    size: u64,
+    chunk_size: u32,
+    raid_disks: u32,
+    bitmap_offset_or_ppl_info: [u8; 4],
+    reshape_info: NestedReshapeInfo,
+    data_offset: u64,
+    data_size: u64,
+    super_offset: u64,
+    recovery_offset_or_journal_tail: u64,
+    device_number: u32,
+    count_corrected_read: u32,
+    device_uuid: [u8; 16],
+    device_flags: DeviceFlags as u8,
+    bad_block_log_shift: u8,
+    bad_block_log_size: u16,
+    bad_block_log_offset: u32,
+    utime: u64,
+    events: u64,
+    resync_offset: u64,
+    superblock_checksum: u32,
+    max_devices: u32,
+    pad_3: [u8; 32],
+    dev_roles: [u8]
+});
 
-const MIN_SUPERBLOCK_LENGTH: usize = DEV_ROLES_OFFSET;
-const MAX_SUPERBLOCK_LENGTH: usize = 4096;
+pub use layout::View as SuperblockVersion1;
 
-pub struct SuperblockVersion1(Vec<u8>);
-
-impl SuperblockVersion1 {
-    pub fn read<B: Into<Vec<u8>>>(buffer: B) -> Result<Self> {
-        let vec = buffer.into();
-        if vec.len() < MIN_SUPERBLOCK_LENGTH {
-            Err(Error::from(ErrorKind::UnexpectedEof))
-        } else if Self::valid_magic(&vec) && Self::valid_major_version(&vec) {
-            Ok(Self(vec))
-        } else {
-            Err(Error::from(ErrorKind::InvalidData))
-        }
+impl<B: AsRef<[u8]>> SuperblockVersion1<B> {
+    pub fn valid(&self) -> bool {
+        self.valid_magic() && self.valid_major_version()
     }
 
-    fn valid_magic(buffer: &Vec<u8>) -> bool {
-        LittleEndian::read_u32(array_ref![buffer, MAGIC_OFFSET, MAGIC_LENGTH]) == 0xa92b4efc
+    pub fn valid_magic(&self) -> bool {
+        self.magic().read() == 0xa92b4efc
     }
 
-    fn valid_major_version(buffer: &Vec<u8>) -> bool {
-        LittleEndian::read_u32(array_ref![
-            buffer,
-            MAJOR_VERSION_OFFSET,
-            MAJOR_VERSION_LENGTH
-        ]) == 1
-    }
-
-    pub fn features(&self) -> Features {
-        Features::from_bits_retain(LittleEndian::read_u32(array_ref![
-            self.0,
-            FEATURES_OFFSET,
-            FEATURES_LENGTH
-        ]))
-    }
-
-    pub fn array_uuid(&self) -> &[u8; ARRAY_UUID_LENGTH] {
-        array_ref![self.0, ARRAY_UUID_OFFSET, ARRAY_UUID_LENGTH]
-    }
-
-    pub fn array_name(&self) -> &[u8; ARRAY_NAME_LENGTH] {
-        array_ref![self.0, ARRAY_NAME_OFFSET, ARRAY_NAME_LENGTH]
-    }
-
-    pub fn ctime(&self) -> u64 {
-        LittleEndian::read_u64(array_ref![self.0, CTIME_OFFSET, CTIME_LENGTH])
-    }
-
-    pub fn level(&self) -> u32 {
-        LittleEndian::read_u32(array_ref![self.0, LEVEL_OFFSET, LEVEL_LENGTH])
-    }
-
-    pub fn layout(&self) -> u32 {
-        LittleEndian::read_u32(array_ref![self.0, LAYOUT_OFFSET, LAYOUT_LENGTH])
-    }
-
-    pub fn size(&self) -> u64 {
-        LittleEndian::read_u64(array_ref![self.0, SIZE_OFFSET, SIZE_LENGTH])
-    }
-
-    pub fn chunk_size(&self) -> u32 {
-        LittleEndian::read_u32(array_ref![self.0, CHUNK_SIZE_OFFSET, CHUNK_SIZE_LENGTH])
-    }
-
-    pub fn raid_disks(&self) -> u32 {
-        LittleEndian::read_u32(array_ref![self.0, RAID_DISKS_OFFSET, RAID_DISKS_LENGTH])
+    pub fn valid_major_version(&self) -> bool {
+        self.major_version().read() == 1
     }
 
     pub fn bitmap_offset(&self) -> Option<u32> {
-        if self.features().contains(Features::BITMAP_OFFSET) {
-            Some(LittleEndian::read_u32(array_ref![
-                self.0,
-                BITMAP_OFFSET_OFFSET,
-                BITMAP_OFFSET_LENGTH
-            ]))
+        if self.features().read().contains(Features::BITMAP_OFFSET) {
+            Some(LittleEndian::read_u32(self.bitmap_offset_or_ppl_info()))
         } else {
             None
         }
     }
 
     pub fn ppl_info(&self) -> Option<PplInfo<&[u8]>> {
-        if self.features().contains(Features::PPL) {
-            Some(PplInfo::new(array_ref![
-                self.0,
-                PPL_INFO_OFFSET,
-                PPL_INFO_LENGTH
-            ]))
+        if self.features().read().contains(Features::PPL) {
+            Some(PplInfo::new(self.bitmap_offset_or_ppl_info()))
         } else {
             None
         }
-    }
-
-    pub fn reshape_info(&self) -> Option<ReshapeInfo> {
-        if self.features().contains(Features::RESHAPE_ACTIVE) {
-            Some(ReshapeInfo::new(array_ref![
-                self.0,
-                RESHAPE_INFO_OFFSET,
-                RESHAPE_INFO_LENGTH
-            ]))
-        } else {
-            None
-        }
-    }
-
-    pub fn data_offset(&self) -> u64 {
-        LittleEndian::read_u64(array_ref![self.0, DATA_OFFSET_OFFSET, DATA_OFFSET_LENGTH])
-    }
-
-    pub fn data_size(&self) -> u64 {
-        LittleEndian::read_u64(array_ref![self.0, DATA_SIZE_OFFSET, DATA_SIZE_LENGTH])
-    }
-
-    pub fn super_offset(&self) -> u64 {
-        LittleEndian::read_u64(array_ref![self.0, SUPER_OFFSET_OFFSET, SUPER_OFFSET_LENGTH])
     }
 
     pub fn recovery_offset(&self) -> Option<u64> {
-        if self.features().contains(Features::RECOVERY_OFFSET) {
-            Some(LittleEndian::read_u64(array_ref![
-                self.0,
-                RECOVERY_OFFSET_OFFSET,
-                RECOVERY_OFFSET_LENGTH
-            ]))
+        if self.features().read().contains(Features::RECOVERY_OFFSET) {
+            Some(self.recovery_offset_or_journal_tail().read())
         } else {
             None
         }
     }
 
     pub fn journal_tail(&self) -> Option<u64> {
-        if self.features().contains(Features::JOURNAL) {
-            Some(LittleEndian::read_u64(array_ref![
-                self.0,
-                JOURNAL_TAIL_OFFSET,
-                JOURNAL_TAIL_LENGTH
-            ]))
+        if self.features().read().contains(Features::JOURNAL) {
+            Some(self.recovery_offset_or_journal_tail().read())
         } else {
             None
         }
-    }
-
-    pub fn device_number(&self) -> u32 {
-        LittleEndian::read_u32(array_ref![
-            self.0,
-            DEVICE_NUMBER_OFFSET,
-            DEVICE_NUMBER_LENGTH
-        ])
-    }
-
-    pub fn count_corrected_read(&self) -> u32 {
-        LittleEndian::read_u32(array_ref![
-            self.0,
-            COUNT_CORRECTED_READ_OFFSET,
-            COUNT_CORRECTED_READ_LENGTH
-        ])
-    }
-
-    pub fn device_uuid(&self) -> &[u8; DEVICE_UUID_LENGTH] {
-        array_ref![self.0, DEVICE_UUID_OFFSET, DEVICE_UUID_LENGTH]
-    }
-
-    pub fn device_flags(&self) -> DeviceFlags {
-        DeviceFlags::from_bits_retain(self.0[DEVICE_FLAGS_OFFSET])
-    }
-
-    pub fn bad_block_log_shift(&self) -> u8 {
-        self.0[BAD_BLOCK_LOG_SHIFT_OFFSET]
-    }
-
-    pub fn bad_block_log_size(&self) -> u16 {
-        LittleEndian::read_u16(array_ref![
-            self.0,
-            BAD_BLOCK_LOG_SIZE_OFFSET,
-            BAD_BLOCK_LOG_SIZE_LENGTH
-        ])
-    }
-
-    pub fn bad_block_log_offset(&self) -> u32 {
-        LittleEndian::read_u32(array_ref![
-            self.0,
-            BAD_BLOCK_LOG_OFFSET_OFFSET,
-            BAD_BLOCK_LOG_OFFSET_LENGTH
-        ])
     }
 }

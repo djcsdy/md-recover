@@ -7,7 +7,6 @@ description = "Data recovery tool for Linux MD Software RAID devices"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-arrayref = "0.3.7"
 binary-layout = "=3.2.0"
 bitflags = "=2.4.0"
 byteorder = "1.4.3"

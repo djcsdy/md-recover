@@ -9,8 +9,5 @@ define_layout!(layout, LittleEndian, {
     new_offset: u32
 });
 
+pub use layout::NestedView as NestedReshapeInfo;
 pub use layout::View as ReshapeInfo;
-
-impl<B: AsRef<[u8]>> ReshapeInfo<B> {
-    pub const LENGTH: usize = 28;
-}
