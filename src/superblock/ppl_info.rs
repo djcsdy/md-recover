@@ -1,3 +1,5 @@
+use arrayref::array_ref;
+use byteorder::{ByteOrder, LittleEndian};
 use std::mem::size_of;
 
 pub struct PplInfo<'superblock>(&'superblock [u8; PplInfo::LENGTH]);
@@ -13,5 +15,9 @@ impl<'superblock> PplInfo<'superblock> {
 
     pub(super) fn new(buf: &'superblock [u8; PplInfo::LENGTH]) -> Self {
         Self(buf)
+    }
+
+    pub fn offset(&self) -> i16 {
+        LittleEndian::read_i16(array_ref![self.0, Self::OFFSET_OFFSET, PplInfo::OFFSET_LENGTH])
     }
 }
