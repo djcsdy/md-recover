@@ -1,5 +1,6 @@
 use crate::superblock::features::Features;
 use crate::superblock::ppl_info::PplInfo;
+use crate::superblock::reshape_info::ReshapeInfo;
 use arrayref::array_ref;
 use bitflags::Flags;
 use byteorder::{ByteOrder, LittleEndian};
@@ -47,19 +48,10 @@ const BITMAP_OFFSET_END: usize = BITMAP_OFFSET_OFFSET + BITMAP_OFFSET_LENGTH;
 const PPL_INFO_OFFSET: usize = RAID_DISKS_END;
 const PPL_INFO_LENGTH: usize = PplInfo::LENGTH;
 const PPL_INFO_END: usize = PPL_INFO_OFFSET + PPL_INFO_LENGTH;
-const NEW_LEVEL_OFFSET: usize = RAID_DISKS_END + size_of::<u32>();
-const NEW_LEVEL_END: usize = NEW_LEVEL_OFFSET + size_of::<u32>();
-const RESHAPE_POSITION_OFFSET: usize = NEW_LEVEL_END;
-const RESHAPE_POSITION_END: usize = RESHAPE_POSITION_OFFSET + size_of::<u64>();
-const DELTA_DISKS_OFFSET: usize = RESHAPE_POSITION_END;
-const DELTA_DISKS_END: usize = DELTA_DISKS_OFFSET + size_of::<u32>();
-const NEW_LAYOUT_OFFSET: usize = DELTA_DISKS_END;
-const NEW_LAYOUT_END: usize = NEW_LAYOUT_OFFSET + size_of::<u32>();
-const NEW_CHUNK_SIZE_OFFSET: usize = NEW_LAYOUT_END;
-const NEW_CHUNK_SIZE_END: usize = NEW_CHUNK_SIZE_OFFSET + size_of::<u32>();
-const NEW_OFFSET_OFFSET: usize = NEW_CHUNK_SIZE_END;
-const NEW_OFFSET_END: usize = NEW_OFFSET_OFFSET + size_of::<u32>();
-const DATA_OFFSET_OFFSET: usize = NEW_OFFSET_END;
+const RESHAPE_INFO_OFFSET: usize = RAID_DISKS_END + size_of::<u32>();
+const RESHAPE_INFO_LENGTH: usize = ReshapeInfo::LENGTH;
+const RESHAPE_INFO_END: usize = RESHAPE_INFO_OFFSET + RESHAPE_INFO_LENGTH;
+const DATA_OFFSET_OFFSET: usize = RESHAPE_INFO_END;
 const DATA_OFFSET_END: usize = DATA_OFFSET_OFFSET + size_of::<u64>();
 const DATA_SIZE_OFFSET: usize = DATA_OFFSET_END;
 const DATA_SIZE_END: usize = DATA_SIZE_OFFSET + size_of::<u64>();
@@ -187,6 +179,18 @@ impl SuperblockVersion1 {
                 self.0,
                 PPL_INFO_OFFSET,
                 PPL_INFO_LENGTH
+            ]))
+        } else {
+            None
+        }
+    }
+
+    pub fn reshape_info(&self) -> Option<ReshapeInfo> {
+        if self.features().contains(Features::RESHAPE_ACTIVE) {
+            Some(ReshapeInfo::new(array_ref![
+                self.0,
+                RESHAPE_INFO_OFFSET,
+                RESHAPE_INFO_LENGTH
             ]))
         } else {
             None
