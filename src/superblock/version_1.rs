@@ -33,7 +33,8 @@ const SIZE_OFFSET: usize = LAYOUT_END;
 const SIZE_LENGTH: usize = size_of::<u64>();
 const SIZE_END: usize = SIZE_OFFSET + SIZE_LENGTH;
 const CHUNK_SIZE_OFFSET: usize = SIZE_END;
-const CHUNK_SIZE_END: usize = CHUNK_SIZE_OFFSET + size_of::<u32>();
+const CHUNK_SIZE_LENGTH: usize = size_of::<u32>();
+const CHUNK_SIZE_END: usize = CHUNK_SIZE_OFFSET + CHUNK_SIZE_LENGTH;
 const RAID_DISKS_OFFSET: usize = CHUNK_SIZE_END;
 const RAID_DISKS_END: usize = RAID_DISKS_OFFSET + size_of::<u32>();
 const BITMAP_OFFSET_OFFSET: usize = RAID_DISKS_END;
@@ -149,5 +150,9 @@ impl SuperblockVersion1 {
 
     fn size(&self) -> u64 {
         LittleEndian::read_u64(array_ref![self.0, SIZE_OFFSET, SIZE_LENGTH])
+    }
+
+    fn chunk_size(&self) -> u32 {
+        LittleEndian::read_u32(array_ref![self.0, CHUNK_SIZE_OFFSET, CHUNK_SIZE_LENGTH])
     }
 }
