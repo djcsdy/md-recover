@@ -18,10 +18,10 @@ impl<'superblock> ReshapeInfo<'superblock> {
     const NEW_LAYOUT_OFFSET: usize = Self::DELTA_DISKS_END;
     const NEW_LAYOUT_LENGTH: usize = size_of::<u32>();
     const NEW_LAYOUT_END: usize = Self::NEW_LAYOUT_OFFSET + Self::NEW_LAYOUT_LENGTH;
-    const NEW_CHUNK_OFFSET: usize = Self::NEW_LAYOUT_END;
-    const NEW_CHUNK_LENGTH: usize = size_of::<u32>();
-    const NEW_CHUNK_END: usize = Self::NEW_CHUNK_OFFSET + Self::NEW_CHUNK_LENGTH;
-    const NEW_OFFSET_OFFSET: usize = Self::NEW_CHUNK_END;
+    const NEW_CHUNK_SIZE_OFFSET: usize = Self::NEW_LAYOUT_END;
+    const NEW_CHUNK_SIZE_LENGTH: usize = size_of::<u32>();
+    const NEW_CHUNK_SIZE_END: usize = Self::NEW_CHUNK_SIZE_OFFSET + Self::NEW_CHUNK_SIZE_LENGTH;
+    const NEW_OFFSET_OFFSET: usize = Self::NEW_CHUNK_SIZE_END;
     const NEW_OFFSET_LENGTH: usize = size_of::<u32>();
     const NEW_OFFSET_END: usize = Self::NEW_OFFSET_OFFSET + Self::NEW_OFFSET_LENGTH;
     pub(super) const LENGTH: usize = Self::NEW_OFFSET_END;
@@ -59,6 +59,14 @@ impl<'superblock> ReshapeInfo<'superblock> {
             self.0,
             Self::NEW_LAYOUT_OFFSET,
             ReshapeInfo::NEW_LAYOUT_LENGTH
+        ])
+    }
+
+    pub fn new_chunk_size(&self) -> u32 {
+        LittleEndian::read_u32(array_ref![
+            self.0,
+            Self::NEW_CHUNK_SIZE_OFFSET,
+            ReshapeInfo::NEW_CHUNK_SIZE_LENGTH
         ])
     }
 }
