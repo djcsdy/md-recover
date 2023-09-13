@@ -10,7 +10,8 @@ const MAJOR_VERSION_OFFSET: usize = MAGIC_END;
 const MAJOR_VERSION_LENGTH: usize = size_of::<u32>();
 const MAJOR_VERSION_END: usize = MAJOR_VERSION_OFFSET + MAJOR_VERSION_LENGTH;
 const FEATURE_MAP_OFFSET: usize = MAJOR_VERSION_END;
-const FEATURE_MAP_END: usize = FEATURE_MAP_OFFSET + size_of::<u32>();
+const FEATURE_MAP_LENGTH: usize = size_of::<u32>();
+const FEATURE_MAP_END: usize = FEATURE_MAP_OFFSET + FEATURE_MAP_LENGTH;
 const PAD_0_OFFSET: usize = FEATURE_MAP_END;
 const PAD_0_END: usize = PAD_0_OFFSET + size_of::<u32>();
 const SET_UUID_OFFSET: usize = PAD_0_END;
@@ -116,5 +117,9 @@ impl SuperblockVersion1 {
             MAJOR_VERSION_OFFSET,
             MAJOR_VERSION_LENGTH
         ]) == 1
+    }
+
+    fn feature_map(&self) -> u32 {
+        LittleEndian::read_u32(array_ref![self.0, FEATURE_MAP_OFFSET, FEATURE_MAP_LENGTH])
     }
 }
