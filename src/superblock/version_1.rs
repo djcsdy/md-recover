@@ -24,7 +24,8 @@ const CTIME_OFFSET: usize = ARRAY_NAME_END;
 const CTIME_LENGTH: usize = size_of::<u64>();
 const CTIME_END: usize = CTIME_OFFSET + CTIME_LENGTH;
 const LEVEL_OFFSET: usize = CTIME_END;
-const LEVEL_END: usize = LEVEL_OFFSET + size_of::<u32>();
+const LEVEL_LENGTH: usize = size_of::<u32>();
+const LEVEL_END: usize = LEVEL_OFFSET + LEVEL_LENGTH;
 const LAYOUT_OFFSET: usize = LEVEL_END;
 const LAYOUT_END: usize = LAYOUT_OFFSET + size_of::<u32>();
 const SIZE_OFFSET: usize = LAYOUT_END;
@@ -134,5 +135,9 @@ impl SuperblockVersion1 {
 
     fn ctime(&self) -> u64 {
         LittleEndian::read_u64(array_ref![self.0, CTIME_OFFSET, CTIME_LENGTH])
+    }
+
+    fn level(&self) -> u32 {
+        LittleEndian::read_u32(array_ref![self.0, LEVEL_OFFSET, LEVEL_LENGTH])
     }
 }
