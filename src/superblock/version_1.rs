@@ -126,7 +126,7 @@ impl SuperblockVersion1 {
         ]) == 1
     }
 
-    fn features(&self) -> Features {
+    pub fn features(&self) -> Features {
         Features::from_bits(LittleEndian::read_u32(array_ref![
             self.0,
             FEATURES_OFFSET,
@@ -135,35 +135,35 @@ impl SuperblockVersion1 {
         .unwrap()
     }
 
-    fn array_uuid(&self) -> &[u8; ARRAY_UUID_LENGTH] {
+    pub fn array_uuid(&self) -> &[u8; ARRAY_UUID_LENGTH] {
         array_ref![self.0, ARRAY_UUID_OFFSET, ARRAY_UUID_LENGTH]
     }
 
-    fn array_name(&self) -> &[u8; ARRAY_NAME_LENGTH] {
+    pub fn array_name(&self) -> &[u8; ARRAY_NAME_LENGTH] {
         array_ref![self.0, ARRAY_NAME_OFFSET, ARRAY_NAME_LENGTH]
     }
 
-    fn ctime(&self) -> u64 {
+    pub fn ctime(&self) -> u64 {
         LittleEndian::read_u64(array_ref![self.0, CTIME_OFFSET, CTIME_LENGTH])
     }
 
-    fn level(&self) -> u32 {
+    pub fn level(&self) -> u32 {
         LittleEndian::read_u32(array_ref![self.0, LEVEL_OFFSET, LEVEL_LENGTH])
     }
 
-    fn layout(&self) -> u32 {
+    pub fn layout(&self) -> u32 {
         LittleEndian::read_u32(array_ref![self.0, LAYOUT_OFFSET, LAYOUT_LENGTH])
     }
 
-    fn size(&self) -> u64 {
+    pub fn size(&self) -> u64 {
         LittleEndian::read_u64(array_ref![self.0, SIZE_OFFSET, SIZE_LENGTH])
     }
 
-    fn chunk_size(&self) -> u32 {
+    pub fn chunk_size(&self) -> u32 {
         LittleEndian::read_u32(array_ref![self.0, CHUNK_SIZE_OFFSET, CHUNK_SIZE_LENGTH])
     }
 
-    fn raid_disks(&self) -> u32 {
+    pub fn raid_disks(&self) -> u32 {
         LittleEndian::read_u32(array_ref![self.0, RAID_DISKS_OFFSET, RAID_DISKS_LENGTH])
     }
 }
