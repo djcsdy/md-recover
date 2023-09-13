@@ -128,12 +128,11 @@ impl SuperblockVersion1 {
     }
 
     pub fn features(&self) -> Features {
-        Features::from_bits(LittleEndian::read_u32(array_ref![
+        Features::from_bits_retain(LittleEndian::read_u32(array_ref![
             self.0,
             FEATURES_OFFSET,
             FEATURES_LENGTH
         ]))
-        .unwrap()
     }
 
     pub fn array_uuid(&self) -> &[u8; ARRAY_UUID_LENGTH] {
