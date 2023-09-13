@@ -64,7 +64,8 @@ const RECOVERY_OFFSET_OFFSET: usize = SUPER_OFFSET_END;
 const RECOVERY_OFFSET_LENGTH: usize = size_of::<u64>();
 const RECOVERY_OFFSET_END: usize = RECOVERY_OFFSET_OFFSET + RECOVERY_OFFSET_LENGTH;
 const JOURNAL_TAIL_OFFSET: usize = SUPER_OFFSET_END;
-const JOURNAL_TAIL_END: usize = JOURNAL_TAIL_OFFSET + size_of::<u64>();
+const JOURNAL_TAIL_LENGTH: usize = size_of::<u64>();
+const JOURNAL_TAIL_END: usize = JOURNAL_TAIL_OFFSET + JOURNAL_TAIL_LENGTH;
 const DEV_NUMBER_OFFSET: usize = SUPER_OFFSET_END + size_of::<u64>();
 const DEV_NUMBER_END: usize = DEV_NUMBER_OFFSET + size_of::<u32>();
 const COUNT_CORRECTED_READ_OFFSET: usize = DEV_NUMBER_END;
@@ -219,6 +220,18 @@ impl SuperblockVersion1 {
                 self.0,
                 RECOVERY_OFFSET_OFFSET,
                 RECOVERY_OFFSET_LENGTH
+            ]))
+        } else {
+            None
+        }
+    }
+
+    pub fn journal_tail(&self) -> Option<u64> {
+        if self.features().contains(Features::JOURNAL) {
+            Some(LittleEndian::read_u64(array_ref![
+                self.0,
+                JOURNAL_TAIL_OFFSET,
+                JOURNAL_TAIL_LENGTH
             ]))
         } else {
             None
