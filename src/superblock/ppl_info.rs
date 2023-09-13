@@ -18,6 +18,14 @@ impl<'superblock> PplInfo<'superblock> {
     }
 
     pub fn offset(&self) -> i16 {
-        LittleEndian::read_i16(array_ref![self.0, Self::OFFSET_OFFSET, PplInfo::OFFSET_LENGTH])
+        LittleEndian::read_i16(array_ref![
+            self.0,
+            Self::OFFSET_OFFSET,
+            PplInfo::OFFSET_LENGTH
+        ])
+    }
+
+    pub fn size(&self) -> u16 {
+        LittleEndian::read_u16(array_ref![self.0, Self::SIZE_OFFSET, PplInfo::SIZE_LENGTH])
     }
 }
