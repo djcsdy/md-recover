@@ -53,4 +53,12 @@ impl<'superblock> ReshapeInfo<'superblock> {
             ReshapeInfo::DELTA_DISKS_LENGTH
         ])
     }
+
+    pub fn new_layout(&self) -> u32 {
+        LittleEndian::read_u32(array_ref![
+            self.0,
+            Self::NEW_LAYOUT_OFFSET,
+            ReshapeInfo::NEW_LAYOUT_LENGTH
+        ])
+    }
 }
