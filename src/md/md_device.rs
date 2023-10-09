@@ -3,20 +3,21 @@ use std::io::{Error, ErrorKind, Read, Result, Seek, SeekFrom};
 use std::path::Path;
 
 use crate::ioctl::blk::BLK_GETSIZE64;
+use crate::md::superblock::Superblock;
 
 use super::superblock::SuperblockVersion1;
 
-pub struct MdDevice<R: Read> {
-    pub superblock: SuperblockVersion1<Vec<u8>>,
+pub struct MdDevice<S: Superblock, R: Read> {
+    pub superblock: S,
     pub minor_version: u32,
     reader: R,
 }
 
-impl<R: Read> MdDevice<R> {
+impl<S: Superblock, R: Read> MdDevice<S, R> {
     const MIN_DEVICE_SIZE: u64 = 12288;
 }
 
-impl MdDevice<File> {
+impl MdDevice<Box<dyn Superblock>, File> {
     pub fn open<P: AsRef<Path>>(path: P) -> Result<Self> {
         let mut file = File::open(path)?;
         let (_, size) = BLK_GETSIZE64.ioctl(&file)?;
@@ -28,7 +29,7 @@ impl MdDevice<File> {
             match SuperblockVersion1::read(&mut file) {
                 Ok(superblock) => {
                     return Ok(Self {
-                        superblock,
+                        superblock: Box::new(superblock),
                         minor_version,
                         reader: file,
                     });
