@@ -4,6 +4,7 @@ use crate::superblock::ppl_info::PplInfo;
 use crate::superblock::reshape_info::NestedReshapeInfo;
 use binary_layout::prelude::*;
 use byteorder::{ByteOrder, LittleEndian};
+use std::io::{Error, ErrorKind, Read, Result};
 
 define_layout!(layout, LittleEndian, {
     magic: u32,
@@ -41,6 +42,21 @@ define_layout!(layout, LittleEndian, {
 });
 
 pub use layout::View as SuperblockVersion1;
+
+impl SuperblockVersion1<Vec<u8>> {
+    pub const MAX_SIZE: usize = 4096;
+
+    pub fn read<R: Read>(mut reader: R) -> Result<Self> {
+        let mut buf = vec![0u8; Self::MAX_SIZE];
+        reader.read_exact(&mut buf)?;
+        let superblock = Self::new(buf);
+        if superblock.valid() {
+            Ok(superblock)
+        } else {
+            Err(Error::from(ErrorKind::InvalidData))
+        }
+    }
+}
 
 impl<B: AsRef<[u8]>> SuperblockVersion1<B> {
     pub fn valid(&self) -> bool {
