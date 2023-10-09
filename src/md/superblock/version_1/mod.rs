@@ -5,7 +5,6 @@ use byteorder::{ByteOrder, LittleEndian};
 
 use device_flags::DeviceFlags;
 use features::Features;
-pub use layout::View as SuperblockVersion1;
 use ppl_info::PplInfo;
 use reshape_info::NestedReshapeInfo;
 
@@ -49,6 +48,8 @@ define_layout!(layout, LittleEndian, {
     dev_roles: [u8]
 });
 
+pub struct SuperblockVersion1<S: AsRef<[u8]>>(layout::View<S>);
+
 impl SuperblockVersion1<Vec<u8>> {
     pub const MAX_SIZE: usize = 4096;
 
@@ -64,46 +65,82 @@ impl SuperblockVersion1<Vec<u8>> {
     }
 }
 
-impl<B: AsRef<[u8]>> SuperblockVersion1<B> {
+impl<S: AsRef<[u8]>> SuperblockVersion1<S> {
+    pub fn new(storage: S) -> Self {
+        Self(layout::View::new(storage))
+    }
+
     pub fn valid(&self) -> bool {
         self.valid_magic() && self.valid_major_version()
     }
 
     pub fn valid_magic(&self) -> bool {
-        self.magic().read() == 0xa92b4efc
+        self.0.magic().read() == 0xa92b4efc
     }
 
     pub fn valid_major_version(&self) -> bool {
-        self.major_version().read() == 1
+        self.major_version() == 1
+    }
+
+    pub fn major_version(&self) -> u32 {
+        self.0.major_version().read()
+    }
+
+    fn features(&self) -> Features {
+        self.0.features().read()
+    }
+
+    fn has_bitmap_offset(&self) -> bool {
+        self.features().contains(Features::BITMAP_OFFSET)
+    }
+
+    fn has_recovery_offset(&self) -> bool {
+        self.features().contains(Features::RECOVERY_OFFSET)
+    }
+
+    fn has_journal(&self) -> bool {
+        self.features().contains(Features::JOURNAL)
+    }
+
+    fn has_ppl(&self) -> bool {
+        self.features().contains(Features::PPL)
+    }
+
+    pub fn array_uuid(&self) -> &[u8; 16] {
+        self.0.array_uuid()
+    }
+
+    pub fn array_name(&self) -> &[u8; 32] {
+        self.0.array_name()
     }
 
     pub fn bitmap_offset(&self) -> Option<u32> {
-        if self.features().read().contains(Features::BITMAP_OFFSET) {
-            Some(LittleEndian::read_u32(self.bitmap_offset_or_ppl_info()))
+        if self.has_bitmap_offset() {
+            Some(LittleEndian::read_u32(self.0.bitmap_offset_or_ppl_info()))
         } else {
             None
         }
     }
 
     pub fn ppl_info(&self) -> Option<PplInfo<&[u8]>> {
-        if self.features().read().contains(Features::PPL) {
-            Some(PplInfo::new(self.bitmap_offset_or_ppl_info()))
+        if self.has_ppl() {
+            Some(PplInfo::new(self.0.bitmap_offset_or_ppl_info()))
         } else {
             None
         }
     }
 
     pub fn recovery_offset(&self) -> Option<u64> {
-        if self.features().read().contains(Features::RECOVERY_OFFSET) {
-            Some(self.recovery_offset_or_journal_tail().read())
+        if self.has_recovery_offset() {
+            Some(self.0.recovery_offset_or_journal_tail().read())
         } else {
             None
         }
     }
 
     pub fn journal_tail(&self) -> Option<u64> {
-        if self.features().read().contains(Features::JOURNAL) {
-            Some(self.recovery_offset_or_journal_tail().read())
+        if self.has_journal() {
+            Some(self.0.recovery_offset_or_journal_tail().read())
         } else {
             None
         }

@@ -37,7 +37,7 @@ fn main() {
                }) => {
                 println!(
                     "    * Version: {}.{}",
-                    superblock.major_version().read(),
+                    superblock.major_version(),
                     minor_version
                 );
                 println!(
