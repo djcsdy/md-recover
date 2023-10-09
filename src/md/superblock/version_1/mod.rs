@@ -1,4 +1,6 @@
+use std::ffi::OsStr;
 use std::io::{Error, ErrorKind, Read, Result};
+use std::os::unix::ffi::OsStrExt;
 
 use binary_layout::prelude::*;
 use byteorder::{ByteOrder, LittleEndian};
@@ -100,10 +102,6 @@ impl<S: AsRef<[u8]>> SuperblockVersion1<S> {
         self.features().contains(Features::PPL)
     }
 
-    pub fn array_name(&self) -> &[u8; 32] {
-        self.0.array_name()
-    }
-
     pub fn bitmap_offset(&self) -> Option<u32> {
         if self.has_bitmap_offset() {
             Some(LittleEndian::read_u32(self.0.bitmap_offset_or_ppl_info()))
@@ -148,5 +146,9 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
 
     fn array_uuid(&self) -> ArrayUuid {
         ArrayUuid::from_u8_16(self.0.array_uuid())
+    }
+
+    fn array_name(&self) -> Option<&OsStr> {
+        Some(OsStr::from_bytes(self.0.array_name()))
     }
 }

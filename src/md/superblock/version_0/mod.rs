@@ -1,3 +1,4 @@
+use std::ffi::OsStr;
 use crate::md::superblock::{ArrayUuid, Superblock};
 
 mod little_endian;
@@ -82,5 +83,9 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
         } else {
             ArrayUuid::from_u32_4(&self.array_uuid_all())
         }
+    }
+
+    fn array_name(&self) -> Option<&OsStr> {
+        None
     }
 }

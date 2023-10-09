@@ -41,10 +41,10 @@ fn main() {
                     minor_version
                 );
                 println!("    * Array UUID: {}", superblock.array_uuid());
-                println!(
-                    "    * Array Name: {}",
-                    String::from_utf8_lossy(superblock.array_name())
-                );
+                match superblock.array_name() {
+                    None => {}
+                    Some(name) => println!("    * Array Name: {}", name.maybe_quote())
+                }
             }
             Err(error) => println!("    * Error: {}", error),
         }
