@@ -7,7 +7,8 @@ use device_flags::DeviceFlags;
 use features::Features;
 use ppl_info::PplInfo;
 use reshape_info::NestedReshapeInfo;
-use crate::md::superblock::Superblock;
+
+use crate::md::superblock::{ArrayUuid, Superblock};
 
 mod device_flags;
 mod features;
@@ -99,10 +100,6 @@ impl<S: AsRef<[u8]>> SuperblockVersion1<S> {
         self.features().contains(Features::PPL)
     }
 
-    pub fn array_uuid(&self) -> &[u8; 16] {
-        self.0.array_uuid()
-    }
-
     pub fn array_name(&self) -> &[u8; 32] {
         self.0.array_name()
     }
@@ -147,5 +144,9 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
 
     fn major_version(&self) -> u32 {
         self.0.major_version().read()
+    }
+
+    fn array_uuid(&self) -> ArrayUuid {
+        ArrayUuid::from_u8_16(self.0.array_uuid())
     }
 }

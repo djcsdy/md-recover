@@ -4,7 +4,6 @@ extern crate bitflags;
 use std::path::PathBuf;
 
 use clap::Parser;
-use itertools::Itertools;
 use os_display::Quotable;
 
 use crate::md::Md;
@@ -41,10 +40,7 @@ fn main() {
                     superblock.major_version(),
                     minor_version
                 );
-                println!(
-                    "    * Array UUID: {:02x}",
-                    superblock.array_uuid().iter().format("")
-                );
+                println!("    * Array UUID: {}", superblock.array_uuid());
                 println!(
                     "    * Array Name: {}",
                     String::from_utf8_lossy(superblock.array_name())

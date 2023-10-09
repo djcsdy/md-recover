@@ -1,4 +1,4 @@
-use crate::md::superblock::Superblock;
+use crate::md::superblock::{ArrayUuid, Superblock};
 
 mod little_endian;
 mod big_endian;
@@ -31,6 +31,39 @@ impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
     }
 }
 
+impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
+    pub fn minor_version(&self) -> u32 {
+        match self {
+            SuperblockVersion0::LittleEndian(view) => view.minor_version().read(),
+            SuperblockVersion0::BigEndian(view) => view.minor_version().read()
+        }
+    }
+
+    fn array_uuid_0(&self) -> u32 {
+        match self {
+            SuperblockVersion0::LittleEndian(view) => view.array_uuid_0().read(),
+            SuperblockVersion0::BigEndian(view) => view.array_uuid_0().read()
+        }
+    }
+
+    fn array_uuid_all(&self) -> [u32; 4] {
+        match self {
+            SuperblockVersion0::LittleEndian(view) => [
+                view.array_uuid_0().read(),
+                view.array_uuid_1().read(),
+                view.array_uuid_2().read(),
+                view.array_uuid_3().read()
+            ],
+            SuperblockVersion0::BigEndian(view) => [
+                view.array_uuid_0().read(),
+                view.array_uuid_1().read(),
+                view.array_uuid_2().read(),
+                view.array_uuid_3().read()
+            ]
+        }
+    }
+}
+
 impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
     fn valid(&self) -> bool {
         self.valid_magic() && self.valid_major_version()
@@ -40,6 +73,14 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
         match self {
             Self::LittleEndian(view) => view.major_version().read(),
             Self::BigEndian(view) => view.major_version().read()
+        }
+    }
+
+    fn array_uuid(&self) -> ArrayUuid {
+        if self.minor_version() < 90 {
+            ArrayUuid::from_u32(self.array_uuid_0())
+        } else {
+            ArrayUuid::from_u32_4(&self.array_uuid_all())
         }
     }
 }
