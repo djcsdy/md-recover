@@ -8,6 +8,7 @@ use itertools::Itertools;
 use os_display::Quotable;
 
 use crate::md::Md;
+use crate::md::superblock::Superblock;
 
 mod ioctl;
 mod md;

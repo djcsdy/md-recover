@@ -7,6 +7,7 @@ use device_flags::DeviceFlags;
 use features::Features;
 use ppl_info::PplInfo;
 use reshape_info::NestedReshapeInfo;
+use crate::md::superblock::Superblock;
 
 mod device_flags;
 mod features;
@@ -70,20 +71,12 @@ impl<S: AsRef<[u8]>> SuperblockVersion1<S> {
         Self(layout::View::new(storage))
     }
 
-    pub fn valid(&self) -> bool {
-        self.valid_magic() && self.valid_major_version()
-    }
-
     pub fn valid_magic(&self) -> bool {
         self.0.magic().read() == 0xa92b4efc
     }
 
     pub fn valid_major_version(&self) -> bool {
         self.major_version() == 1
-    }
-
-    pub fn major_version(&self) -> u32 {
-        self.0.major_version().read()
     }
 
     fn features(&self) -> Features {
@@ -144,5 +137,15 @@ impl<S: AsRef<[u8]>> SuperblockVersion1<S> {
         } else {
             None
         }
+    }
+}
+
+impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
+    fn valid(&self) -> bool {
+        self.valid_magic() && self.valid_major_version()
+    }
+
+    fn major_version(&self) -> u32 {
+        self.0.major_version().read()
     }
 }
