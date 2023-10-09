@@ -3,12 +3,16 @@ use std::io::{Error, ErrorKind, Read, Result};
 use binary_layout::prelude::*;
 use byteorder::{ByteOrder, LittleEndian};
 
+use device_flags::DeviceFlags;
+use features::Features;
 pub use layout::View as SuperblockVersion1;
+use ppl_info::PplInfo;
+use reshape_info::NestedReshapeInfo;
 
-use crate::md::superblock::device_flags::DeviceFlags;
-use crate::md::superblock::features::Features;
-use crate::md::superblock::ppl_info::PplInfo;
-use crate::md::superblock::reshape_info::NestedReshapeInfo;
+mod device_flags;
+mod features;
+mod ppl_info;
+mod reshape_info;
 
 define_layout!(layout, LittleEndian, {
     magic: u32,
