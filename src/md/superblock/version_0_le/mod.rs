@@ -46,3 +46,5 @@ define_layout!(layout, LittleEndian, {
     reserved_3: [u8; 128],
     this_disk: NestedDeviceDescriptor
 });
+
+pub struct SuperblockVersion0Le<S: AsRef<[u8]>>(layout::View<S>);
