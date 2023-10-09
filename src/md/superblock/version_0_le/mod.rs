@@ -2,6 +2,8 @@ use binary_layout::prelude::*;
 
 use device_descriptor::{DeviceDescriptor, NestedDeviceDescriptor};
 
+use crate::md::superblock::Superblock;
+
 mod device_descriptor;
 
 define_layout!(layout, LittleEndian, {
@@ -48,3 +50,23 @@ define_layout!(layout, LittleEndian, {
 });
 
 pub struct SuperblockVersion0Le<S: AsRef<[u8]>>(layout::View<S>);
+
+impl<S: AsRef<[u8]>> SuperblockVersion0Le<S> {
+    fn valid_magic(&self) -> bool {
+        self.0.magic().read() == 0xa92b4efc
+    }
+
+    fn valid_major_version(&self) -> bool {
+        self.0.major_version().read() == 0
+    }
+}
+
+impl <S: AsRef<[u8]>> Superblock for SuperblockVersion0Le<S> {
+    fn valid(&self) -> bool {
+        self.valid_magic() && self.valid_major_version()
+    }
+
+    fn major_version(&self) -> u32 {
+        self.0.major_version().read()
+    }
+}
