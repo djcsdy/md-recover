@@ -1,10 +1,14 @@
-use crate::superblock::device_flags::DeviceFlags;
-use crate::superblock::features::Features;
-use crate::superblock::ppl_info::PplInfo;
-use crate::superblock::reshape_info::NestedReshapeInfo;
+use std::io::{Error, ErrorKind, Read, Result};
+
 use binary_layout::prelude::*;
 use byteorder::{ByteOrder, LittleEndian};
-use std::io::{Error, ErrorKind, Read, Result};
+
+pub use layout::View as SuperblockVersion1;
+
+use crate::md::superblock::device_flags::DeviceFlags;
+use crate::md::superblock::features::Features;
+use crate::md::superblock::ppl_info::PplInfo;
+use crate::md::superblock::reshape_info::NestedReshapeInfo;
 
 define_layout!(layout, LittleEndian, {
     magic: u32,
@@ -40,8 +44,6 @@ define_layout!(layout, LittleEndian, {
     pad_3: [u8; 32],
     dev_roles: [u8]
 });
-
-pub use layout::View as SuperblockVersion1;
 
 impl SuperblockVersion1<Vec<u8>> {
     pub const MAX_SIZE: usize = 4096;

@@ -1,8 +1,12 @@
-use crate::ioctl::blk::BLK_GETSIZE64;
-use crate::superblock::version_1::SuperblockVersion1;
 use std::fs::File;
 use std::io::{Error, ErrorKind, Read, Result, Seek, SeekFrom};
 use std::path::Path;
+
+use superblock::version_1::SuperblockVersion1;
+
+use crate::ioctl::blk::BLK_GETSIZE64;
+
+pub mod superblock;
 
 pub struct Md<R: Read> {
     pub superblock: SuperblockVersion1<Vec<u8>>,
@@ -29,7 +33,7 @@ impl Md<File> {
                         superblock,
                         minor_version,
                         reader: file,
-                    })
+                    });
                 }
                 Err(_) => {}
             }

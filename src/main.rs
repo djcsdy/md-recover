@@ -1,15 +1,16 @@
 #[macro_use]
 extern crate bitflags;
 
-mod ioctl;
-mod md;
-mod superblock;
+use std::path::PathBuf;
 
-use crate::md::Md;
 use clap::Parser;
 use itertools::Itertools;
 use os_display::Quotable;
-use std::path::PathBuf;
+
+use crate::md::Md;
+
+mod ioctl;
+mod md;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
@@ -30,10 +31,10 @@ fn main() {
 
         match Md::open(device) {
             Ok(Md {
-                superblock,
-                minor_version,
-                ..
-            }) => {
+                   superblock,
+                   minor_version,
+                   ..
+               }) => {
                 println!(
                     "    * Version: {}.{}",
                     superblock.major_version().read(),
