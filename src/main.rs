@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use clap::Parser;
 use os_display::Quotable;
 
-use crate::md::Md;
+use crate::md::MdDevice;
 use crate::md::superblock::Superblock;
 
 mod ioctl;
@@ -29,8 +29,8 @@ fn main() {
     for device in options.devices {
         println!(" * {}", device.maybe_quote());
 
-        match Md::open(device) {
-            Ok(Md {
+        match MdDevice::open(device) {
+            Ok(MdDevice {
                    superblock,
                    minor_version,
                    ..
