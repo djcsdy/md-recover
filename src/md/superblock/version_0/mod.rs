@@ -1,4 +1,6 @@
 use std::ffi::OsStr;
+use std::io::{Error, ErrorKind, Read, Result};
+
 use crate::md::superblock::{ArrayUuid, Superblock};
 
 mod little_endian;
@@ -7,6 +9,20 @@ mod big_endian;
 pub enum SuperblockVersion0<S: AsRef<[u8]>> {
     LittleEndian(little_endian::View<S>),
     BigEndian(big_endian::View<S>),
+}
+
+impl SuperblockVersion0<[u8; little_endian::SIZE]> {
+    pub fn read<R: Read>(mut reader: R) -> Result<Self> {
+        let mut buffer = [0u8; little_endian::SIZE];
+        reader.read_exact(&mut buffer)?;
+        if SuperblockVersion0::LittleEndian(little_endian::View::new(&buffer)).valid() {
+            Ok(Self::LittleEndian(little_endian::View::new(buffer)))
+        } else if SuperblockVersion0::BigEndian(big_endian::View::new(&buffer)).valid() {
+            Ok(Self::BigEndian(big_endian::View::new(buffer)))
+        } else {
+            Err(Error::from(ErrorKind::InvalidData))
+        }
+    }
 }
 
 impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
