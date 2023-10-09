@@ -2,7 +2,7 @@ use std::fs::File;
 use std::io::{Error, ErrorKind, Read, Result, Seek, SeekFrom};
 use std::path::Path;
 
-use superblock::version_1::SuperblockVersion1;
+use superblock::SuperblockVersion1;
 
 use crate::ioctl::blk::BLK_GETSIZE64;
 

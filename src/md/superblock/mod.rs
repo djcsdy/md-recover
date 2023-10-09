@@ -1,2 +1,6 @@
-pub mod version_1;
-pub mod version_0_le;
+pub use version_0_le::SuperblockVersion0Le;
+pub use version_1::SuperblockVersion1;
+
+mod version_0_le;
+mod version_1;
+
