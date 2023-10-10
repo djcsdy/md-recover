@@ -1,6 +1,6 @@
 use binary_layout::prelude::*;
 
-pub use self::layout::NestedView;
+pub use self::layout::{NestedView, View};
 
 define_layout!(layout, LittleEndian, {
     number: u32,

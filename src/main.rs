@@ -1,4 +1,6 @@
 #[macro_use]
+extern crate arrayref;
+#[macro_use]
 extern crate bitflags;
 
 use std::path::PathBuf;
