@@ -3,6 +3,8 @@ use binary_layout::prelude::*;
 pub use self::layout::View;
 
 mod device_descriptor;
+#[cfg(test)]
+mod tests;
 
 define_layout!(layout, BigEndian, {
     magic: u32,
@@ -36,7 +38,7 @@ define_layout!(layout, BigEndian, {
     delta_disks: u32,
     new_layout: u32,
     new_chunk: u32,
-    reserved_1: [u8; 24],
+    reserved_1: [u8; 56],
     layout: u32,
     chunk_size: u32,
     root_pv: u32,
