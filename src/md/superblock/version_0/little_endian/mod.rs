@@ -43,8 +43,7 @@ define_layout!(layout, LittleEndian, {
     root_block: u32,
     reserved_2: [u8; 240],
     disks: [u8; device_descriptor::SIZE * 27],
-    reserved_3: [u8; 128],
-    this_disk: device_descriptor::NestedView
+    reserved_3: [u8; 128]
 });
 
 pub const SIZE: usize = match layout::SIZE {
