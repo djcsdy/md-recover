@@ -1,6 +1,7 @@
 use binary_layout::LayoutAs;
 
 bitflags! {
+    #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Default, Debug)]
     pub struct DeviceFlags: u8 {
         const WRITE_MOSTLY = 1;
         const FAIL_FAST = 2;
