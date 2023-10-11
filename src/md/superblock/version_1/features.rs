@@ -1,6 +1,7 @@
 use binary_layout::LayoutAs;
 
 bitflags! {
+    #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Default, Debug)]
     pub struct Features: u32 {
         const BITMAP_OFFSET = 1;
         const RECOVERY_OFFSET = 2;
