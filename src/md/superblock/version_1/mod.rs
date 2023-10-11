@@ -16,6 +16,8 @@ mod device_flags;
 mod features;
 mod ppl_info;
 mod reshape_info;
+#[cfg(test)]
+mod tests;
 
 define_layout!(layout, LittleEndian, {
     magic: u32,
