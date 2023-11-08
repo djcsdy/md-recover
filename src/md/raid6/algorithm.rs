@@ -28,5 +28,28 @@ pub enum Raid6Algorithm {
     /// Same as Parity0 but with Q always on the last device
     Parity06,
     /// Same as ParityN but with Q always on the last device
-    ParityN6
+    ParityN6,
+}
+
+impl Raid6Algorithm {
+    pub fn from_layout(layout: u32) -> Option<Self> {
+        match layout {
+            0 => Some(Self::LeftAsymmetric),
+            1 => Some(Self::RightAsymmetric),
+            2 => Some(Self::LeftSymmetric),
+            3 => Some(Self::RightSymmetric),
+            4 => Some(Self::Parity0),
+            5 => Some(Self::ParityN),
+            8 => Some(Self::Rotating0Restart),
+            9 => Some(Self::RotatingNRestart),
+            10 => Some(Self::RotatingNContinue),
+            16 => Some(Self::LeftAsymmetric6),
+            17 => Some(Self::RightAsymmetric6),
+            18 => Some(Self::LeftSymmetric6),
+            19 => Some(Self::RightSymmetric6),
+            20 => Some(Self::Parity06),
+            21 => Some(Self::ParityN6),
+            _ => None,
+        }
+    }
 }
