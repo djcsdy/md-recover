@@ -4,3 +4,4 @@ pub mod superblock;
 mod md_device;
 mod raid5;
 mod raid6;
+mod algorithm;
