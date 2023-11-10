@@ -1,4 +1,5 @@
 use std::ffi::OsStr;
+use crate::md::algorithm::MdAlgorithm;
 use super::ArrayUuid;
 
 pub trait Superblock {
@@ -6,6 +7,7 @@ pub trait Superblock {
     fn major_version(&self) -> u32;
     fn array_uuid(&self) -> ArrayUuid;
     fn array_name(&self) -> Option<&OsStr>;
+    fn algorithm(&self) -> MdAlgorithm;
 }
 
 impl Superblock for Box<dyn Superblock + '_> {
@@ -23,5 +25,9 @@ impl Superblock for Box<dyn Superblock + '_> {
 
     fn array_name(&self) -> Option<&OsStr> {
         (**self).array_name()
+    }
+
+    fn algorithm(&self) -> MdAlgorithm {
+        (**self).algorithm()
     }
 }

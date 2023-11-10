@@ -10,6 +10,7 @@ use features::Features;
 use ppl_info::PplInfo;
 use reshape_info::NestedReshapeInfo;
 
+use crate::md::algorithm::MdAlgorithm;
 use crate::md::superblock::{ArrayUuid, Superblock};
 
 mod device_flags;
@@ -135,6 +136,14 @@ impl<S: AsRef<[u8]>> SuperblockVersion1<S> {
             None
         }
     }
+
+    fn level(&self) -> u32 {
+        self.0.level().read()
+    }
+
+    fn layout(&self) -> u32 {
+        self.0.layout().read()
+    }
 }
 
 impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
@@ -152,5 +161,9 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
 
     fn array_name(&self) -> Option<&OsStr> {
         Some(OsStr::from_bytes(self.0.array_name()))
+    }
+
+    fn algorithm(&self) -> MdAlgorithm {
+        MdAlgorithm::from_level_and_layout(self.level(), self.layout())
     }
 }

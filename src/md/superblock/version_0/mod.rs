@@ -1,5 +1,6 @@
 use std::ffi::OsStr;
 use std::io::{Error, ErrorKind, Read, Result};
+use crate::md::algorithm::MdAlgorithm;
 
 use crate::md::superblock::{ArrayUuid, Superblock};
 
@@ -79,6 +80,20 @@ impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
             ]
         }
     }
+
+    fn level(&self) -> u32 {
+        match self {
+            Self::LittleEndian(view) => view.level().read(),
+            Self::BigEndian(view) => view.level().read()
+        }
+    }
+
+    fn layout(&self) -> u32 {
+        match self {
+            Self::LittleEndian(view) => view.layout().read(),
+            Self::BigEndian(view) => view.layout().read()
+        }
+    }
 }
 
 impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
@@ -103,5 +118,9 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
 
     fn array_name(&self) -> Option<&OsStr> {
         None
+    }
+
+    fn algorithm(&self) -> MdAlgorithm {
+        MdAlgorithm::from_level_and_layout(self.level(), self.layout())
     }
 }
