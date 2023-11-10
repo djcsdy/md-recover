@@ -1,5 +1,7 @@
 use std::ffi::OsStr;
+
 use crate::md::algorithm::MdAlgorithm;
+
 use super::ArrayUuid;
 
 pub trait Superblock {
@@ -8,6 +10,7 @@ pub trait Superblock {
     fn array_uuid(&self) -> ArrayUuid;
     fn array_name(&self) -> Option<&OsStr>;
     fn algorithm(&self) -> MdAlgorithm;
+    fn chunk_size(&self) -> u32;
 }
 
 impl Superblock for Box<dyn Superblock + '_> {
@@ -29,5 +32,9 @@ impl Superblock for Box<dyn Superblock + '_> {
 
     fn algorithm(&self) -> MdAlgorithm {
         (**self).algorithm()
+    }
+    
+    fn chunk_size(&self) -> u32 {
+        (**self).chunk_size()
     }
 }

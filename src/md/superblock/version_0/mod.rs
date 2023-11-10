@@ -1,7 +1,7 @@
 use std::ffi::OsStr;
 use std::io::{Error, ErrorKind, Read, Result};
-use crate::md::algorithm::MdAlgorithm;
 
+use crate::md::algorithm::MdAlgorithm;
 use crate::md::superblock::{ArrayUuid, Superblock};
 
 mod little_endian;
@@ -122,5 +122,12 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
 
     fn algorithm(&self) -> MdAlgorithm {
         MdAlgorithm::from_level_and_layout(self.level(), self.layout())
+    }
+
+    fn chunk_size(&self) -> u32 {
+        match self {
+            Self::LittleEndian(view) => view.chunk_size().read(),
+            Self::BigEndian(view) => view.chunk_size().read()
+        }
     }
 }

@@ -166,4 +166,8 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
     fn algorithm(&self) -> MdAlgorithm {
         MdAlgorithm::from_level_and_layout(self.level(), self.layout())
     }
+
+    fn chunk_size(&self) -> u32 {
+        self.0.chunk_size().read()
+    }
 }
