@@ -27,8 +27,6 @@ pub enum Raid6Algorithm {
     RightSymmetric6,
     /// Same as Parity0 but with Q always on the last device
     Parity06,
-    /// Same as ParityN but with Q always on the last device
-    ParityN6,
 }
 
 impl Raid6Algorithm {
@@ -48,7 +46,6 @@ impl Raid6Algorithm {
             18 => Some(Self::LeftSymmetric6),
             19 => Some(Self::RightSymmetric6),
             20 => Some(Self::Parity06),
-            21 => Some(Self::ParityN6),
             _ => None,
         }
     }
