@@ -49,4 +49,86 @@ impl Raid6Algorithm {
             _ => None,
         }
     }
+
+    pub fn compute_sector(
+        &self,
+        sector: u64,
+        sectors_per_chunk: u32,
+        raid_disks: u32,
+    ) -> (u64, u32, u32, u32) {
+        let sector_in_chunk = sector % sectors_per_chunk as u64;
+        let chunk_index = sector / sectors_per_chunk as u64;
+        let data_disks = raid_disks - 2;
+        let data_disk_index = (chunk_index % data_disks as u64) as u32;
+        let stripe = (chunk_index / data_disks as u64) as u32;
+
+        let p_disk = match self {
+            Raid6Algorithm::LeftAsymmetric
+            | Raid6Algorithm::LeftSymmetric
+            | Raid6Algorithm::RotatingNContinue => raid_disks - 1 - stripe % raid_disks,
+            Raid6Algorithm::RightAsymmetric
+            | Raid6Algorithm::RightSymmetric
+            | Raid6Algorithm::Rotating0Restart => stripe % raid_disks,
+            Raid6Algorithm::Parity0 => 0,
+            Raid6Algorithm::ParityN => data_disks,
+            Raid6Algorithm::RotatingNRestart => raid_disks - 1 - (stripe + 1) % raid_disks,
+            Raid6Algorithm::LeftAsymmetric6 | Raid6Algorithm::LeftSymmetric6 => {
+                data_disks - stripe % (raid_disks - 1)
+            }
+            Raid6Algorithm::RightAsymmetric6 | Raid6Algorithm::RightSymmetric6 => {
+                stripe % (raid_disks - 1)
+            }
+            Raid6Algorithm::Parity06 => 0,
+        };
+
+        let q_disk = match self {
+            Raid6Algorithm::LeftAsymmetric
+            | Raid6Algorithm::RightAsymmetric
+            | Raid6Algorithm::LeftSymmetric
+            | Raid6Algorithm::RightSymmetric
+            | Raid6Algorithm::Rotating0Restart
+            | Raid6Algorithm::RotatingNRestart => (p_disk + 1) % raid_disks,
+            Raid6Algorithm::Parity0 => 1,
+            Raid6Algorithm::ParityN => data_disks + 1,
+            Raid6Algorithm::RotatingNContinue => (p_disk + raid_disks - 1) % raid_disks,
+            Raid6Algorithm::LeftAsymmetric6
+            | Raid6Algorithm::RightAsymmetric6
+            | Raid6Algorithm::LeftSymmetric6
+            | Raid6Algorithm::RightSymmetric6
+            | Raid6Algorithm::Parity06 => raid_disks - 1,
+        };
+
+        let data_disk = match self {
+            Raid6Algorithm::LeftAsymmetric
+            | Raid6Algorithm::RightAsymmetric
+            | Raid6Algorithm::Rotating0Restart
+            | Raid6Algorithm::RotatingNRestart => {
+                data_disk_index
+                    + if q_disk == 0 {
+                        1
+                    } else if data_disk_index >= p_disk {
+                        2
+                    } else {
+                        0
+                    }
+            }
+            Raid6Algorithm::LeftSymmetric | Raid6Algorithm::RightSymmetric => {
+                (p_disk + 2 + data_disk_index) % raid_disks
+            }
+            Raid6Algorithm::Parity0 => data_disk_index + 2,
+            Raid6Algorithm::ParityN => data_disk_index,
+            Raid6Algorithm::RotatingNContinue => (p_disk + 1 + data_disk_index) % raid_disks,
+            Raid6Algorithm::LeftAsymmetric6 | Raid6Algorithm::RightAsymmetric6 => {
+                data_disk_index + if data_disk_index >= p_disk { 1 } else { 0 }
+            }
+            Raid6Algorithm::LeftSymmetric6 | Raid6Algorithm::RightSymmetric6 => {
+                (p_disk + 1 + data_disk_index) % (raid_disks - 1)
+            }
+            Raid6Algorithm::Parity06 => data_disk_index + 1,
+        };
+
+        let new_sector = chunk_index * sectors_per_chunk as u64 + sector_in_chunk;
+
+        (new_sector, p_disk, q_disk, data_disk)
+    }
 }
