@@ -1,7 +1,7 @@
 pub use md_device::MdDevice;
 
-pub mod superblock;
+mod algorithm;
 mod md_device;
 mod raid5;
 mod raid6;
-mod algorithm;
+pub mod superblock;

@@ -4,8 +4,8 @@ use std::io::{Error, ErrorKind, Read, Result};
 use crate::md::algorithm::MdAlgorithm;
 use crate::md::superblock::{ArrayUuid, Superblock};
 
-mod little_endian;
 mod big_endian;
+mod little_endian;
 
 pub enum SuperblockVersion0<S: AsRef<[u8]>> {
     LittleEndian(little_endian::View<S>),
@@ -36,7 +36,7 @@ impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
     fn magic(&self) -> u32 {
         match self {
             Self::LittleEndian(view) => view.magic().read(),
-            Self::BigEndian(view) => view.magic().read()
+            Self::BigEndian(view) => view.magic().read(),
         }
     }
 
@@ -53,14 +53,14 @@ impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
     pub fn minor_version(&self) -> u32 {
         match self {
             SuperblockVersion0::LittleEndian(view) => view.minor_version().read(),
-            SuperblockVersion0::BigEndian(view) => view.minor_version().read()
+            SuperblockVersion0::BigEndian(view) => view.minor_version().read(),
         }
     }
 
     fn array_uuid_0(&self) -> u32 {
         match self {
             SuperblockVersion0::LittleEndian(view) => view.array_uuid_0().read(),
-            SuperblockVersion0::BigEndian(view) => view.array_uuid_0().read()
+            SuperblockVersion0::BigEndian(view) => view.array_uuid_0().read(),
         }
     }
 
@@ -70,28 +70,28 @@ impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
                 view.array_uuid_0().read(),
                 view.array_uuid_1().read(),
                 view.array_uuid_2().read(),
-                view.array_uuid_3().read()
+                view.array_uuid_3().read(),
             ],
             SuperblockVersion0::BigEndian(view) => [
                 view.array_uuid_0().read(),
                 view.array_uuid_1().read(),
                 view.array_uuid_2().read(),
-                view.array_uuid_3().read()
-            ]
+                view.array_uuid_3().read(),
+            ],
         }
     }
 
     fn level(&self) -> u32 {
         match self {
             Self::LittleEndian(view) => view.level().read(),
-            Self::BigEndian(view) => view.level().read()
+            Self::BigEndian(view) => view.level().read(),
         }
     }
 
     fn layout(&self) -> u32 {
         match self {
             Self::LittleEndian(view) => view.layout().read(),
-            Self::BigEndian(view) => view.layout().read()
+            Self::BigEndian(view) => view.layout().read(),
         }
     }
 }
@@ -104,7 +104,7 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
     fn major_version(&self) -> u32 {
         match self {
             Self::LittleEndian(view) => view.major_version().read(),
-            Self::BigEndian(view) => view.major_version().read()
+            Self::BigEndian(view) => view.major_version().read(),
         }
     }
 
@@ -127,7 +127,7 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
     fn chunk_size(&self) -> u32 {
         match self {
             Self::LittleEndian(view) => view.chunk_size().read(),
-            Self::BigEndian(view) => view.chunk_size().read()
+            Self::BigEndian(view) => view.chunk_size().read(),
         }
     }
 }

@@ -5,7 +5,7 @@ use itertools::Itertools;
 
 pub enum ArrayUuid {
     Short([u8; 4]),
-    Long(LongArrayUuid)
+    Long(LongArrayUuid),
 }
 
 pub struct LongArrayUuid([u8; 16]);
@@ -38,7 +38,7 @@ impl Display for ArrayUuid {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             ArrayUuid::Short(uuid) => write!(f, "{:02x}", uuid.iter().format("")),
-            ArrayUuid::Long(uuid) => write!(f, "{}", uuid)
+            ArrayUuid::Long(uuid) => write!(f, "{}", uuid),
         }
     }
 }

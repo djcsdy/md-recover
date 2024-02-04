@@ -49,12 +49,7 @@ impl Raid5Algorithm {
 
         let data_disk = match self {
             Raid5Algorithm::LeftAsymmetric | Raid5Algorithm::RightAsymmetric => {
-                data_disk_index
-                    + if data_disk_index >= parity_disk {
-                        1
-                    } else {
-                        0
-                    }
+                data_disk_index + if data_disk_index >= parity_disk { 1 } else { 0 }
             }
             Raid5Algorithm::LeftSymmetric | Raid5Algorithm::RightSymmetric => {
                 (parity_disk + 1 + data_disk_index) % raid_disks

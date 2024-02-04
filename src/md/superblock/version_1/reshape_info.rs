@@ -10,4 +10,3 @@ define_layout!(layout, LittleEndian, {
     new_chunk_size: u32,
     new_offset: u32
 });
-

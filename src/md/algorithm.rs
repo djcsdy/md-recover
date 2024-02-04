@@ -12,7 +12,8 @@ impl MdAlgorithm {
         match level {
             5 => Raid5Algorithm::from_layout(layout).map(|algorithm| Self::Raid5(algorithm)),
             6 => Raid6Algorithm::from_layout(layout).map(|algorithm| Self::Raid6(algorithm)),
-            _ => None
-        }.unwrap_or_else(|| Self::Unsupported { level, layout })
+            _ => None,
+        }
+        .unwrap_or_else(|| Self::Unsupported { level, layout })
     }
 }

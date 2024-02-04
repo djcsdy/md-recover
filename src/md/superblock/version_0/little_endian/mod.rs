@@ -50,5 +50,5 @@ define_layout!(layout, LittleEndian, {
 
 pub const SIZE: usize = match layout::SIZE {
     Some(size) => size,
-    None => panic!()
+    None => panic!(),
 };

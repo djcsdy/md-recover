@@ -8,8 +8,8 @@ use std::path::PathBuf;
 use clap::Parser;
 use os_display::Quotable;
 
-use crate::md::MdDevice;
 use crate::md::superblock::Superblock;
+use crate::md::MdDevice;
 
 mod ioctl;
 mod md;
@@ -33,10 +33,10 @@ fn main() {
 
         match MdDevice::open(device) {
             Ok(MdDevice {
-                   superblock,
-                   minor_version,
-                   ..
-               }) => {
+                superblock,
+                minor_version,
+                ..
+            }) => {
                 println!(
                     "    * Version: {}.{}",
                     superblock.major_version(),
@@ -45,7 +45,7 @@ fn main() {
                 println!("    * Array UUID: {}", superblock.array_uuid());
                 match superblock.array_name() {
                     None => {}
-                    Some(name) => println!("    * Array Name: {}", name.maybe_quote())
+                    Some(name) => println!("    * Array Name: {}", name.maybe_quote()),
                 }
             }
             Err(error) => println!("    * Error: {}", error),

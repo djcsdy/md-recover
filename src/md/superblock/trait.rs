@@ -33,7 +33,7 @@ impl Superblock for Box<dyn Superblock + '_> {
     fn algorithm(&self) -> MdAlgorithm {
         (**self).algorithm()
     }
-    
+
     fn chunk_size(&self) -> u32 {
         (**self).chunk_size()
     }
