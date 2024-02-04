@@ -11,6 +11,7 @@ use os_display::Quotable;
 use crate::md::superblock::Superblock;
 use crate::md::MdDevice;
 
+mod ext4;
 mod ioctl;
 mod md;
 
