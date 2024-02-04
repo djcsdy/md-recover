@@ -1,3 +1,6 @@
+mod state;
+
+use self::state::State;
 use binary_layout::prelude::*;
 
 define_layout!(layout, LittleEndian, {
@@ -16,7 +19,7 @@ define_layout!(layout, LittleEndian, {
     mount_count: u16,
     max_mount_count: u16,
     magic: u16,
-    state: u16,
+    state: State as u16,
     errors: u16,
     minor_revision_level: u16,
     last_check_time_low: u32,
