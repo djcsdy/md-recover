@@ -1,4 +1,5 @@
 mod state;
+mod test;
 
 use self::state::State;
 use binary_layout::prelude::*;
@@ -8,6 +9,7 @@ define_layout!(layout, LittleEndian, {
     blocks_count_low: u32,
     reserved_blocks_count_low: u32,
     free_blocks_count_low: u32,
+    free_inodes_count: u32,
     first_data_block: u32,
     log_block_size: u32,
     log_cluster_size: u32,
@@ -45,7 +47,7 @@ define_layout!(layout, LittleEndian, {
     journal_inode_number: u32,
     journal_device_number: u32,
     last_orphan: u32,
-    hash_seed: u32,
+    hash_seed: [u8; 16],
     default_hash_version: u8,
     journal_backup_type: u8,
     group_descriptor_size: u16,
