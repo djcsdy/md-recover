@@ -7,13 +7,13 @@ use std::path::Path;
 
 use super::superblock::{SuperblockVersion0, SuperblockVersion1};
 
-pub struct MdDevice<S: Superblock, R: Read> {
+pub struct MdDevice<S: Superblock, R: Read + Seek> {
     pub superblock: S,
     pub minor_version: u32,
     reader: R,
 }
 
-impl<S: Superblock, R: Read> MdDevice<S, R> {
+impl<S: Superblock, R: Read + Seek> MdDevice<S, R> {
     const MIN_DEVICE_SIZE: u64 = 12288;
     const MIN_SUPERBLOCK_0_DEVICE_SIZE: u64 = 65536;
 }
@@ -57,8 +57,20 @@ impl MdDevice<Box<dyn Superblock>, File> {
     }
 }
 
-impl<S: Superblock, R: Read> BlockDevice for MdDevice<S, R> {
+impl<S: Superblock, R: Read + Seek> BlockDevice for MdDevice<S, R> {
     fn size(&mut self) -> Result<u64> {
         todo!()
+    }
+}
+
+impl<S: Superblock, R: Read + Seek> Read for MdDevice<S, R> {
+    fn read(&mut self, buf: &mut [u8]) -> Result<usize> {
+        self.reader.read(buf)
+    }
+}
+
+impl<S: Superblock, R: Read + Seek> Seek for MdDevice<S, R> {
+    fn seek(&mut self, pos: SeekFrom) -> Result<u64> {
+        self.reader.seek(pos)
     }
 }

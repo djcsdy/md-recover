@@ -1,9 +1,9 @@
 use crate::block_device::native::NativeBlockDevice;
 use std::fs::File;
-use std::io::Result;
+use std::io::{Read, Result, Seek};
 use std::path::Path;
 
-pub trait BlockDevice {
+pub trait BlockDevice: Read + Seek {
     fn open_path<P: AsRef<Path>>(path: P) -> Result<NativeBlockDevice> {
         NativeBlockDevice::open_path(path)
     }
