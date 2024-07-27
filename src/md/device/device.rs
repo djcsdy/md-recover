@@ -3,7 +3,7 @@ use crate::md::superblock::Superblock;
 use std::io::{Error, ErrorKind, Result, SeekFrom};
 use std::path::Path;
 
-use super::superblock::{SuperblockVersion0, SuperblockVersion1};
+use crate::md::superblock::{SuperblockVersion0, SuperblockVersion1};
 
 pub struct MdDevice<S: Superblock, D: BlockDevice> {
     pub superblock: S,
