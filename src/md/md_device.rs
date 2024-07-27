@@ -1,6 +1,6 @@
 use crate::block_device::{BlockDevice, NativeBlockDevice};
 use crate::md::superblock::Superblock;
-use std::io::{Error, ErrorKind, Read, Result, Seek, SeekFrom};
+use std::io::{Error, ErrorKind, Result, SeekFrom};
 use std::path::Path;
 
 use super::superblock::{SuperblockVersion0, SuperblockVersion1};
@@ -58,23 +58,5 @@ impl<D: BlockDevice> MdDevice<Box<dyn Superblock>, D> {
         } else {
             Err(Error::from(ErrorKind::InvalidData))
         }
-    }
-}
-
-impl<S: Superblock, D: BlockDevice> BlockDevice for MdDevice<S, D> {
-    fn size(&mut self) -> Result<u64> {
-        todo!()
-    }
-}
-
-impl<S: Superblock, D: BlockDevice> Read for MdDevice<S, D> {
-    fn read(&mut self, buf: &mut [u8]) -> Result<usize> {
-        self.device.read(buf)
-    }
-}
-
-impl<S: Superblock, D: BlockDevice> Seek for MdDevice<S, D> {
-    fn seek(&mut self, pos: SeekFrom) -> Result<u64> {
-        self.device.seek(pos)
     }
 }
