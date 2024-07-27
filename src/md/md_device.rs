@@ -1,9 +1,9 @@
+use crate::block_device::BlockDevice;
+use crate::ioctl::blk::BLK_GETSIZE64;
+use crate::md::superblock::Superblock;
 use std::fs::File;
 use std::io::{Error, ErrorKind, Read, Result, Seek, SeekFrom};
 use std::path::Path;
-
-use crate::ioctl::blk::BLK_GETSIZE64;
-use crate::md::superblock::Superblock;
 
 use super::superblock::{SuperblockVersion0, SuperblockVersion1};
 
@@ -56,3 +56,5 @@ impl MdDevice<Box<dyn Superblock>, File> {
         }
     }
 }
+
+impl<S: Superblock, R: Read> BlockDevice for MdDevice<S, R> {}
