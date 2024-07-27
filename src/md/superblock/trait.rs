@@ -13,7 +13,7 @@ pub trait Superblock {
     fn chunk_size(&self) -> u32;
 }
 
-impl Superblock for Box<dyn Superblock + '_> {
+impl Superblock for Box<dyn Superblock> {
     fn valid(&self) -> bool {
         (**self).valid()
     }
