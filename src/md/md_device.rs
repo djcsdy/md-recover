@@ -1,40 +1,44 @@
-use crate::block_device::BlockDevice;
-use crate::ioctl::blk::BLK_GETSIZE64;
+use crate::block_device::{BlockDevice, NativeBlockDevice};
 use crate::md::superblock::Superblock;
-use std::fs::File;
 use std::io::{Error, ErrorKind, Read, Result, Seek, SeekFrom};
 use std::path::Path;
 
 use super::superblock::{SuperblockVersion0, SuperblockVersion1};
 
-pub struct MdDevice<S: Superblock, R: Read + Seek> {
+pub struct MdDevice<S: Superblock, D: BlockDevice> {
     pub superblock: S,
     pub minor_version: u32,
-    reader: R,
+    device: D,
 }
 
-impl<S: Superblock, R: Read + Seek> MdDevice<S, R> {
+impl<S: Superblock, D: BlockDevice> MdDevice<S, D> {
     const MIN_DEVICE_SIZE: u64 = 12288;
     const MIN_SUPERBLOCK_0_DEVICE_SIZE: u64 = 65536;
 }
 
-impl MdDevice<Box<dyn Superblock>, File> {
-    pub fn open<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let mut file = File::open(path)?;
-        let (_, size) = BLK_GETSIZE64.ioctl(&file)?;
+impl MdDevice<Box<dyn Superblock>, NativeBlockDevice> {
+    pub fn open_path<P: AsRef<Path>>(path: P) -> Result<Self> {
+        let device = NativeBlockDevice::open_path(path)?;
+        Self::from_block_device(device)
+    }
+}
+
+impl<D: BlockDevice> MdDevice<Box<dyn Superblock>, D> {
+    pub fn from_block_device(mut device: D) -> Result<Self> {
+        let size = device.size()?;
 
         if size < Self::MIN_DEVICE_SIZE {
             return Err(Error::from(ErrorKind::Other));
         }
 
         for (minor_version, offset) in [(2, 8 << 9), (1, 0), (0, (((size >> 9) - 16) & !7) << 9)] {
-            file.seek(SeekFrom::Start(offset))?;
-            match SuperblockVersion1::read(&mut file) {
+            device.seek(SeekFrom::Start(offset))?;
+            match SuperblockVersion1::read(&mut device) {
                 Ok(superblock) => {
                     return Ok(Self {
                         superblock: Box::new(superblock),
                         minor_version,
-                        reader: file,
+                        device,
                     });
                 }
                 Err(_) => {}
@@ -42,14 +46,14 @@ impl MdDevice<Box<dyn Superblock>, File> {
         }
 
         if size >= Self::MIN_SUPERBLOCK_0_DEVICE_SIZE {
-            file.seek(SeekFrom::Start((size & !65535) - 65536))?;
-            let superblock = SuperblockVersion0::read(&mut file)?;
+            device.seek(SeekFrom::Start((size & !65535) - 65536))?;
+            let superblock = SuperblockVersion0::read(&mut device)?;
             let minor_version = superblock.minor_version();
 
             Ok(Self {
                 superblock: Box::new(superblock),
                 minor_version,
-                reader: file,
+                device,
             })
         } else {
             Err(Error::from(ErrorKind::InvalidData))
@@ -57,20 +61,20 @@ impl MdDevice<Box<dyn Superblock>, File> {
     }
 }
 
-impl<S: Superblock, R: Read + Seek> BlockDevice for MdDevice<S, R> {
+impl<S: Superblock, D: BlockDevice> BlockDevice for MdDevice<S, D> {
     fn size(&mut self) -> Result<u64> {
         todo!()
     }
 }
 
-impl<S: Superblock, R: Read + Seek> Read for MdDevice<S, R> {
+impl<S: Superblock, D: BlockDevice> Read for MdDevice<S, D> {
     fn read(&mut self, buf: &mut [u8]) -> Result<usize> {
-        self.reader.read(buf)
+        self.device.read(buf)
     }
 }
 
-impl<S: Superblock, R: Read + Seek> Seek for MdDevice<S, R> {
+impl<S: Superblock, D: BlockDevice> Seek for MdDevice<S, D> {
     fn seek(&mut self, pos: SeekFrom) -> Result<u64> {
-        self.reader.seek(pos)
+        self.device.seek(pos)
     }
 }

@@ -34,7 +34,7 @@ fn main() {
     for device in options.devices {
         println!(" * {}", device.maybe_quote());
 
-        match MdDevice::open(device) {
+        match MdDevice::open_path(device) {
             Ok(MdDevice {
                 superblock,
                 minor_version,
