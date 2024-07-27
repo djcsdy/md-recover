@@ -57,4 +57,8 @@ impl MdDevice<Box<dyn Superblock>, File> {
     }
 }
 
-impl<S: Superblock, R: Read> BlockDevice for MdDevice<S, R> {}
+impl<S: Superblock, R: Read> BlockDevice for MdDevice<S, R> {
+    fn size(&mut self) -> Result<u64> {
+        todo!()
+    }
+}

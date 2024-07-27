@@ -11,4 +11,6 @@ pub trait BlockDevice {
     fn from_file(file: File) -> NativeBlockDevice {
         NativeBlockDevice::from_file(file)
     }
+
+    fn size(&mut self) -> Result<u64>;
 }

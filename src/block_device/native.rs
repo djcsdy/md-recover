@@ -1,4 +1,5 @@
 use crate::block_device::BlockDevice;
+use crate::ioctl::blk::BLK_GETSIZE64;
 use std::fs::File;
 use std::io::Result;
 use std::path::Path;
@@ -17,4 +18,8 @@ impl NativeBlockDevice {
     }
 }
 
-impl BlockDevice for NativeBlockDevice {}
+impl BlockDevice for NativeBlockDevice {
+    fn size(&mut self) -> Result<u64> {
+        BLK_GETSIZE64.ioctl(&mut self.file).map(|(_, size)| size)
+    }
+}
