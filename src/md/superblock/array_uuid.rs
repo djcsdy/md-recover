@@ -3,6 +3,7 @@ use std::fmt::{Display, Formatter};
 use byteorder::{ByteOrder, LittleEndian};
 use itertools::Itertools;
 
+#[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Hash, Debug)]
 pub enum ArrayUuid {
     Short([u8; 4]),
     Long([u8; 16]),
