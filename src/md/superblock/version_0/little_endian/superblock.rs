@@ -1,4 +1,5 @@
 use super::device_descriptor;
+use super::reshape_status::NestedReshapeStatusVersion0;
 use binary_layout::define_layout;
 
 pub use self::layout::View;
@@ -30,11 +31,7 @@ define_layout!(layout, LittleEndian, {
     event_count: u64,
     checkpoint_event_count: u64,
     recovery_checkpoint: u32,
-    reshape_position: u64,
-    new_level: u32,
-    delta_disks: u32,
-    new_layout: u32,
-    new_chunk: u32,
+    reshape_status: NestedReshapeStatusVersion0,
     reserved_1: [u8; 56],
     layout: u32,
     chunk_size: u32,
