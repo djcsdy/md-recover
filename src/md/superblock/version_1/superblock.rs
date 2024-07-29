@@ -2,7 +2,7 @@ use crate::md::algorithm::MdAlgorithm;
 use crate::md::superblock::version_1::device_flags::DeviceFlags;
 use crate::md::superblock::version_1::features::Features;
 use crate::md::superblock::version_1::ppl_info::PplInfo;
-use crate::md::superblock::version_1::reshape_status::NestedReshapeStatus;
+use crate::md::superblock::version_1::reshape_status::NestedReshapeStatusVersion1;
 use crate::md::superblock::{ArrayUuid, Superblock};
 use binary_layout::define_layout;
 use byteorder::{ByteOrder, LittleEndian};
@@ -24,7 +24,7 @@ define_layout!(layout, LittleEndian, {
     chunk_size: u32,
     raid_disks: u32,
     bitmap_offset_or_ppl_info: [u8; 4],
-    reshape_info: NestedReshapeStatus,
+    reshape_info: NestedReshapeStatusVersion1,
     data_offset: u64,
     data_size: u64,
     super_offset: u64,
