@@ -1,6 +1,6 @@
 use crate::md::algorithm::MdAlgorithm;
 use crate::md::device::MdDeviceId;
-use crate::md::superblock::ArrayUuid;
+use crate::md::superblock::{ArrayUuid, ReshapeStatus};
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsString;
 
@@ -13,7 +13,7 @@ pub struct Diagnosis {
     size_problem: Option<HashMap<u64, Vec<MdDeviceId>>>,
     chunk_size_problem: Option<HashMap<u32, Vec<MdDeviceId>>>,
     disk_count_problem: Option<HashMap<u32, Vec<MdDeviceId>>>,
-    reshape_problem: Option<()>, // TODO
+    reshape_problem: Option<HashMap<ReshapeStatus, Vec<MdDeviceId>>>,
     device_number_problem: Option<HashMap<u32, Vec<MdDeviceId>>>,
     events_problem: Option<HashMap<u64, Vec<MdDeviceId>>>,
     device_roles_problem: Option<()>, // TODO
