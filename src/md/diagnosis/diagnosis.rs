@@ -3,6 +3,7 @@ use crate::md::superblock::ArrayUuid;
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsString;
 
+#[derive(Eq, PartialEq, Clone, Debug)]
 pub struct Diagnosis {
     missing_superblock_problem: Option<HashSet<MdDeviceId>>,
     array_uuid_problem: Option<HashMap<ArrayUuid, Vec<MdDeviceId>>>,
