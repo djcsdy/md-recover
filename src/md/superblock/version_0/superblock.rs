@@ -123,6 +123,13 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
         MdAlgorithm::from_level_and_layout(self.level(), self.layout())
     }
 
+    fn size(&self) -> u64 {
+        match self {
+            Self::LittleEndian(view) => view.size().read().into(),
+            Self::BigEndian(view) => view.size().read().into(),
+        }
+    }
+
     fn chunk_size(&self) -> u32 {
         match self {
             Self::LittleEndian(view) => view.chunk_size().read(),

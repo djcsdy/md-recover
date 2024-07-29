@@ -10,6 +10,7 @@ pub trait Superblock {
     fn array_uuid(&self) -> ArrayUuid;
     fn array_name(&self) -> Option<&OsStr>;
     fn algorithm(&self) -> MdAlgorithm;
+    fn size(&self) -> u64;
     fn chunk_size(&self) -> u32;
     fn reshape_status(&self) -> ReshapeStatus;
 }
@@ -33,6 +34,10 @@ impl Superblock for Box<dyn Superblock> {
 
     fn algorithm(&self) -> MdAlgorithm {
         (**self).algorithm()
+    }
+
+    fn size(&self) -> u64 {
+        (**self).size()
     }
 
     fn chunk_size(&self) -> u32 {
