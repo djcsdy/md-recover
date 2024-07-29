@@ -1,3 +1,4 @@
+#[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Hash, Debug)]
 pub enum Raid5Algorithm {
     /// Rotating Parity N with Data Restart
     LeftAsymmetric,
