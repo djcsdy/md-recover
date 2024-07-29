@@ -137,6 +137,13 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
         }
     }
 
+    fn raid_disks(&self) -> u32 {
+        match self {
+            Self::LittleEndian(view) => view.raid_disks().read(),
+            Self::BigEndian(view) => view.raid_disks().read(),
+        }
+    }
+
     fn reshape_status(&self) -> ReshapeStatus {
         match self {
             Self::LittleEndian(view) => view.reshape_status().into(),

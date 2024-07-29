@@ -12,6 +12,7 @@ pub trait Superblock {
     fn algorithm(&self) -> MdAlgorithm;
     fn size(&self) -> u64;
     fn chunk_size(&self) -> u32;
+    fn raid_disks(&self) -> u32;
     fn reshape_status(&self) -> ReshapeStatus;
 }
 
@@ -42,6 +43,10 @@ impl Superblock for Box<dyn Superblock> {
 
     fn chunk_size(&self) -> u32 {
         (**self).chunk_size()
+    }
+
+    fn raid_disks(&self) -> u32 {
+        (**self).raid_disks()
     }
 
     fn reshape_status(&self) -> ReshapeStatus {

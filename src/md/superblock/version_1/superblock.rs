@@ -166,6 +166,10 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
         self.0.chunk_size().read()
     }
 
+    fn raid_disks(&self) -> u32 {
+        self.0.raid_disks().read()
+    }
+
     fn reshape_status(&self) -> ReshapeStatus {
         self.0.reshape_status().into()
     }
