@@ -1,4 +1,5 @@
 use crate::md::algorithm::MdAlgorithm;
+use crate::md::superblock::reshape_status::ReshapeStatus;
 use crate::md::superblock::version_0::{big_endian, little_endian};
 use crate::md::superblock::{ArrayUuid, Superblock};
 use std::ffi::OsStr;
@@ -126,6 +127,13 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
         match self {
             Self::LittleEndian(view) => view.chunk_size().read(),
             Self::BigEndian(view) => view.chunk_size().read(),
+        }
+    }
+
+    fn reshape_status(&self) -> ReshapeStatus {
+        match self {
+            Self::LittleEndian(view) => view.reshape_status().into(),
+            Self::BigEndian(view) => view.reshape_status().into(),
         }
     }
 }

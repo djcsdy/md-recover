@@ -1,4 +1,5 @@
 use crate::md::algorithm::MdAlgorithm;
+use crate::md::superblock::reshape_status::ReshapeStatus;
 use crate::md::superblock::version_1::device_flags::DeviceFlags;
 use crate::md::superblock::version_1::features::Features;
 use crate::md::superblock::version_1::ppl_info::PplInfo;
@@ -159,5 +160,9 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
 
     fn chunk_size(&self) -> u32 {
         self.0.chunk_size().read()
+    }
+
+    fn reshape_status(&self) -> ReshapeStatus {
+        self.0.reshape_status().into()
     }
 }

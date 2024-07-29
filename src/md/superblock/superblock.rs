@@ -1,8 +1,8 @@
 use std::ffi::OsStr;
 
-use crate::md::algorithm::MdAlgorithm;
-
 use super::ArrayUuid;
+use crate::md::algorithm::MdAlgorithm;
+use crate::md::superblock::reshape_status::ReshapeStatus;
 
 pub trait Superblock {
     fn valid(&self) -> bool;
@@ -11,6 +11,7 @@ pub trait Superblock {
     fn array_name(&self) -> Option<&OsStr>;
     fn algorithm(&self) -> MdAlgorithm;
     fn chunk_size(&self) -> u32;
+    fn reshape_status(&self) -> ReshapeStatus;
 }
 
 impl Superblock for Box<dyn Superblock> {
@@ -36,5 +37,9 @@ impl Superblock for Box<dyn Superblock> {
 
     fn chunk_size(&self) -> u32 {
         (**self).chunk_size()
+    }
+
+    fn reshape_status(&self) -> ReshapeStatus {
+        (**self).reshape_status()
     }
 }
