@@ -8,7 +8,7 @@ use byteorder::{ByteOrder, LittleEndian};
 use device_flags::DeviceFlags;
 use features::Features;
 use ppl_info::PplInfo;
-use reshape_info::NestedReshapeInfo;
+use reshape_status::NestedReshapeStatus;
 
 use crate::md::algorithm::MdAlgorithm;
 use crate::md::superblock::{ArrayUuid, Superblock};
@@ -16,7 +16,7 @@ use crate::md::superblock::{ArrayUuid, Superblock};
 mod device_flags;
 mod features;
 mod ppl_info;
-mod reshape_info;
+mod reshape_status;
 #[cfg(test)]
 mod tests;
 
@@ -34,7 +34,7 @@ define_layout!(layout, LittleEndian, {
     chunk_size: u32,
     raid_disks: u32,
     bitmap_offset_or_ppl_info: [u8; 4],
-    reshape_info: NestedReshapeInfo,
+    reshape_info: NestedReshapeStatus,
     data_offset: u64,
     data_size: u64,
     super_offset: u64,

@@ -1,6 +1,6 @@
 use binary_layout::prelude::*;
 
-pub use layout::NestedView as NestedReshapeInfo;
+pub use layout::NestedView as NestedReshapeStatus;
 
 define_layout!(layout, LittleEndian, {
     new_level: u32,
