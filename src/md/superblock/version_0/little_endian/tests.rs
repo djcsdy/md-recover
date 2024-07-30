@@ -2,7 +2,7 @@ use crate::md::superblock::version_0::little_endian;
 use crate::md::superblock::version_0::little_endian::device_descriptor;
 use crate::md::superblock::version_0::little_endian::device_descriptor::DeviceDescriptor;
 
-const data: [u8; 4096] = [
+const DATA: [u8; 4096] = [
     0xfc, 0x4e, 0x2b, 0xa9, // magic
     0x00, 0x00, 0x00, 0x00, // major version
     0x5a, 0x00, 0x00, 0x00, // minor version
@@ -432,7 +432,7 @@ fn size_of_little_endian_superblock_version_0() {
 
 #[test]
 fn view_of_little_endian_superblock_version_0() {
-    let view = little_endian::View::new(data);
+    let view = little_endian::View::new(DATA);
     assert_eq!(view.magic().read(), 0xa92b4efc);
     assert_eq!(view.major_version().read(), 0);
     assert_eq!(view.minor_version().read(), 90);
@@ -476,7 +476,7 @@ fn size_of_little_endian_device_descriptor() {
 
 #[test]
 fn view_of_little_endian_superblock_version_0_device_1() {
-    let superblock_view = little_endian::View::new(data);
+    let superblock_view = little_endian::View::new(DATA);
     let view = DeviceDescriptor::new(array_ref![
         superblock_view.disks(),
         0,
@@ -491,7 +491,7 @@ fn view_of_little_endian_superblock_version_0_device_1() {
 
 #[test]
 fn view_of_little_endian_superblock_version_0_device_2() {
-    let superblock_view = little_endian::View::new(data);
+    let superblock_view = little_endian::View::new(DATA);
     let descriptor = DeviceDescriptor::new(array_ref![
         superblock_view.disks(),
         device_descriptor::SIZE,
