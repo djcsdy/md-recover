@@ -46,9 +46,7 @@ impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
     fn valid_major_version(&self) -> bool {
         self.major_version() == 0
     }
-}
 
-impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
     pub fn minor_version(&self) -> u32 {
         match self {
             SuperblockVersion0::LittleEndian(view) => view.minor_version().read(),
