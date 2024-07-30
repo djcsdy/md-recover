@@ -86,4 +86,18 @@ impl MdArray {
             None
         }
     }
+
+    fn diagnose_disk_count_problem(&self) -> Option<HashMap<u32, Vec<MdDeviceId>>> {
+        let map = HashMap::from_multi_iter(
+            self.devices
+                .iter()
+                .map(|device| (device.superblock.raid_disks(), device.id.clone())),
+        );
+
+        if map.len() > 1 {
+            Some(map)
+        } else {
+            None
+        }
+    }
 }
