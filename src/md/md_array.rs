@@ -58,4 +58,18 @@ impl MdArray {
             None
         }
     }
+
+    fn diagnose_size_problem(&self) -> Option<HashMap<u64, Vec<MdDeviceId>>> {
+        let map = HashMap::from_multi_iter(
+            self.devices
+                .iter()
+                .map(|device| (device.superblock.size(), device.id.clone())),
+        );
+
+        if map.len() > 1 {
+            Some(map)
+        } else {
+            None
+        }
+    }
 }
