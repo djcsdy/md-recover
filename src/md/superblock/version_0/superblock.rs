@@ -32,6 +32,8 @@ impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
         panic!()
     };
 
+    pub(super) const MAX_DEVICES: usize = 27;
+
     fn magic(&self) -> u32 {
         match self {
             Self::LittleEndian(view) => view.magic().read(),

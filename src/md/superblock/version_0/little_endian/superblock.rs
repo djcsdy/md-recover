@@ -1,5 +1,6 @@
 use super::device_descriptor::DeviceDescriptor;
 use super::reshape_status::NestedReshapeStatusVersion0;
+use crate::md::superblock::SuperblockVersion0;
 use binary_layout::define_layout;
 
 pub use self::layout::View;
@@ -38,7 +39,7 @@ define_layout!(layout, LittleEndian, {
     root_pv: u32,
     root_block: u32,
     reserved_2: [u8; 240],
-    disks: [u8; DeviceDescriptor::<&[u8]>::SIZE * 27],
+    disks: [u8; DeviceDescriptor::<&[u8]>::SIZE * SuperblockVersion0::<&[u8]>::MAX_DEVICES],
     reserved_3: [u8; 128]
 });
 
