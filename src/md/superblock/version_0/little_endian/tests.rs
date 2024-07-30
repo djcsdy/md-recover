@@ -1,5 +1,4 @@
 use crate::md::superblock::version_0::little_endian;
-use crate::md::superblock::version_0::little_endian::device_descriptor;
 use crate::md::superblock::version_0::little_endian::device_descriptor::DeviceDescriptor;
 
 const DATA: [u8; 4096] = [
@@ -471,7 +470,7 @@ fn view_of_little_endian_superblock_version_0() {
 
 #[test]
 fn size_of_little_endian_device_descriptor() {
-    assert_eq!(device_descriptor::SIZE, 128);
+    assert_eq!(DeviceDescriptor::<&[u8]>::SIZE, 128);
 }
 
 #[test]
@@ -480,7 +479,7 @@ fn view_of_little_endian_superblock_version_0_device_1() {
     let view = DeviceDescriptor::new(array_ref![
         superblock_view.disks(),
         0,
-        device_descriptor::SIZE
+        DeviceDescriptor::<&[u8]>::SIZE
     ]);
     assert_eq!(view.number(), 1);
     assert_eq!(view.major(), 0xe9b52f41);
@@ -494,8 +493,8 @@ fn view_of_little_endian_superblock_version_0_device_2() {
     let superblock_view = little_endian::View::new(DATA);
     let descriptor = DeviceDescriptor::new(array_ref![
         superblock_view.disks(),
-        device_descriptor::SIZE,
-        device_descriptor::SIZE
+        DeviceDescriptor::<&[u8]>::SIZE,
+        DeviceDescriptor::<&[u8]>::SIZE
     ]);
     assert_eq!(descriptor.number(), 2);
     assert_eq!(descriptor.major(), 0x9632a95b);

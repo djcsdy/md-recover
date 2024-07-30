@@ -1,4 +1,4 @@
-use super::device_descriptor;
+use super::device_descriptor::DeviceDescriptor;
 use super::reshape_status::NestedReshapeStatusVersion0;
 use binary_layout::define_layout;
 
@@ -38,7 +38,7 @@ define_layout!(layout, LittleEndian, {
     root_pv: u32,
     root_block: u32,
     reserved_2: [u8; 240],
-    disks: [u8; device_descriptor::SIZE * 27],
+    disks: [u8; DeviceDescriptor::<&[u8]>::SIZE * 27],
     reserved_3: [u8; 128]
 });
 

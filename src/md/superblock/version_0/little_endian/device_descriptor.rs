@@ -12,6 +12,11 @@ define_layout!(layout, LittleEndian, {
 });
 
 impl<S: AsRef<[u8]>> DeviceDescriptor<S> {
+    pub const SIZE: usize = match layout::SIZE {
+        Some(size) => size,
+        None => panic!(),
+    };
+
     pub fn new(storage: S) -> Self {
         Self(layout::View::new(storage))
     }
@@ -36,8 +41,3 @@ impl<S: AsRef<[u8]>> DeviceDescriptor<S> {
         self.0.state().read()
     }
 }
-
-pub const SIZE: usize = match layout::SIZE {
-    Some(size) => size,
-    None => panic!(),
-};
