@@ -457,9 +457,11 @@ fn view_of_little_endian_superblock_version_0() {
     assert_eq!(view.event_count().read(), 0x05ada75c5431f9cf);
     assert_eq!(view.checkpoint_event_count().read(), 0x7d613e63f79eea5b);
     assert_eq!(view.recovery_checkpoint().read(), 0x46e39b46);
-    assert_eq!(view.reshape_position().read(), 0);
-    assert_eq!(view.new_level().read(), 0);
-    assert_eq!(view.new_chunk().read(), 0);
+    assert_eq!(view.reshape_status().reshape_position().read(), 0);
+    assert_eq!(view.reshape_status().new_level().read(), 0);
+    assert_eq!(view.reshape_status().delta_disks().read(), 0);
+    assert_eq!(view.reshape_status().new_layout().read(), 0);
+    assert_eq!(view.reshape_status().new_chunk_size().read(), 0);
     assert_eq!(view.layout().read(), 0xc49704fc);
     assert_eq!(view.chunk_size().read(), 65536);
     assert_eq!(view.root_pv().read(), 0xbdbdd227);

@@ -1,6 +1,6 @@
 use crate::md::superblock::version_1::device_flags::DeviceFlags;
 use crate::md::superblock::version_1::features::Features;
-use crate::md::superblock::version_1::layout;
+use crate::md::superblock::version_1::superblock::layout;
 
 const DATA: [u8; 4096] = [
     0xfc, 0x4e, 0x2b, 0xa9, // magic
@@ -319,15 +319,15 @@ fn view_of_superblock_version_1() {
     assert_eq!(view.chunk_size().read(), 65536);
     assert_eq!(view.raid_disks().read(), 4);
     assert_eq!(view.bitmap_offset_or_ppl_info(), &[0x7b, 0x1d, 0x5a, 0x5a]);
-    assert_eq!(view.reshape_info().new_level().read(), 6);
+    assert_eq!(view.reshape_status().new_level().read(), 6);
     assert_eq!(
-        view.reshape_info().reshape_position().read(),
+        view.reshape_status().reshape_position().read(),
         0xe30dc65274cef739
     );
-    assert_eq!(view.reshape_info().delta_disks().read(), 1);
-    assert_eq!(view.reshape_info().new_layout().read(), 0x979a6999);
-    assert_eq!(view.reshape_info().new_chunk_size().read(), 65536);
-    assert_eq!(view.reshape_info().new_offset().read(), 0);
+    assert_eq!(view.reshape_status().delta_disks().read(), 1);
+    assert_eq!(view.reshape_status().new_layout().read(), 0x979a6999);
+    assert_eq!(view.reshape_status().new_chunk_size().read(), 65536);
+    assert_eq!(view.reshape_status().new_offset().read(), 0);
     assert_eq!(view.data_offset().read(), 0xfae3d184a79c8efd);
     assert_eq!(view.data_size().read(), 0x588ab17ce9f1a413);
     assert_eq!(view.super_offset().read(), 0xf544698b366331f0);
