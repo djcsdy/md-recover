@@ -2,7 +2,7 @@ use crate::block_device::BlockDevice;
 use crate::ext::MultiMap;
 use crate::md::algorithm::MdAlgorithm;
 use crate::md::device::MdDeviceId;
-use crate::md::superblock::{ArrayUuid, Superblock};
+use crate::md::superblock::{ArrayUuid, ReshapeStatus, Superblock};
 use crate::md::MdDevice;
 use std::collections::HashMap;
 use std::ffi::OsString;
@@ -92,6 +92,20 @@ impl MdArray {
             self.devices
                 .iter()
                 .map(|device| (device.superblock.raid_disks(), device.id.clone())),
+        );
+
+        if map.len() > 1 {
+            Some(map)
+        } else {
+            None
+        }
+    }
+
+    fn diagnose_reshape_problem(&self) -> Option<HashMap<ReshapeStatus, Vec<MdDeviceId>>> {
+        let map = HashMap::from_multi_iter(
+            self.devices
+                .iter()
+                .map(|device| (device.superblock.reshape_status(), device.id.clone())),
         );
 
         if map.len() > 1 {
