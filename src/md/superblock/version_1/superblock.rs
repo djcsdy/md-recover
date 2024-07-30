@@ -6,7 +6,7 @@ use crate::md::superblock::version_1::ppl_info::PplInfo;
 use crate::md::superblock::version_1::reshape_status::NestedReshapeStatusVersion1;
 use crate::md::superblock::{ArrayUuid, Superblock};
 use binary_layout::define_layout;
-use byteorder::{ByteOrder, LittleEndian};
+use byteorder::{ByteOrder, LittleEndian, ReadBytesExt};
 use std::ffi::OsStr;
 use std::io::{Error, ErrorKind, Read};
 use std::os::unix::ffi::OsStrExt;
@@ -172,5 +172,15 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
 
     fn reshape_status(&self) -> ReshapeStatus {
         self.0.reshape_status().into()
+    }
+
+    fn device_roles(&self) -> Vec<u16> {
+        let count = self.0.max_devices().read() as usize;
+        let mut buffer = vec![0u16; count];
+        self.0
+            .dev_roles()
+            .read_u16_into::<LittleEndian>(&mut buffer)
+            .unwrap();
+        buffer
     }
 }

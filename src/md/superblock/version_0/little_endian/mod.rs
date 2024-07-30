@@ -1,3 +1,4 @@
+pub use self::device_descriptor::DeviceDescriptor;
 pub use self::superblock::{View, SIZE};
 
 mod device_descriptor;

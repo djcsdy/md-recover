@@ -150,4 +150,31 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
             Self::BigEndian(view) => view.reshape_status().into(),
         }
     }
+
+    fn device_roles(&self) -> Vec<u16> {
+        match self {
+            SuperblockVersion0::LittleEndian(view) => {
+                let buffer = view.disks();
+                Vec::from_iter((0..Self::MAX_DEVICES).map(|i| {
+                    little_endian::DeviceDescriptor::new(array_ref![
+                        buffer,
+                        i * little_endian::DeviceDescriptor::<&[u8]>::SIZE,
+                        little_endian::DeviceDescriptor::<&[u8]>::SIZE
+                    ])
+                    .raid_disk() as u16
+                }))
+            }
+            SuperblockVersion0::BigEndian(view) => {
+                let buffer = view.disks();
+                Vec::from_iter((0..Self::MAX_DEVICES).map(|i| {
+                    big_endian::DeviceDescriptor::new(array_ref![
+                        buffer,
+                        i * big_endian::DeviceDescriptor::<&[u8]>::SIZE,
+                        big_endian::DeviceDescriptor::<&[u8]>::SIZE
+                    ])
+                    .raid_disk() as u16
+                }))
+            }
+        }
+    }
 }
