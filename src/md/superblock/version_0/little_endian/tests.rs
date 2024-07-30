@@ -1,5 +1,6 @@
 use crate::md::superblock::version_0::little_endian;
 use crate::md::superblock::version_0::little_endian::device_descriptor;
+use crate::md::superblock::version_0::little_endian::device_descriptor::DeviceDescriptor;
 
 const data: [u8; 4096] = [
     0xfc, 0x4e, 0x2b, 0xa9, // magic
@@ -476,29 +477,29 @@ fn size_of_little_endian_device_descriptor() {
 #[test]
 fn view_of_little_endian_superblock_version_0_device_1() {
     let superblock_view = little_endian::View::new(data);
-    let view = device_descriptor::View::new(array_ref![
+    let view = DeviceDescriptor::new(array_ref![
         superblock_view.disks(),
         0,
         device_descriptor::SIZE
     ]);
-    assert_eq!(view.number().read(), 1);
-    assert_eq!(view.major().read(), 0xe9b52f41);
-    assert_eq!(view.minor().read(), 0x08783284);
-    assert_eq!(view.raid_disk().read(), 1);
-    assert_eq!(view.state().read(), 0);
+    assert_eq!(view.number(), 1);
+    assert_eq!(view.major(), 0xe9b52f41);
+    assert_eq!(view.minor(), 0x08783284);
+    assert_eq!(view.raid_disk(), 1);
+    assert_eq!(view.state(), 0);
 }
 
 #[test]
 fn view_of_little_endian_superblock_version_0_device_2() {
     let superblock_view = little_endian::View::new(data);
-    let view = device_descriptor::View::new(array_ref![
+    let descriptor = DeviceDescriptor::new(array_ref![
         superblock_view.disks(),
         device_descriptor::SIZE,
         device_descriptor::SIZE
     ]);
-    assert_eq!(view.number().read(), 2);
-    assert_eq!(view.major().read(), 0x9632a95b);
-    assert_eq!(view.minor().read(), 0x4df28944);
-    assert_eq!(view.raid_disk().read(), 2);
-    assert_eq!(view.state().read(), 0);
+    assert_eq!(descriptor.number(), 2);
+    assert_eq!(descriptor.major(), 0x9632a95b);
+    assert_eq!(descriptor.minor(), 0x4df28944);
+    assert_eq!(descriptor.raid_disk(), 2);
+    assert_eq!(descriptor.state(), 0);
 }
