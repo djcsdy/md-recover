@@ -194,7 +194,9 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
                         i * little_endian::DeviceDescriptor::<&[u8]>::SIZE,
                         little_endian::DeviceDescriptor::<&[u8]>::SIZE
                     ])
-                    .raid_disk() as u16
+                    .raid_disk()
+                    .try_into()
+                    .unwrap()
                 }))
             }
             SuperblockVersion0::BigEndian(view) => {
@@ -205,7 +207,9 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
                         i * big_endian::DeviceDescriptor::<&[u8]>::SIZE,
                         big_endian::DeviceDescriptor::<&[u8]>::SIZE
                     ])
-                    .raid_disk() as u16
+                    .raid_disk()
+                    .try_into()
+                    .unwrap()
                 }))
             }
         }
