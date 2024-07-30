@@ -15,8 +15,12 @@ impl SuperblockVersion0<[u8; little_endian::SIZE]> {
     pub fn read<R: Read>(mut reader: R) -> io::Result<Self> {
         let mut buffer = [0u8; little_endian::SIZE];
         reader.read_exact(&mut buffer)?;
-        if SuperblockVersion0::LittleEndian(little_endian::View::new(&buffer)).valid() {
-            Ok(Self::LittleEndian(little_endian::View::new(buffer)))
+        if SuperblockVersion0::LittleEndian(little_endian::View::new(&buffer)).valid_magic() {
+            if SuperblockVersion0::LittleEndian(little_endian::View::new(&buffer)).valid() {
+                Ok(Self::LittleEndian(little_endian::View::new(buffer)))
+            } else {
+                Err(Error::from(ErrorKind::InvalidData))
+            }
         } else if SuperblockVersion0::BigEndian(big_endian::View::new(&buffer)).valid() {
             Ok(Self::BigEndian(big_endian::View::new(buffer)))
         } else {
