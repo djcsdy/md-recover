@@ -13,6 +13,7 @@ use crate::md::MdDevice;
 
 mod block_device;
 mod confidence;
+mod ext;
 mod ext4;
 mod ioctl;
 mod md;

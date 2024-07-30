@@ -1,4 +1,5 @@
 use crate::block_device::BlockDevice;
+use crate::ext::MultiMap;
 use crate::md::device::MdDeviceId;
 use crate::md::superblock::{ArrayUuid, Superblock};
 use crate::md::MdDevice;
@@ -14,18 +15,11 @@ impl MdArray {
     }
 
     fn diagnose_array_uuid_problem(&self) -> Option<HashMap<ArrayUuid, Vec<MdDeviceId>>> {
-        let mut map = HashMap::new();
-        for device in &self.devices {
-            let array_uuid = device.superblock.array_uuid();
-            match map.get_mut(&array_uuid) {
-                None => {
-                    map.insert(array_uuid, vec![device.id.clone()]);
-                }
-                Some(devices) => {
-                    devices.push(device.id.clone());
-                }
-            }
-        }
+        let map = HashMap::from_multi_iter(
+            self.devices
+                .iter()
+                .map(|device| (device.superblock.array_uuid(), device.id.clone())),
+        );
 
         if map.len() > 1 {
             Some(map)
