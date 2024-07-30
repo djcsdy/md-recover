@@ -1,5 +1,6 @@
 use crate::block_device::BlockDevice;
 use crate::ext::MultiMap;
+use crate::md::algorithm::MdAlgorithm;
 use crate::md::device::MdDeviceId;
 use crate::md::superblock::{ArrayUuid, Superblock};
 use crate::md::MdDevice;
@@ -36,6 +37,20 @@ impl MdArray {
                 .array_name()
                 .map(|array_name| (array_name.into(), device.id.clone()))
         }));
+
+        if map.len() > 1 {
+            Some(map)
+        } else {
+            None
+        }
+    }
+
+    fn diagnose_algorithm_problem(&self) -> Option<HashMap<MdAlgorithm, Vec<MdDeviceId>>> {
+        let map = HashMap::from_multi_iter(
+            self.devices
+                .iter()
+                .map(|device| (device.superblock.algorithm().clone(), device.id.clone())),
+        );
 
         if map.len() > 1 {
             Some(map)
