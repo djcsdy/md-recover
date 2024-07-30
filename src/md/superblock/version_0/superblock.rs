@@ -97,11 +97,40 @@ impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
             Self::BigEndian(view) => view.layout().read(),
         }
     }
+
+    fn valid_device_descriptors(&self) -> bool {
+        match self {
+            SuperblockVersion0::LittleEndian(view) => {
+                let buffer = view.disks();
+                (0..Self::MAX_DEVICES)
+                    .map(|i| {
+                        little_endian::DeviceDescriptor::new(array_ref![
+                            buffer,
+                            i * little_endian::DeviceDescriptor::<&[u8]>::SIZE,
+                            little_endian::DeviceDescriptor::<&[u8]>::SIZE
+                        ])
+                    })
+                    .all(|descriptor| descriptor.raid_disk() < u16::MAX.into())
+            }
+            SuperblockVersion0::BigEndian(view) => {
+                let buffer = view.disks();
+                (0..Self::MAX_DEVICES)
+                    .map(|i| {
+                        big_endian::DeviceDescriptor::new(array_ref![
+                            buffer,
+                            i * little_endian::DeviceDescriptor::<&[u8]>::SIZE,
+                            little_endian::DeviceDescriptor::<&[u8]>::SIZE
+                        ])
+                    })
+                    .all(|descriptor| descriptor.raid_disk() < u16::MAX.into())
+            }
+        }
+    }
 }
 
 impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
     fn valid(&self) -> bool {
-        self.valid_magic() && self.valid_major_version()
+        self.valid_magic() && self.valid_major_version() && self.valid_device_descriptors()
     }
 
     fn major_version(&self) -> u32 {
