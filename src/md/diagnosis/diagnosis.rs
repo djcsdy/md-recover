@@ -16,5 +16,5 @@ pub struct Diagnosis {
     reshape_problem: Option<HashMap<ReshapeStatus, Vec<MdDeviceId>>>,
     device_number_problem: Option<HashMap<u32, Vec<MdDeviceId>>>,
     events_problem: Option<HashMap<u64, Vec<MdDeviceId>>>,
-    device_roles_problem: Option<()>, // TODO
+    device_roles_problem: Option<HashMap<Vec<u16>, Vec<MdDeviceId>>>,
 }
