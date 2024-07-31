@@ -5,7 +5,7 @@ use crate::md::device::MdDeviceId;
 use crate::md::diagnosis::Diagnosis;
 use crate::md::superblock::{ArrayUuid, ReshapeStatus, Superblock};
 use crate::md::MdDevice;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::ffi::OsString;
 
 pub struct MdArray {
@@ -19,7 +19,7 @@ impl MdArray {
 
     pub fn diagnose(&self) -> Diagnosis {
         Diagnosis {
-            missing_superblock_problem: None, // TODO
+            missing_superblock_problem: self.diagnose_missing_superblock_problem(),
             array_uuid_problem: self.diagnose_array_uuid_problem(),
             array_name_problem: self.diagnose_array_name_problem(),
             algorithm_problem: self.diagnose_algorithm_problem(),
@@ -29,6 +29,21 @@ impl MdArray {
             reshape_problem: self.diagnose_reshape_problem(),
             event_count_problem: self.diagnose_event_count_problem(),
             device_roles_problem: self.diagnose_device_roles_problem(),
+        }
+    }
+
+    fn diagnose_missing_superblock_problem(&self) -> Option<HashSet<MdDeviceId>> {
+        let set = HashSet::from_iter(self.devices.iter().filter_map(
+            |device| match device.superblock {
+                None => Some(device.id.clone()),
+                Some(_) => None,
+            },
+        ));
+
+        if set.len() > 0 {
+            Some(set)
+        } else {
+            None
         }
     }
 
