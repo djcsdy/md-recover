@@ -128,4 +128,18 @@ impl MdArray {
             None
         }
     }
+
+    fn diagnose_device_roles_problem(&self) -> Option<HashMap<Vec<u16>, Vec<MdDeviceId>>> {
+        let map = HashMap::from_multi_iter(
+            self.devices
+                .iter()
+                .map(|device| (device.superblock.device_roles(), device.id.clone())),
+        );
+
+        if map.len() > 1 {
+            Some(map)
+        } else {
+            None
+        }
+    }
 }
