@@ -114,4 +114,18 @@ impl MdArray {
             None
         }
     }
+
+    fn diagnose_event_count_problem(&self) -> Option<HashMap<u64, Vec<MdDeviceId>>> {
+        let map = HashMap::from_multi_iter(
+            self.devices
+                .iter()
+                .map(|device| (device.superblock.event_count(), device.id.clone())),
+        );
+
+        if map.len() > 1 {
+            Some(map)
+        } else {
+            None
+        }
+    }
 }
