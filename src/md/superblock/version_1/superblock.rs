@@ -38,7 +38,7 @@ define_layout!(layout, LittleEndian, {
     bad_block_log_size: u16,
     bad_block_log_offset: u32,
     utime: u64,
-    events: u64,
+    event_count: u64,
     resync_offset: u64,
     superblock_checksum: u32,
     max_devices: u32,
@@ -172,6 +172,10 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
 
     fn reshape_status(&self) -> ReshapeStatus {
         self.0.reshape_status().into()
+    }
+
+    fn event_count(&self) -> u64 {
+        self.0.event_count().read()
     }
 
     fn device_roles(&self) -> Vec<u16> {

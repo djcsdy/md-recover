@@ -184,6 +184,13 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
         }
     }
 
+    fn event_count(&self) -> u64 {
+        match self {
+            SuperblockVersion0::LittleEndian(view) => view.event_count().read(),
+            SuperblockVersion0::BigEndian(view) => view.event_count().read(),
+        }
+    }
+
     fn device_roles(&self) -> Vec<u16> {
         match self {
             SuperblockVersion0::LittleEndian(view) => {

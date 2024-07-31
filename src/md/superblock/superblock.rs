@@ -14,6 +14,7 @@ pub trait Superblock {
     fn chunk_size(&self) -> u32;
     fn raid_disks(&self) -> u32;
     fn reshape_status(&self) -> ReshapeStatus;
+    fn event_count(&self) -> u64;
     fn device_roles(&self) -> Vec<u16>;
 }
 
@@ -52,6 +53,10 @@ impl Superblock for Box<dyn Superblock> {
 
     fn reshape_status(&self) -> ReshapeStatus {
         (**self).reshape_status()
+    }
+
+    fn event_count(&self) -> u64 {
+        (**self).event_count()
     }
 
     fn device_roles(&self) -> Vec<u16> {
