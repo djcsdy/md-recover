@@ -36,18 +36,23 @@ fn main() {
         println!(" * {}", device.maybe_quote());
 
         match MdDevice::open_path(device) {
-            Ok(MdDevice { superblock, .. }) => {
-                println!(
-                    "    * Version: {}.{}",
-                    superblock.major_version(),
-                    superblock.minor_version()
-                );
-                println!("    * Array UUID: {}", superblock.array_uuid());
-                match superblock.array_name() {
-                    None => {}
-                    Some(name) => println!("    * Array Name: {}", name.maybe_quote()),
+            Ok(MdDevice { superblock, .. }) => match superblock {
+                Some(superblock) => {
+                    println!(
+                        "    * Version: {}.{}",
+                        superblock.major_version(),
+                        superblock.minor_version()
+                    );
+                    println!("    * Array UUID: {}", superblock.array_uuid());
+                    match superblock.array_name() {
+                        None => {}
+                        Some(name) => println!("    * Array Name: {}", name.maybe_quote()),
+                    }
                 }
-            }
+                None => {
+                    println!("    * Missing Superblock");
+                }
+            },
             Err(error) => println!("    * Error: {}", error),
         }
     }

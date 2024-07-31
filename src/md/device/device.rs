@@ -8,7 +8,7 @@ use std::path::Path;
 
 pub struct MdDevice<S: Superblock, D: BlockDevice> {
     pub id: MdDeviceId,
-    pub superblock: S,
+    pub superblock: Option<S>,
     device: D,
 }
 
@@ -43,7 +43,7 @@ impl<D: BlockDevice> MdDevice<Box<dyn Superblock>, D> {
                 Ok(superblock) => {
                     return Ok(Self {
                         id,
-                        superblock: Box::new(superblock),
+                        superblock: Some(Box::new(superblock)),
                         device,
                     });
                 }
@@ -53,15 +53,22 @@ impl<D: BlockDevice> MdDevice<Box<dyn Superblock>, D> {
 
         if size >= Self::MIN_SUPERBLOCK_0_DEVICE_SIZE {
             device.seek(SeekFrom::Start((size & !65535) - 65536))?;
-            let superblock = SuperblockVersion0::read(&mut device)?;
-
-            Ok(Self {
-                id,
-                superblock: Box::new(superblock),
-                device,
-            })
-        } else {
-            Err(Error::from(ErrorKind::InvalidData))
+            match SuperblockVersion0::read(&mut device) {
+                Ok(superblock) => {
+                    return Ok(Self {
+                        id,
+                        superblock: Some(Box::new(superblock)),
+                        device,
+                    })
+                }
+                Err(_) => {}
+            }
         }
+
+        Ok(Self {
+            id,
+            superblock: None,
+            device,
+        })
     }
 }

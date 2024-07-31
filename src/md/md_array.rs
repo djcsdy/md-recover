@@ -33,11 +33,12 @@ impl MdArray {
     }
 
     fn diagnose_array_uuid_problem(&self) -> Option<HashMap<ArrayUuid, Vec<MdDeviceId>>> {
-        let map = HashMap::from_multi_iter(
-            self.devices
-                .iter()
-                .map(|device| (device.superblock.array_uuid(), device.id.clone())),
-        );
+        let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+            device
+                .superblock
+                .as_ref()
+                .map(|superblock| (superblock.array_uuid(), device.id.clone()))
+        }));
 
         if map.len() > 1 {
             Some(map)
@@ -50,7 +51,8 @@ impl MdArray {
         let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
             device
                 .superblock
-                .array_name()
+                .as_ref()
+                .and_then(|superblock| superblock.array_name())
                 .map(|array_name| (array_name.into(), device.id.clone()))
         }));
 
@@ -62,11 +64,12 @@ impl MdArray {
     }
 
     fn diagnose_algorithm_problem(&self) -> Option<HashMap<MdAlgorithm, Vec<MdDeviceId>>> {
-        let map = HashMap::from_multi_iter(
-            self.devices
-                .iter()
-                .map(|device| (device.superblock.algorithm().clone(), device.id.clone())),
-        );
+        let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+            device
+                .superblock
+                .as_ref()
+                .map(|superblock| (superblock.algorithm().clone(), device.id.clone()))
+        }));
 
         if map.len() > 1 {
             Some(map)
@@ -76,11 +79,12 @@ impl MdArray {
     }
 
     fn diagnose_size_problem(&self) -> Option<HashMap<u64, Vec<MdDeviceId>>> {
-        let map = HashMap::from_multi_iter(
-            self.devices
-                .iter()
-                .map(|device| (device.superblock.size(), device.id.clone())),
-        );
+        let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+            device
+                .superblock
+                .as_ref()
+                .map(|superblock| (superblock.size(), device.id.clone()))
+        }));
 
         if map.len() > 1 {
             Some(map)
@@ -90,11 +94,12 @@ impl MdArray {
     }
 
     fn diagnose_chunk_size_problem(&self) -> Option<HashMap<u32, Vec<MdDeviceId>>> {
-        let map = HashMap::from_multi_iter(
-            self.devices
-                .iter()
-                .map(|device| (device.superblock.chunk_size(), device.id.clone())),
-        );
+        let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+            device
+                .superblock
+                .as_ref()
+                .map(|superblock| (superblock.chunk_size(), device.id.clone()))
+        }));
 
         if map.len() > 1 {
             Some(map)
@@ -104,11 +109,12 @@ impl MdArray {
     }
 
     fn diagnose_disk_count_problem(&self) -> Option<HashMap<u32, Vec<MdDeviceId>>> {
-        let map = HashMap::from_multi_iter(
-            self.devices
-                .iter()
-                .map(|device| (device.superblock.raid_disks(), device.id.clone())),
-        );
+        let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+            device
+                .superblock
+                .as_ref()
+                .map(|superblock| (superblock.raid_disks(), device.id.clone()))
+        }));
 
         if map.len() > 1 {
             Some(map)
@@ -118,11 +124,12 @@ impl MdArray {
     }
 
     fn diagnose_reshape_problem(&self) -> Option<HashMap<ReshapeStatus, Vec<MdDeviceId>>> {
-        let map = HashMap::from_multi_iter(
-            self.devices
-                .iter()
-                .map(|device| (device.superblock.reshape_status(), device.id.clone())),
-        );
+        let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+            device
+                .superblock
+                .as_ref()
+                .map(|superblock| (superblock.reshape_status(), device.id.clone()))
+        }));
 
         if map.len() > 1 {
             Some(map)
@@ -132,11 +139,12 @@ impl MdArray {
     }
 
     fn diagnose_event_count_problem(&self) -> Option<HashMap<u64, Vec<MdDeviceId>>> {
-        let map = HashMap::from_multi_iter(
-            self.devices
-                .iter()
-                .map(|device| (device.superblock.event_count(), device.id.clone())),
-        );
+        let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+            device
+                .superblock
+                .as_ref()
+                .map(|superblock| (superblock.event_count(), device.id.clone()))
+        }));
 
         if map.len() > 1 {
             Some(map)
@@ -146,11 +154,12 @@ impl MdArray {
     }
 
     fn diagnose_device_roles_problem(&self) -> Option<HashMap<Vec<u16>, Vec<MdDeviceId>>> {
-        let map = HashMap::from_multi_iter(
-            self.devices
-                .iter()
-                .map(|device| (device.superblock.device_roles(), device.id.clone())),
-        );
+        let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+            device
+                .superblock
+                .as_ref()
+                .map(|superblock| (superblock.device_roles(), device.id.clone()))
+        }));
 
         if map.len() > 1 {
             Some(map)
