@@ -2,6 +2,7 @@ use crate::block_device::BlockDevice;
 use crate::ext::MultiMap;
 use crate::md::algorithm::MdAlgorithm;
 use crate::md::device::MdDeviceId;
+use crate::md::diagnosis::Diagnosis;
 use crate::md::superblock::{ArrayUuid, ReshapeStatus, Superblock};
 use crate::md::MdDevice;
 use std::collections::HashMap;
@@ -14,6 +15,21 @@ pub struct MdArray {
 impl MdArray {
     pub fn new(devices: Vec<MdDevice<Box<dyn Superblock>, Box<dyn BlockDevice>>>) -> Self {
         Self { devices }
+    }
+
+    pub fn diagnose(&self) -> Diagnosis {
+        Diagnosis {
+            missing_superblock_problem: None, // TODO
+            array_uuid_problem: self.diagnose_array_uuid_problem(),
+            array_name_problem: self.diagnose_array_name_problem(),
+            algorithm_problem: self.diagnose_algorithm_problem(),
+            size_problem: self.diagnose_size_problem(),
+            chunk_size_problem: self.diagnose_chunk_size_problem(),
+            disk_count_problem: self.diagnose_disk_count_problem(),
+            reshape_problem: self.diagnose_reshape_problem(),
+            event_count_problem: self.diagnose_event_count_problem(),
+            device_roles_problem: self.diagnose_device_roles_problem(),
+        }
     }
 
     fn diagnose_array_uuid_problem(&self) -> Option<HashMap<ArrayUuid, Vec<MdDeviceId>>> {
