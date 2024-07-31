@@ -7,6 +7,7 @@ use crate::md::superblock::reshape_status::ReshapeStatus;
 pub trait Superblock {
     fn valid(&self) -> bool;
     fn major_version(&self) -> u32;
+    fn minor_version(&self) -> u32;
     fn array_uuid(&self) -> ArrayUuid;
     fn array_name(&self) -> Option<&OsStr>;
     fn algorithm(&self) -> MdAlgorithm;
@@ -25,6 +26,10 @@ impl Superblock for Box<dyn Superblock> {
 
     fn major_version(&self) -> u32 {
         (**self).major_version()
+    }
+
+    fn minor_version(&self) -> u32 {
+        (**self).minor_version()
     }
 
     fn array_uuid(&self) -> ArrayUuid {

@@ -140,6 +140,13 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
         }
     }
 
+    fn minor_version(&self) -> u32 {
+        match self {
+            Self::LittleEndian(view) => view.minor_version().read(),
+            Self::BigEndian(view) => view.minor_version().read(),
+        }
+    }
+
     fn array_uuid(&self) -> ArrayUuid {
         if self.minor_version() < 90 {
             ArrayUuid::from_u32(self.array_uuid_0())

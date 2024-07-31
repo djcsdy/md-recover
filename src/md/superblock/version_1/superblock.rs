@@ -154,6 +154,10 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
         self.buffer.major_version().read()
     }
 
+    fn minor_version(&self) -> u32 {
+        self.minor_version
+    }
+
     fn array_uuid(&self) -> ArrayUuid {
         ArrayUuid::from_u8_16(self.buffer.array_uuid())
     }
