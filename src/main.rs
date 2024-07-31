@@ -36,15 +36,11 @@ fn main() {
         println!(" * {}", device.maybe_quote());
 
         match MdDevice::open_path(device) {
-            Ok(MdDevice {
-                superblock,
-                minor_version,
-                ..
-            }) => {
+            Ok(MdDevice { superblock, .. }) => {
                 println!(
                     "    * Version: {}.{}",
                     superblock.major_version(),
-                    minor_version
+                    superblock.minor_version()
                 );
                 println!("    * Array UUID: {}", superblock.array_uuid());
                 match superblock.array_name() {
