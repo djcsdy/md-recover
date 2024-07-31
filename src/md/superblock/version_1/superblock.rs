@@ -46,15 +46,18 @@ define_layout!(layout, LittleEndian, {
     dev_roles: [u8]
 });
 
-pub struct SuperblockVersion1<S: AsRef<[u8]>>(layout::View<S>);
+pub struct SuperblockVersion1<S: AsRef<[u8]>> {
+    buffer: layout::View<S>,
+    minor_version: u32,
+}
 
 impl SuperblockVersion1<Vec<u8>> {
     pub const MAX_SIZE: usize = 4096;
 
-    pub fn read<R: Read>(mut reader: R) -> std::io::Result<Self> {
+    pub fn read<R: Read>(mut reader: R, minor_version: u32) -> std::io::Result<Self> {
         let mut buf = vec![0u8; Self::MAX_SIZE];
         reader.read_exact(&mut buf)?;
-        let superblock = Self::new(buf);
+        let superblock = Self::new(buf, minor_version);
         if superblock.valid() {
             Ok(superblock)
         } else {
@@ -64,12 +67,15 @@ impl SuperblockVersion1<Vec<u8>> {
 }
 
 impl<S: AsRef<[u8]>> SuperblockVersion1<S> {
-    pub fn new(storage: S) -> Self {
-        Self(layout::View::new(storage))
+    pub fn new(storage: S, minor_version: u32) -> Self {
+        Self {
+            buffer: layout::View::new(storage),
+            minor_version,
+        }
     }
 
     pub fn valid_magic(&self) -> bool {
-        self.0.magic().read() == 0xa92b4efc
+        self.buffer.magic().read() == 0xa92b4efc
     }
 
     pub fn valid_major_version(&self) -> bool {
@@ -77,7 +83,7 @@ impl<S: AsRef<[u8]>> SuperblockVersion1<S> {
     }
 
     fn features(&self) -> Features {
-        self.0.features().read()
+        self.buffer.features().read()
     }
 
     fn has_bitmap_offset(&self) -> bool {
@@ -98,7 +104,9 @@ impl<S: AsRef<[u8]>> SuperblockVersion1<S> {
 
     pub fn bitmap_offset(&self) -> Option<u32> {
         if self.has_bitmap_offset() {
-            Some(LittleEndian::read_u32(self.0.bitmap_offset_or_ppl_info()))
+            Some(LittleEndian::read_u32(
+                self.buffer.bitmap_offset_or_ppl_info(),
+            ))
         } else {
             None
         }
@@ -106,7 +114,7 @@ impl<S: AsRef<[u8]>> SuperblockVersion1<S> {
 
     pub fn ppl_info(&self) -> Option<PplInfo<&[u8]>> {
         if self.has_ppl() {
-            Some(PplInfo::new(self.0.bitmap_offset_or_ppl_info()))
+            Some(PplInfo::new(self.buffer.bitmap_offset_or_ppl_info()))
         } else {
             None
         }
@@ -114,7 +122,7 @@ impl<S: AsRef<[u8]>> SuperblockVersion1<S> {
 
     pub fn recovery_offset(&self) -> Option<u64> {
         if self.has_recovery_offset() {
-            Some(self.0.recovery_offset_or_journal_tail().read())
+            Some(self.buffer.recovery_offset_or_journal_tail().read())
         } else {
             None
         }
@@ -122,18 +130,18 @@ impl<S: AsRef<[u8]>> SuperblockVersion1<S> {
 
     pub fn journal_tail(&self) -> Option<u64> {
         if self.has_journal() {
-            Some(self.0.recovery_offset_or_journal_tail().read())
+            Some(self.buffer.recovery_offset_or_journal_tail().read())
         } else {
             None
         }
     }
 
     fn level(&self) -> u32 {
-        self.0.level().read()
+        self.buffer.level().read()
     }
 
     fn layout(&self) -> u32 {
-        self.0.layout().read()
+        self.buffer.layout().read()
     }
 }
 
@@ -143,15 +151,15 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
     }
 
     fn major_version(&self) -> u32 {
-        self.0.major_version().read()
+        self.buffer.major_version().read()
     }
 
     fn array_uuid(&self) -> ArrayUuid {
-        ArrayUuid::from_u8_16(self.0.array_uuid())
+        ArrayUuid::from_u8_16(self.buffer.array_uuid())
     }
 
     fn array_name(&self) -> Option<&OsStr> {
-        Some(OsStr::from_bytes(self.0.array_name()))
+        Some(OsStr::from_bytes(self.buffer.array_name()))
     }
 
     fn algorithm(&self) -> MdAlgorithm {
@@ -159,29 +167,29 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
     }
 
     fn size(&self) -> u64 {
-        self.0.size().read()
+        self.buffer.size().read()
     }
 
     fn chunk_size(&self) -> u32 {
-        self.0.chunk_size().read()
+        self.buffer.chunk_size().read()
     }
 
     fn raid_disks(&self) -> u32 {
-        self.0.raid_disks().read()
+        self.buffer.raid_disks().read()
     }
 
     fn reshape_status(&self) -> ReshapeStatus {
-        self.0.reshape_status().into()
+        self.buffer.reshape_status().into()
     }
 
     fn event_count(&self) -> u64 {
-        self.0.event_count().read()
+        self.buffer.event_count().read()
     }
 
     fn device_roles(&self) -> Vec<u16> {
-        let count = self.0.max_devices().read() as usize;
+        let count = self.buffer.max_devices().read() as usize;
         let mut buffer = vec![0u16; count];
-        self.0
+        self.buffer
             .dev_roles()
             .read_u16_into::<LittleEndian>(&mut buffer)
             .unwrap();

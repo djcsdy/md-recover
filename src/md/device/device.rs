@@ -40,7 +40,7 @@ impl<D: BlockDevice> MdDevice<Box<dyn Superblock>, D> {
 
         for (minor_version, offset) in [(2, 8 << 9), (1, 0), (0, (((size >> 9) - 16) & !7) << 9)] {
             device.seek(SeekFrom::Start(offset))?;
-            match SuperblockVersion1::read(&mut device) {
+            match SuperblockVersion1::read(&mut device, minor_version) {
                 Ok(superblock) => {
                     return Ok(Self {
                         id,
