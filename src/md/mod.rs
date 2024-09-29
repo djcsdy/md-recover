@@ -1,4 +1,4 @@
-pub use device::MdDevice;
+pub use device::{MdDevice, MdDeviceId};
 pub use md_array::MdArray;
 
 mod algorithm;
