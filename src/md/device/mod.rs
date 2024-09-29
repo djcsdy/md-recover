@@ -1,4 +1,4 @@
-pub mod device;
+mod device;
 mod id;
 
 pub use device::MdDevice;

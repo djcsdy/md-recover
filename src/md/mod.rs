@@ -1,4 +1,4 @@
-pub use device::device::MdDevice;
+pub use device::MdDevice;
 
 mod algorithm;
 mod device;
