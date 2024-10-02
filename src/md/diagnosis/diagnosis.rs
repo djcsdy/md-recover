@@ -6,6 +6,7 @@ use std::ffi::OsString;
 
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub struct Diagnosis {
+    pub device_too_small_problem: Option<HashSet<MdDeviceId>>,
     pub missing_superblock_problem: Option<HashSet<MdDeviceId>>,
     pub array_uuid_problem: Option<HashMap<ArrayUuid, Vec<MdDeviceId>>>,
     pub array_name_problem: Option<HashMap<OsString, Vec<MdDeviceId>>>,

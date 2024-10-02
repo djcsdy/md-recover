@@ -1,14 +1,15 @@
 use crate::block_device::{BlockDevice, NativeBlockDevice};
 use crate::md::device::id::MdDeviceId;
+use crate::md::device::superblock::MdDeviceSuperblock;
 use crate::md::superblock::Superblock;
 use crate::md::superblock::{SuperblockVersion0, SuperblockVersion1};
 use std::ffi::OsStr;
-use std::io::{Error, ErrorKind, Result, SeekFrom};
+use std::io::{Result, SeekFrom};
 use std::path::Path;
 
 pub struct MdDevice<S: Superblock, D: BlockDevice> {
     pub id: MdDeviceId,
-    pub superblock: Option<S>,
+    pub superblock: MdDeviceSuperblock<S>,
     device: D,
 }
 
@@ -31,11 +32,15 @@ impl<D: BlockDevice> MdDevice<Box<dyn Superblock>, D> {
     ) -> Result<Self> {
         let size = device.size()?;
 
-        if size < Self::MIN_DEVICE_SIZE {
-            return Err(Error::from(ErrorKind::Other));
-        }
-
         let id = MdDeviceId::new(user_reference);
+
+        if size < Self::MIN_DEVICE_SIZE {
+            return Ok(Self {
+                id,
+                superblock: MdDeviceSuperblock::TooSmall,
+                device,
+            });
+        }
 
         for (minor_version, offset) in [(2, 8 << 9), (1, 0), (0, (((size >> 9) - 16) & !7) << 9)] {
             device.seek(SeekFrom::Start(offset))?;
@@ -43,7 +48,7 @@ impl<D: BlockDevice> MdDevice<Box<dyn Superblock>, D> {
                 Ok(superblock) => {
                     return Ok(Self {
                         id,
-                        superblock: Some(Box::new(superblock)),
+                        superblock: MdDeviceSuperblock::Superblock(Box::new(superblock)),
                         device,
                     });
                 }
@@ -57,7 +62,7 @@ impl<D: BlockDevice> MdDevice<Box<dyn Superblock>, D> {
                 Ok(superblock) => {
                     return Ok(Self {
                         id,
-                        superblock: Some(Box::new(superblock)),
+                        superblock: MdDeviceSuperblock::Superblock(Box::new(superblock)),
                         device,
                     })
                 }
@@ -67,7 +72,7 @@ impl<D: BlockDevice> MdDevice<Box<dyn Superblock>, D> {
 
         Ok(Self {
             id,
-            superblock: None,
+            superblock: MdDeviceSuperblock::Missing,
             device,
         })
     }

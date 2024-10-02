@@ -9,7 +9,7 @@ use clap::Parser;
 use os_display::Quotable;
 
 use crate::md::superblock::Superblock;
-use crate::md::MdDevice;
+use crate::md::{MdDevice, MdDeviceSuperblock};
 
 mod block_device;
 mod confidence;
@@ -37,7 +37,7 @@ fn main() {
 
         match MdDevice::open_path(device) {
             Ok(MdDevice { superblock, .. }) => match superblock {
-                Some(superblock) => {
+                MdDeviceSuperblock::Superblock(superblock) => {
                     println!(
                         "    * Version: {}.{}",
                         superblock.major_version(),
@@ -49,7 +49,10 @@ fn main() {
                         Some(name) => println!("    * Array Name: {}", name.maybe_quote()),
                     }
                 }
-                None => {
+                MdDeviceSuperblock::TooSmall => {
+                    println!("    * Too small to be an MD device");
+                }
+                MdDeviceSuperblock::Missing => {
                     println!("    * Missing Superblock");
                 }
             },
