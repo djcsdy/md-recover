@@ -4,6 +4,7 @@ use std::fs::File;
 use std::io::{Read, Result, Seek, SeekFrom};
 use std::path::Path;
 
+#[derive(Debug)]
 pub struct NativeBlockDevice {
     file: File,
 }
