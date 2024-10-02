@@ -6,10 +6,10 @@ extern crate bitflags;
 use std::path::PathBuf;
 
 use clap::Parser;
+use itertools::Itertools;
 use os_display::Quotable;
 
-use crate::md::superblock::Superblock;
-use crate::md::{MdDevice, MdDeviceSuperblock};
+use crate::md::{MdArray, MdDevice};
 
 mod block_device;
 mod confidence;
@@ -30,41 +30,19 @@ struct Options {
 fn main() {
     let options = Options::parse();
 
-    println!("Attempting to recover data from:");
+    let (devices, device_errors): (Vec<_>, Vec<_>) = options
+        .devices
+        .iter()
+        .map(|path| MdDevice::open_path(path).map_err(|err| (path, err)))
+        .partition_result();
 
-    for device in options.devices {
-        println!(" * {}", device.maybe_quote());
-
-        match MdDevice::open_path(device) {
-            Ok(MdDevice { superblock, .. }) => match superblock {
-                MdDeviceSuperblock::Superblock(superblock) => {
-                    println!(
-                        "    * Version: {}.{}",
-                        superblock.major_version(),
-                        superblock.minor_version()
-                    );
-                    println!("    * Array UUID: {}", superblock.array_uuid());
-                    match superblock.array_name() {
-                        None => {}
-                        Some(name) => println!("    * Array Name: {}", name.maybe_quote()),
-                    }
-                }
-                MdDeviceSuperblock::TooSmall => {
-                    println!("    * Too small to be an MD device");
-                }
-                MdDeviceSuperblock::Missing => {
-                    println!("    * Missing Superblock");
-                }
-            },
-            Err(error) => println!("    * Error: {}", error),
+    if device_errors.is_empty() {
+        let array = MdArray::new(devices);
+        let diagnosis = array.diagnose();
+        println!("{:?}", diagnosis);
+    } else {
+        for (path, error) in device_errors {
+            println!("{}: {}", path.maybe_quote(), error);
         }
-    }
-
-    println!();
-
-    println!("Recovered files will be written to:");
-
-    for path in options.output {
-        println!(" * {}", path.maybe_quote());
     }
 }
