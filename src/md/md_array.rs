@@ -9,11 +9,11 @@ use std::collections::{HashMap, HashSet};
 use std::ffi::OsString;
 
 pub struct MdArray {
-    devices: Vec<MdDevice<Box<dyn Superblock>, Box<dyn BlockDevice>>>,
+    devices: Vec<MdDevice<Box<dyn BlockDevice>>>,
 }
 
 impl MdArray {
-    pub fn new(devices: Vec<MdDevice<Box<dyn Superblock>, Box<dyn BlockDevice>>>) -> Self {
+    pub fn new(devices: Vec<MdDevice<Box<dyn BlockDevice>>>) -> Self {
         Self { devices }
     }
 

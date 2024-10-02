@@ -1,31 +1,30 @@
 use crate::block_device::{BlockDevice, NativeBlockDevice};
 use crate::md::device::id::MdDeviceId;
 use crate::md::device::superblock::MdDeviceSuperblock;
-use crate::md::superblock::Superblock;
 use crate::md::superblock::{SuperblockVersion0, SuperblockVersion1};
 use std::ffi::OsStr;
 use std::io::{Result, SeekFrom};
 use std::path::Path;
 
-pub struct MdDevice<S: Superblock, D: BlockDevice> {
+pub struct MdDevice<D: BlockDevice> {
     pub id: MdDeviceId,
-    pub superblock: MdDeviceSuperblock<S>,
+    pub superblock: MdDeviceSuperblock,
     device: D,
 }
 
-impl<S: Superblock, D: BlockDevice> MdDevice<S, D> {
+impl<D: BlockDevice> MdDevice<D> {
     const MIN_DEVICE_SIZE: u64 = 12288;
     const MIN_SUPERBLOCK_0_DEVICE_SIZE: u64 = 65536;
 }
 
-impl MdDevice<Box<dyn Superblock>, NativeBlockDevice> {
+impl MdDevice<NativeBlockDevice> {
     pub fn open_path<P: AsRef<Path>>(path: P) -> Result<Self> {
         let device = NativeBlockDevice::open_path(path.as_ref())?;
         Self::from_block_device(device, Some(path.as_ref().as_os_str()))
     }
 }
 
-impl<D: BlockDevice> MdDevice<Box<dyn Superblock>, D> {
+impl<D: BlockDevice> MdDevice<D> {
     pub fn from_block_device<S: AsRef<OsStr>>(
         mut device: D,
         user_reference: Option<S>,

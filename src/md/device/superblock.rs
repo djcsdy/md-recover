@@ -1,15 +1,15 @@
 use crate::md::superblock::Superblock;
 
-pub enum MdDeviceSuperblock<S: Superblock> {
-    Superblock(S),
+pub enum MdDeviceSuperblock {
+    Superblock(Box<dyn Superblock>),
     TooSmall,
     Missing,
 }
 
-impl<S: Superblock> MdDeviceSuperblock<S> {
-    pub(crate) fn as_option(&self) -> Option<&S> {
+impl MdDeviceSuperblock {
+    pub(crate) fn as_option(&self) -> Option<&dyn Superblock> {
         match self {
-            MdDeviceSuperblock::Superblock(superblock) => Some(superblock),
+            MdDeviceSuperblock::Superblock(superblock) => Some(superblock.as_ref()),
             _ => None,
         }
     }
