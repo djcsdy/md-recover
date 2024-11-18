@@ -9,6 +9,16 @@ fn size_of_superblock() {
 }
 
 #[test]
+fn valid_checksum() {
+    assert!(Superblock::new(EXT4).valid_checksum());
+}
+
+#[test]
+fn valid_checksum_ext2() {
+    assert!(Superblock::new(EXT2).valid_checksum());
+}
+
+#[test]
 fn inodes_count() {
     assert_eq!(Superblock::new(EXT4).inodes_count(), 64);
 }
