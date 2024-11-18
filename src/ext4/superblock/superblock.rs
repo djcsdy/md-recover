@@ -156,6 +156,12 @@ impl<S: AsRef<[u8]>> Superblock<S> {
             | ((view.reserved_blocks_count_high().read() as u64) << 32)
     }
 
+    pub fn free_blocks_count(&self) -> u64 {
+        let view = self.view();
+        view.free_blocks_count_low().read() as u64
+            | ((view.free_blocks_count_high().read() as u64) << 32)
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
