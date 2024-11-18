@@ -134,7 +134,11 @@ impl<S: AsRef<[u8]>> Superblock<S> {
     }
 
     pub fn valid_checksum(&self) -> bool {
-        self.expected_checksum() == layout::View::new(self.0.as_ref()).into_checksum().read()
+        match self.checksum() {
+            Checksum::None => true,
+            Checksum::Crc32c(checksum) => checksum == self.expected_checksum(),
+            Checksum::Unknown(_, _) => false,
+        }
     }
 
     pub fn inodes_count(&self) -> u32 {
