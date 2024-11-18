@@ -5,13 +5,13 @@ use crate::md::superblock::version_1::features::Features;
 use crate::md::superblock::version_1::ppl_info::PplInfo;
 use crate::md::superblock::version_1::reshape_status::NestedReshapeStatusVersion1;
 use crate::md::superblock::{ArrayUuid, Superblock};
-use binary_layout::define_layout;
+use binary_layout::binary_layout;
 use byteorder::{ByteOrder, LittleEndian, ReadBytesExt};
 use std::ffi::OsStr;
 use std::io::{Error, ErrorKind, Read};
 use std::os::unix::ffi::OsStrExt;
 
-define_layout!(layout, LittleEndian, {
+binary_layout!(layout, LittleEndian, {
     magic: u32,
     major_version: u32,
     features: Features as u32,

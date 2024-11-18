@@ -1,7 +1,7 @@
 use super::state::State;
 use binary_layout::prelude::*;
 
-define_layout!(layout, LittleEndian, {
+binary_layout!(layout, LittleEndian, {
     inodes_count: u32,
     blocks_count_low: u32,
     reserved_blocks_count_low: u32,

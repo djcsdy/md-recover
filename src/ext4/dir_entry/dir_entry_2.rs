@@ -1,8 +1,8 @@
-use binary_layout::define_layout;
+use binary_layout::binary_layout;
 
 use super::NAME_LENGTH;
 
-define_layout!(layout, LittleEndian, {
+binary_layout!(layout, LittleEndian, {
     inode: u32,
     record_length: u16,
     name_length: u8,

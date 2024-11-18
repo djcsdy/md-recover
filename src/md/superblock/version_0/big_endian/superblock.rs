@@ -1,11 +1,11 @@
 use super::device_descriptor::DeviceDescriptor;
 use super::reshape_status::NestedReshapeStatusVersion0;
 use crate::md::superblock::SuperblockVersion0;
-use binary_layout::define_layout;
+use binary_layout::binary_layout;
 
 pub use layout::View;
 
-define_layout!(layout, BigEndian, {
+binary_layout!(layout, BigEndian, {
     magic: u32,
     major_version: u32,
     minor_version: u32,

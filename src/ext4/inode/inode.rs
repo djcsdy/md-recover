@@ -1,9 +1,9 @@
-use binary_layout::define_layout;
+use binary_layout::binary_layout;
 use std::mem::size_of;
 
 const NUM_BLOCKS: usize = 15;
 
-define_layout!(layout, LittleEndian, {
+binary_layout!(layout, LittleEndian, {
     file_mode: u16,
     user_id_low: u16,
     size_low: u32,

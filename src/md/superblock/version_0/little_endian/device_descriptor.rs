@@ -2,7 +2,7 @@ use binary_layout::prelude::*;
 
 pub struct DeviceDescriptor<S: AsRef<[u8]>>(layout::View<S>);
 
-define_layout!(layout, LittleEndian, {
+binary_layout!(layout, LittleEndian, {
     number: u32,
     major: u32,
     minor: u32,

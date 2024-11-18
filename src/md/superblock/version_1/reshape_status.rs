@@ -5,7 +5,7 @@ use crate::md::superblock::reshape_status::ReshapeStatus;
 pub use layout::NestedView as NestedReshapeStatusVersion1;
 pub use layout::View as ReshapeStatusVersion1;
 
-define_layout!(layout, LittleEndian, {
+binary_layout!(layout, LittleEndian, {
     new_level: u32,
     reshape_position: u64,
     delta_disks: u32,

@@ -1,6 +1,6 @@
-use binary_layout::define_layout;
+use binary_layout::binary_layout;
 
-define_layout!(layout, LittleEndian, {
+binary_layout!(layout, LittleEndian, {
     reserved_zero_1: u32,
     record_length: u16,
     reserved_zero_2: u8,

@@ -2,7 +2,7 @@ use binary_layout::prelude::*;
 
 pub use layout::View as PplInfo;
 
-define_layout!(layout, LittleEndian, {
+binary_layout!(layout, LittleEndian, {
     offset: i16,
     size: u16,
 });
