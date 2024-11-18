@@ -142,18 +142,16 @@ impl<S: AsRef<[u8]>> Superblock<S> {
     }
 
     pub fn inodes_count(&self) -> u32 {
-        layout::View::new(self.0.as_ref())
-            .into_inodes_count()
-            .read()
+        self.view().into_inodes_count().read()
     }
 
     pub fn blocks_count(&self) -> u64 {
-        let view = layout::View::new(self.0.as_ref());
+        let view = self.view();
         view.blocks_count_low().read() as u64 | ((view.blocks_count_high().read() as u64) << 32)
     }
 
     pub fn checksum(&self) -> Checksum {
-        let view = layout::View::new(self.0.as_ref());
+        let view = self.view();
         match view.checksum_type().read() {
             ChecksumType::None => Checksum::None,
             ChecksumType::Crc32c => Checksum::Crc32c(view.checksum().read()),
@@ -166,6 +164,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         let mut digest = crc.digest();
         digest.update(&self.0.as_ref()[0..layout::checksum::OFFSET]);
         digest.finalize()
+    }
+
+    fn view(&self) -> layout::View<&[u8]> {
+        layout::View::new(self.0.as_ref())
     }
 }
 
