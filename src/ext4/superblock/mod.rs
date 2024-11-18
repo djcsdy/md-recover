@@ -1,3 +1,4 @@
+mod checksum_type;
 mod state;
 mod superblock;
 #[cfg(test)]

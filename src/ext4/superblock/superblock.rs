@@ -1,3 +1,4 @@
+use super::checksum_type::ChecksumType;
 use super::state::State;
 use binary_layout::prelude::*;
 use crc::{Crc, CRC_32_ISCSI};
@@ -65,7 +66,7 @@ binary_layout!(layout, LittleEndian, {
     multi_mount_prevention_block: u64,
     raid_stripe_width: u32,
     log_groups_per_flex: u8,
-    checksum_type: u8,
+    checksum_type: ChecksumType as u8,
     reserved_0: u16,
     kbytes_written: u64,
     snapshot_inode_number: u32,
