@@ -1,6 +1,6 @@
 use crate::ext4::superblock::Superblock;
 
-const VALID_1: &[u8] = include_bytes!("./test-data/valid-1");
+const EXT2: &[u8] = include_bytes!("test-data/ext2");
 
 #[test]
 fn size_of_superblock() {
@@ -8,11 +8,11 @@ fn size_of_superblock() {
 }
 
 #[test]
-fn inodes_count() {
-    assert_eq!(Superblock::new(VALID_1).inodes_count(), 64);
+fn inodes_count_ext2() {
+    assert_eq!(Superblock::new(EXT2).inodes_count(), 64);
 }
 
 #[test]
-fn blocks_count() {
-    assert_eq!(Superblock::new(VALID_1).blocks_count(), 128);
+fn blocks_count_ext2() {
+    assert_eq!(Superblock::new(EXT2).blocks_count(), 128);
 }
