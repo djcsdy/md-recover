@@ -40,3 +40,8 @@ fn checksum() {
 fn checksum_ext2() {
     assert_eq!(Superblock::new(EXT2).checksum(), Checksum::None)
 }
+
+#[test]
+fn expected_checksum() {
+    assert_eq!(Superblock::new(EXT4).expected_checksum(), 0x42350b17)
+}
