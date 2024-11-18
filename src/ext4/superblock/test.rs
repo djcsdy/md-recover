@@ -19,6 +19,16 @@ fn valid_cluster_size_ext2() {
 }
 
 #[test]
+fn valid_clusters_per_group() {
+    assert!(Superblock::new(EXT4).valid_clusters_per_group());
+}
+
+#[test]
+fn valid_clusters_per_group_ext2() {
+    assert!(Superblock::new(EXT2).valid_clusters_per_group());
+}
+
+#[test]
 fn valid_checksum() {
     assert!(Superblock::new(EXT4).valid_checksum());
 }
