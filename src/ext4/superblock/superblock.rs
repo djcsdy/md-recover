@@ -1,4 +1,5 @@
 use super::checksum_type::ChecksumType;
+use super::flags::Flags;
 use super::state::State;
 use binary_layout::prelude::*;
 use crc::{Crc, CRC_32_ISCSI};
@@ -60,7 +61,7 @@ binary_layout!(layout, LittleEndian, {
     free_blocks_count_high: u32,
     minimum_extra_inode_size: u16,
     wanted_extra_inode_size: u16,
-    flags: u32,
+    flags: Flags as u32,
     raid_stride: u16,
     multi_mount_prevention_interval: u16,
     multi_mount_prevention_block: u64,
