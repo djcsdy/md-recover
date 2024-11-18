@@ -39,6 +39,11 @@ fn blocks_count_ext2() {
 }
 
 #[test]
+fn block_size_bytes() {
+    assert_eq!(Superblock::new(EXT4).block_size_bytes(), 4096);
+}
+
+#[test]
 fn checksum() {
     assert_eq!(
         Superblock::new(EXT4).checksum(),

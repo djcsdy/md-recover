@@ -170,6 +170,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_first_data_block().read()
     }
 
+    pub fn block_size_bytes(&self) -> u64 {
+        1 << (10 + self.view().into_log_block_size().read())
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
