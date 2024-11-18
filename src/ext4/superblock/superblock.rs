@@ -1,5 +1,6 @@
 use super::state::State;
 use binary_layout::prelude::*;
+use crc::{Crc, CRC_32_ISCSI};
 
 binary_layout!(layout, LittleEndian, {
     inodes_count: u32,
@@ -106,4 +107,17 @@ binary_layout!(layout, LittleEndian, {
     checksum: u32
 });
 
-pub struct Superblock<S: AsRef<[u8]>>(layout::View<S>);
+pub struct Superblock<S: AsRef<[u8]>>(S);
+
+impl<S: AsRef<[u8]>> Superblock<S> {
+    pub fn valid_checksum(&self) -> bool {
+        self.compute_checksum() == layout::View::new(self.0.as_ref()).into_checksum().read()
+    }
+
+    fn compute_checksum(&self) -> u32 {
+        let crc = Crc::<u32>::new(&CRC_32_ISCSI);
+        let mut digest = crc.digest();
+        digest.update(&self.0.as_ref()[0..layout::SIZE.unwrap() - size_of::<u32>()]);
+        digest.finalize()
+    }
+}
