@@ -110,6 +110,10 @@ binary_layout!(layout, LittleEndian, {
 pub struct Superblock<S: AsRef<[u8]>>(S);
 
 impl<S: AsRef<[u8]>> Superblock<S> {
+    pub fn new(storage: S) -> Self {
+        Self(storage)
+    }
+
     pub fn valid_checksum(&self) -> bool {
         self.compute_checksum() == layout::View::new(self.0.as_ref()).into_checksum().read()
     }
