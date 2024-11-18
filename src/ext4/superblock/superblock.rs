@@ -1,6 +1,7 @@
 use super::checksum_type::ChecksumType;
 use super::flags::Flags;
 use super::state::State;
+use crate::ext4::superblock::checksum::Checksum;
 use binary_layout::prelude::*;
 use crc::{Crc, CRC_32_ISCSI};
 use std::io::{Error, ErrorKind, Read, Result};
@@ -134,6 +135,15 @@ impl<S: AsRef<[u8]>> Superblock<S> {
     pub fn blocks_count(&self) -> u64 {
         let view = layout::View::new(self.0.as_ref());
         view.blocks_count_low().read() as u64 | ((view.blocks_count_high().read() as u64) << 32)
+    }
+
+    pub fn checksum(&self) -> Checksum {
+        let view = layout::View::new(self.0.as_ref());
+        match view.checksum_type().read() {
+            ChecksumType::None => Checksum::None,
+            ChecksumType::Crc32c => Checksum::Crc32c(view.checksum().read()),
+            ChecksumType::Unknown(t) => Checksum::Unknown(t, view.checksum().read()),
+        }
     }
 
     fn compute_checksum(&self) -> u32 {

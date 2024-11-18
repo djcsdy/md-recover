@@ -1,4 +1,4 @@
-use crate::ext4::superblock::Superblock;
+use crate::ext4::superblock::{Checksum, Superblock};
 
 const EXT2: &[u8] = include_bytes!("test-data/ext2");
 const EXT4: &[u8] = include_bytes!("test-data/ext4");
@@ -26,4 +26,17 @@ fn blocks_count() {
 #[test]
 fn blocks_count_ext2() {
     assert_eq!(Superblock::new(EXT2).blocks_count(), 128);
+}
+
+#[test]
+fn checksum() {
+    assert_eq!(
+        Superblock::new(EXT4).checksum(),
+        Checksum::Crc32c(0x42350b17)
+    )
+}
+
+#[test]
+fn checksum_ext2() {
+    assert_eq!(Superblock::new(EXT2).checksum(), Checksum::None)
 }
