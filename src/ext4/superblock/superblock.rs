@@ -123,6 +123,12 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.compute_checksum() == layout::View::new(self.0.as_ref()).into_checksum().read()
     }
 
+    pub fn inodes_count(&self) -> u32 {
+        layout::View::new(self.0.as_ref())
+            .into_inodes_count()
+            .read()
+    }
+
     fn compute_checksum(&self) -> u32 {
         let crc = Crc::<u32>::new(&CRC_32_ISCSI);
         let mut digest = crc.digest();
