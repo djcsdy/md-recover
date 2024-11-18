@@ -185,6 +185,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         1 << (10 + self.view().into_log_cluster_size().read())
     }
 
+    pub fn blocks_per_group(&self) -> u32 {
+        self.view().blocks_per_group().read()
+    }
+
     pub fn read_only_compatible_features(&self) -> ReadOnlyCompatibleFeatures {
         self.view().into_read_only_compatible_features().read()
     }
