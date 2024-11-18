@@ -1,5 +1,6 @@
 use super::checksum_type::ChecksumType;
 use super::flags::Flags;
+use super::read_only_compatible_features::ReadOnlyCompatibleFeatures;
 use super::state::State;
 use crate::ext4::superblock::checksum::Checksum;
 use binary_layout::prelude::*;
@@ -37,7 +38,7 @@ binary_layout!(layout, LittleEndian, {
     block_group_number: u16,
     compatible_features: u32,
     incompatible_features: u32,
-    read_only_compatible_features: u32,
+    read_only_compatible_features: ReadOnlyCompatibleFeatures as u32,
     uuid: [u8; 16],
     volume_name: [u8; 16],
     last_mounted: [u8; 64],
