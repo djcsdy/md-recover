@@ -174,6 +174,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         1 << (10 + self.view().into_log_block_size().read())
     }
 
+    pub fn cluster_size_blocks(&self) -> u64 {
+        1 << (10 + self.view().into_log_cluster_size().read())
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
