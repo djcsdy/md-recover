@@ -129,6 +129,11 @@ impl<S: AsRef<[u8]>> Superblock<S> {
             .read()
     }
 
+    pub fn blocks_count(&self) -> u64 {
+        let view = layout::View::new(self.0.as_ref());
+        view.blocks_count_low().read() as u64 | ((view.blocks_count_high().read() as u64) << 32)
+    }
+
     fn compute_checksum(&self) -> u32 {
         let crc = Crc::<u32>::new(&CRC_32_ISCSI);
         let mut digest = crc.digest();

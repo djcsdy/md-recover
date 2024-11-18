@@ -11,3 +11,8 @@ fn size_of_superblock() {
 fn inodes_count() {
     assert_eq!(Superblock::new(VALID_1).inodes_count(), 64);
 }
+
+#[test]
+fn blocks_count() {
+    assert_eq!(Superblock::new(VALID_1).blocks_count(), 128);
+}
