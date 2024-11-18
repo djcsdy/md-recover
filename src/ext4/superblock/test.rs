@@ -9,6 +9,16 @@ fn size_of_superblock() {
 }
 
 #[test]
+fn valid_cluster_size() {
+    assert!(Superblock::new(EXT4).valid_cluster_size());
+}
+
+#[test]
+fn valid_cluster_size_ext2() {
+    assert!(Superblock::new(EXT2).valid_cluster_size());
+}
+
+#[test]
 fn valid_checksum() {
     assert!(Superblock::new(EXT4).valid_checksum());
 }

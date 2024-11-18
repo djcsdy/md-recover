@@ -131,7 +131,13 @@ impl<S: AsRef<[u8]>> Superblock<S> {
     }
 
     pub fn valid(&self) -> bool {
-        self.valid_checksum()
+        self.valid_cluster_size() && self.valid_checksum()
+    }
+
+    pub fn valid_cluster_size(&self) -> bool {
+        self.read_only_compatible_features()
+            .contains(ReadOnlyCompatibleFeatures::BIGALLOC)
+            || self.cluster_size_blocks() == self.block_size_bytes()
     }
 
     pub fn valid_checksum(&self) -> bool {
