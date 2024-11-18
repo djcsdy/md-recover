@@ -123,7 +123,7 @@ impl<S: AsRef<[u8]>> Superblock<S> {
     }
 
     pub fn valid_checksum(&self) -> bool {
-        self.compute_checksum() == layout::View::new(self.0.as_ref()).into_checksum().read()
+        self.expected_checksum() == layout::View::new(self.0.as_ref()).into_checksum().read()
     }
 
     pub fn inodes_count(&self) -> u32 {
@@ -146,7 +146,7 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         }
     }
 
-    fn compute_checksum(&self) -> u32 {
+    pub fn expected_checksum(&self) -> u32 {
         let crc = Crc::<u32>::new(&CRC_32_ISCSI);
         let mut digest = crc.digest();
         digest.update(&self.0.as_ref()[0..layout::SIZE.unwrap() - size_of::<u32>()]);
