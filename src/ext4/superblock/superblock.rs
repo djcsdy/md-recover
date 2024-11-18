@@ -199,6 +199,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().clusters_per_group().read()
     }
 
+    pub fn inodes_per_group(&self) -> u32 {
+        self.view().into_inodes_per_group().read()
+    }
+
     pub fn read_only_compatible_features(&self) -> ReadOnlyCompatibleFeatures {
         self.view().into_read_only_compatible_features().read()
     }
