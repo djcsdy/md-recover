@@ -179,6 +179,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         1 << (10 + self.view().into_log_cluster_size().read())
     }
 
+    pub fn read_only_compatible_features(&self) -> ReadOnlyCompatibleFeatures {
+        self.view().into_read_only_compatible_features().read()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {

@@ -1,4 +1,4 @@
-use crate::ext4::superblock::{Checksum, Superblock};
+use crate::ext4::superblock::{Checksum, ReadOnlyCompatibleFeatures, Superblock};
 
 const EXT2: &[u8] = include_bytes!("test-data/ext2");
 const EXT4: &[u8] = include_bytes!("test-data/ext4");
@@ -46,6 +46,28 @@ fn block_size_bytes() {
 #[test]
 fn cluster_size_blocks() {
     assert_eq!(Superblock::new(EXT4).cluster_size_blocks(), 4096);
+}
+
+#[test]
+fn read_only_compatible_features() {
+    assert_eq!(
+        Superblock::new(EXT4).read_only_compatible_features(),
+        ReadOnlyCompatibleFeatures::SPARSE_SUPERBLOCKS
+            | ReadOnlyCompatibleFeatures::CONTAINS_LARGE_FILES
+            | ReadOnlyCompatibleFeatures::CONTAINS_HUGE_FILES
+            | ReadOnlyCompatibleFeatures::UNLIMITED_SUBDIRECTORIES
+            | ReadOnlyCompatibleFeatures::CONTAINS_LARGE_INODES
+            | ReadOnlyCompatibleFeatures::METADATA_CHECKSUMS
+    );
+}
+
+#[test]
+fn read_only_compatible_features_ext2() {
+    assert_eq!(
+        Superblock::new(EXT2).read_only_compatible_features(),
+        ReadOnlyCompatibleFeatures::SPARSE_SUPERBLOCKS
+            | ReadOnlyCompatibleFeatures::CONTAINS_LARGE_FILES
+    );
 }
 
 #[test]
