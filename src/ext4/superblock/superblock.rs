@@ -114,6 +114,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         Self(storage)
     }
 
+    pub fn valid(&self) -> bool {
+        self.valid_checksum()
+    }
+
     pub fn valid_checksum(&self) -> bool {
         self.compute_checksum() == layout::View::new(self.0.as_ref()).into_checksum().read()
     }
