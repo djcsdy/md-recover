@@ -166,6 +166,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_free_inodes_count().read()
     }
 
+    pub fn first_data_block(&self) -> u32 {
+        self.view().into_first_data_block().read()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
