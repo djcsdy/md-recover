@@ -1,6 +1,7 @@
 use super::state::State;
 use binary_layout::prelude::*;
 use crc::{Crc, CRC_32_ISCSI};
+use std::io::{Error, ErrorKind, Read, Result};
 
 binary_layout!(layout, LittleEndian, {
     inodes_count: u32,
@@ -127,5 +128,18 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         let mut digest = crc.digest();
         digest.update(&self.0.as_ref()[0..layout::SIZE.unwrap() - size_of::<u32>()]);
         digest.finalize()
+    }
+}
+
+impl Superblock<Vec<u8>> {
+    pub fn read<R: Read>(mut reader: R) -> Result<Self> {
+        let mut buf = vec![0u8; layout::SIZE.unwrap()];
+        reader.read_exact(&mut buf)?;
+        let superblock = Self::new(buf);
+        if superblock.valid() {
+            Ok(superblock)
+        } else {
+            Err(Error::from(ErrorKind::InvalidData))
+        }
     }
 }
