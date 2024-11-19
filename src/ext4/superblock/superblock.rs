@@ -1,7 +1,6 @@
 use super::checksum_type::ChecksumType;
 use super::flags::Flags;
-use super::state::State;
-use super::ReadOnlyCompatibleFeatures;
+use super::{ReadOnlyCompatibleFeatures, State};
 use crate::ext4::superblock::checksum::Checksum;
 use binary_layout::prelude::*;
 use crc::{Algorithm, Crc, CRC_32_ISCSI};
@@ -220,6 +219,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
 
     pub fn magic(&self) -> u16 {
         self.view().into_magic().read()
+    }
+
+    pub fn state(&self) -> State {
+        self.view().into_state().read()
     }
 
     pub fn read_only_compatible_features(&self) -> ReadOnlyCompatibleFeatures {

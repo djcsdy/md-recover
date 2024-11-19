@@ -1,3 +1,4 @@
+use crate::ext4::superblock::state::State;
 use crate::ext4::superblock::{Checksum, ReadOnlyCompatibleFeatures, Superblock};
 
 const EXT2: &[u8] = include_bytes!("test-data/ext2");
@@ -86,6 +87,16 @@ fn magic() {
 #[test]
 fn magic_ext2() {
     assert_eq!(Superblock::new(EXT2).magic(), 0xef53);
+}
+
+#[test]
+fn state() {
+    assert_eq!(Superblock::new(EXT4).state(), State::CLEANLY_UNMOUNTED);
+}
+
+#[test]
+fn state_ext2() {
+    assert_eq!(Superblock::new(EXT2).state(), State::CLEANLY_UNMOUNTED);
 }
 
 #[test]
