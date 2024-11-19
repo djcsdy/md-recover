@@ -69,6 +69,16 @@ fn cluster_size_blocks() {
 }
 
 #[test]
+fn magic() {
+    assert_eq!(Superblock::new(EXT4).magic(), 0xef53);
+}
+
+#[test]
+fn magic_ext2() {
+    assert_eq!(Superblock::new(EXT2).magic(), 0xef53);
+}
+
+#[test]
 fn read_only_compatible_features() {
     assert_eq!(
         Superblock::new(EXT4).read_only_compatible_features(),

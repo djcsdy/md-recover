@@ -211,6 +211,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_max_mount_count().read()
     }
 
+    pub fn magic(&self) -> u16 {
+        self.view().into_magic().read()
+    }
+
     pub fn read_only_compatible_features(&self) -> ReadOnlyCompatibleFeatures {
         self.view().into_read_only_compatible_features().read()
     }
