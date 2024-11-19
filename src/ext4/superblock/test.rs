@@ -40,6 +40,11 @@ fn valid_clusters_per_group_ext2() {
 }
 
 #[test]
+fn valid_error_policy() {
+    assert!(Superblock::new(EXT4).valid_error_policy());
+}
+
+#[test]
 fn valid_checksum() {
     assert!(Superblock::new(EXT4).valid_checksum());
 }

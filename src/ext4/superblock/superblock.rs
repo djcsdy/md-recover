@@ -133,6 +133,7 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.valid_cluster_size()
             && self.valid_clusters_per_group()
             && self.valid_magic()
+            && self.valid_error_policy()
             && self.valid_checksum()
     }
 
@@ -150,6 +151,13 @@ impl<S: AsRef<[u8]>> Superblock<S> {
 
     pub fn valid_magic(&self) -> bool {
         self.magic() == 0xef53
+    }
+
+    pub fn valid_error_policy(&self) -> bool {
+        match self.error_policy() {
+            ErrorPolicy::Unknown(_) => false,
+            _ => true,
+        }
     }
 
     pub fn valid_checksum(&self) -> bool {
