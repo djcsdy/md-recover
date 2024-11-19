@@ -225,6 +225,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_state().read()
     }
 
+    pub fn error_policy(&self) -> ErrorPolicy {
+        self.view().into_error_policy().read()
+    }
+
     pub fn read_only_compatible_features(&self) -> ReadOnlyCompatibleFeatures {
         self.view().into_read_only_compatible_features().read()
     }
