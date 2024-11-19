@@ -1,6 +1,6 @@
 use super::checksum_type::ChecksumType;
 use super::flags::Flags;
-use super::{ReadOnlyCompatibleFeatures, State};
+use super::{ErrorPolicy, ReadOnlyCompatibleFeatures, State};
 use crate::ext4::superblock::checksum::Checksum;
 use binary_layout::prelude::*;
 use crc::{Algorithm, Crc, CRC_32_ISCSI};
@@ -24,7 +24,7 @@ binary_layout!(layout, LittleEndian, {
     max_mount_count: u16,
     magic: u16,
     state: State as u16,
-    errors: u16,
+    error_policy: ErrorPolicy as u16,
     minor_revision_level: u16,
     last_check_time_low: u32,
     check_interval: u32,
