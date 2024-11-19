@@ -237,6 +237,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_error_policy().read()
     }
 
+    pub fn minor_revision_level(&self) -> u16 {
+        self.view().into_minor_revision_level().read()
+    }
+
     pub fn read_only_compatible_features(&self) -> ReadOnlyCompatibleFeatures {
         self.view().into_read_only_compatible_features().read()
     }
