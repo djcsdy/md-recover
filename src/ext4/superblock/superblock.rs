@@ -1,7 +1,7 @@
 use super::checksum_type::ChecksumType;
 use super::flags::Flags;
-use super::read_only_compatible_features::ReadOnlyCompatibleFeatures;
 use super::state::State;
+use super::ReadOnlyCompatibleFeatures;
 use crate::ext4::superblock::checksum::Checksum;
 use binary_layout::prelude::*;
 use crc::{Algorithm, Crc, CRC_32_ISCSI};
