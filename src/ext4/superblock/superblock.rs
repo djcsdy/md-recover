@@ -96,8 +96,8 @@ binary_layout!(layout, LittleEndian, {
     user_quota_inode_number: u32,
     group_quota_inode_number: u32,
     overhead_blocks: u32,
-    backup_block_group_0: u32,
-    backup_block_group_1: u32,
+    superblock_backup_block_group_0: u32,
+    superblock_backup_block_group_1: u32,
     encryption_algorithms: [u8; 4],
     encryption_password_salt: [u8; 16],
     lost_and_found_inode_number: u32,
@@ -584,6 +584,14 @@ impl<S: AsRef<[u8]>> Superblock<S> {
 
     pub fn overhead_blocks(&self) -> u32 {
         self.view().into_overhead_blocks().read()
+    }
+
+    pub fn superblock_backup_block_groups(&self) -> [u32; 2] {
+        let view = self.view();
+        [
+            view.superblock_backup_block_group_0().read(),
+            view.superblock_backup_block_group_1().read(),
+        ]
     }
 
     fn view(&self) -> layout::View<&[u8]> {
