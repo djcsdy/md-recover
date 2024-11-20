@@ -79,7 +79,7 @@ binary_layout!(layout, LittleEndian, {
     snapshot_inode_number: u32,
     snapshot_id: u32,
     snapshot_reserved_blocks_count: u64,
-    snapshot_list: u32,
+    snapshot_list_inode_number: u32,
     error_count: u32,
     first_error_time_low: u32,
     first_error_inode: u32,
@@ -496,6 +496,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
 
     pub fn snapshot_reserved_blocks_count(&self) -> u64 {
         self.view().into_snapshot_reserved_blocks_count().read()
+    }
+
+    pub fn snapshot_list_inode_number(&self) -> u32 {
+        self.view().into_snapshot_list_inode_number().read()
     }
 
     fn view(&self) -> layout::View<&[u8]> {
