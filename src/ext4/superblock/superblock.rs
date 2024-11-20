@@ -366,6 +366,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_preallocate_blocks().read()
     }
 
+    pub fn preallocate_directory_blocks(&self) -> u8 {
+        self.view().into_preallocate_directory_blocks().read()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
