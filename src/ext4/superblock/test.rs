@@ -210,6 +210,16 @@ fn default_reserved_user_id_3() {
 }
 
 #[test]
+fn default_reserved_group_id_1() {
+    assert_eq!(Superblock::new(EXT4_1).default_reserved_group_id(), 0);
+}
+
+#[test]
+fn default_reserved_group_id_3() {
+    assert_eq!(Superblock::new(EXT4_3).default_reserved_group_id(), 1000);
+}
+
+#[test]
 fn checksum() {
     assert_eq!(
         Superblock::new(EXT4_1).checksum(),

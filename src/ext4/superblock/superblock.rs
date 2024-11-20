@@ -292,6 +292,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_default_reserved_user_id().read()
     }
 
+    pub fn default_reserved_group_id(&self) -> u16 {
+        self.view().into_default_reserved_group_id().read()
+    }
+
     pub fn read_only_compatible_features(&self) -> ReadOnlyCompatibleFeatures {
         self.view().into_read_only_compatible_features().read()
     }
