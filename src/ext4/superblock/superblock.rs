@@ -85,7 +85,7 @@ binary_layout!(layout, LittleEndian, {
     first_error_time_low: u32,
     first_error_inode: u32,
     first_error_block: u64,
-    first_error_function: [u8; 32],
+    first_error_function_name: [u8; 32],
     first_error_line: u32,
     last_error_time_low: u32,
     last_error_inode: u32,
@@ -517,6 +517,17 @@ impl<S: AsRef<[u8]>> Superblock<S> {
 
     pub fn first_error_block(&self) -> u64 {
         self.view().into_first_error_block().read()
+    }
+
+    pub fn first_error_function_name(&self) -> Option<Ext4String<&[u8]>> {
+        let name = Ext4String::from_null_terminated_bytes(
+            self.view().into_first_error_function_name().into_slice(),
+        );
+        if name.is_empty() {
+            None
+        } else {
+            Some(name)
+        }
     }
 
     fn view(&self) -> layout::View<&[u8]> {
