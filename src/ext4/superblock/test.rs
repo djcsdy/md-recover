@@ -4,7 +4,7 @@ use crate::ext4::superblock::{
     Checksum, CreatorOs, ErrorPolicy, IncompatibleFeatures, ReadOnlyCompatibleFeatures, Superblock,
 };
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use uuid::uuid;
+use uuid::{uuid, Uuid};
 
 const EXT2: &[u8] = include_bytes!("test-data/ext2");
 const EXT4_1: &[u8] = include_bytes!("test-data/ext4-1");
@@ -300,6 +300,16 @@ fn volume_name_3() {
 #[test]
 fn last_mounted_path() {
     assert_eq!(Superblock::new(EXT4_1).last_mounted_path(), None);
+}
+
+#[test]
+fn journal_uuid_1() {
+    assert_eq!(Superblock::new(EXT4_1).journal_uuid(), Uuid::default());
+}
+
+#[test]
+fn journal_uuid_2() {
+    assert_eq!(Superblock::new(EXT4_2).journal_uuid(), Uuid::default());
 }
 
 #[test]

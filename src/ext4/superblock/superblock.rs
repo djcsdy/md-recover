@@ -374,6 +374,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_reserved_gdt_blocks().read()
     }
 
+    pub fn journal_uuid(&self) -> Uuid {
+        Uuid::from_slice(self.view().into_journal_uuid().into_slice()).unwrap()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
