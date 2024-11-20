@@ -628,6 +628,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_checksum_seed().read()
     }
 
+    pub fn filename_character_encoding(&self) -> u16 {
+        self.view().into_filename_character_encoding().read()
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
