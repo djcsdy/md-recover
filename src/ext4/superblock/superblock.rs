@@ -482,6 +482,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         digest.finalize()
     }
 
+    pub fn kbytes_written(&self) -> u64 {
+        self.view().into_kbytes_written().read()
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
