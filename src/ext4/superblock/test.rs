@@ -369,3 +369,8 @@ fn checksum_ext2() {
 fn expected_checksum() {
     assert_eq!(Superblock::new(EXT4_1).expected_checksum(), 0x42350b17)
 }
+
+#[test]
+fn first_error_time() {
+    assert_eq!(Superblock::new(EXT4_1).first_error_time(), None);
+}
