@@ -225,6 +225,11 @@ fn first_inode() {
 }
 
 #[test]
+fn inode_size() {
+    assert_eq!(Superblock::new(EXT4_1).inode_size(), 256);
+}
+
+#[test]
 fn checksum() {
     assert_eq!(
         Superblock::new(EXT4_1).checksum(),
