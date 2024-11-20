@@ -486,6 +486,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_kbytes_written().read()
     }
 
+    pub fn snapshot_inode_number(&self) -> u32 {
+        self.view().into_snapshot_inode_number().read()
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
