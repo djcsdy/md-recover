@@ -328,6 +328,21 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         Uuid::from_slice(self.view().into_uuid().into_slice()).unwrap()
     }
 
+    pub fn volume_name(&self) -> Option<&[u8]> {
+        let slice = self
+            .view()
+            .into_volume_name()
+            .into_slice()
+            .split(|c| *c == 0)
+            .next()
+            .unwrap();
+        if slice.len() > 0 {
+            Some(slice)
+        } else {
+            None
+        }
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {

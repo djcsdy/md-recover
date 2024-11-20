@@ -285,6 +285,19 @@ fn uuid() {
 }
 
 #[test]
+fn volume_name_1() {
+    assert_eq!(Superblock::new(EXT4_1).volume_name(), None)
+}
+
+#[test]
+fn volume_name_3() {
+    assert_eq!(
+        Superblock::new(EXT4_3).volume_name(),
+        Some(b"ext4-3".as_slice())
+    );
+}
+
+#[test]
 fn checksum() {
     assert_eq!(
         Superblock::new(EXT4_1).checksum(),
