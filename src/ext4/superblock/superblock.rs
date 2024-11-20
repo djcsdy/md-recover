@@ -462,6 +462,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_raid_stripe_width().read()
     }
 
+    pub fn groups_per_flex(&self) -> u64 {
+        1 << (self.view().into_log_groups_per_flex().read())
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
