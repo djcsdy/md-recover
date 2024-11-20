@@ -100,6 +100,22 @@ fn mount_time_2() {
 }
 
 #[test]
+fn write_time_1() {
+    assert_eq!(
+        Superblock::new(EXT4_1).write_time(),
+        SystemTime::UNIX_EPOCH + Duration::from_secs(1731941452)
+    );
+}
+
+#[test]
+fn write_time_2() {
+    assert_eq!(
+        Superblock::new(EXT4_2).write_time(),
+        SystemTime::UNIX_EPOCH + Duration::from_secs(1732062580)
+    );
+}
+
+#[test]
 fn magic() {
     assert_eq!(Superblock::new(EXT4_1).magic(), 0xef53);
 }

@@ -229,6 +229,15 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         }
     }
 
+    pub fn write_time(&self) -> SystemTime {
+        let view = self.view();
+        SystemTime::UNIX_EPOCH
+            + Duration::from_secs(
+                (view.write_time_low().read() as u64)
+                    | ((view.write_time_high().read() as u64) << 32),
+            )
+    }
+
     pub fn mount_count(&self) -> u16 {
         self.view().into_mount_count().read()
     }
