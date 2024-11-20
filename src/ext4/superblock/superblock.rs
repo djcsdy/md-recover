@@ -61,7 +61,7 @@ binary_layout!(layout, LittleEndian, {
     group_descriptor_size: u16,
     default_mount_options: MountOptions as u32,
     first_meta_block_group: u32,
-    mkfs_time_low: u32,
+    creation_time_low: u32,
     journal_blocks: [u8; 68],
     blocks_count_high: u32,
     reserved_blocks_count_high: u32,
@@ -105,7 +105,7 @@ binary_layout!(layout, LittleEndian, {
     checksum_seed: u32,
     write_time_high: u8,
     mount_time_high: u8,
-    mkfs_time_high: u8,
+    creation_time_high: u8,
     last_check_time_high: u8,
     first_error_time_high: u8,
     last_error_time_high: u8,
@@ -412,6 +412,19 @@ impl<S: AsRef<[u8]>> Superblock<S> {
 
     pub fn first_meta_block_group(&self) -> u32 {
         self.view().into_first_meta_block_group().read()
+    }
+
+    pub fn creation_time(&self) -> Option<SystemTime> {
+        let view = self.view();
+        let time = SystemTime::from_low_high(
+            view.creation_time_low().read(),
+            view.creation_time_high().read(),
+        );
+        if time == SystemTime::UNIX_EPOCH {
+            None
+        } else {
+            Some(time)
+        }
     }
 
     pub fn checksum(&self) -> Checksum {

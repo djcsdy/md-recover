@@ -328,6 +328,22 @@ fn journal_device_number() {
 }
 
 #[test]
+fn creation_time_1() {
+    assert_eq!(
+        Superblock::new(EXT4_1).creation_time(),
+        Some(SystemTime::UNIX_EPOCH + Duration::from_secs(1731941452))
+    );
+}
+
+#[test]
+fn creation_time_2() {
+    assert_eq!(
+        Superblock::new(EXT4_2).creation_time(),
+        Some(SystemTime::UNIX_EPOCH + Duration::from_secs(1732062470))
+    );
+}
+
+#[test]
 fn checksum() {
     assert_eq!(
         Superblock::new(EXT4_1).checksum(),
