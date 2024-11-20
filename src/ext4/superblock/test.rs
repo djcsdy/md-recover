@@ -1,7 +1,7 @@
 use crate::ext4::superblock::compatible_features::CompatibleFeatures;
 use crate::ext4::superblock::state::State;
 use crate::ext4::superblock::{
-    Checksum, CreatorOs, ErrorPolicy, ReadOnlyCompatibleFeatures, Superblock,
+    Checksum, CreatorOs, ErrorPolicy, IncompatibleFeatures, ReadOnlyCompatibleFeatures, Superblock,
 };
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
@@ -232,6 +232,25 @@ fn compatible_features_2() {
             | CompatibleFeatures::HAS_RESERVED_GDT_BLOCKS
             | CompatibleFeatures::HAS_DIRECTORY_INDICES
     );
+}
+
+#[test]
+fn incompatible_features() {
+    assert_eq!(
+        Superblock::new(EXT4_1).incompatible_features(),
+        IncompatibleFeatures::DIRECTORY_ENTRIES_RECORD_FILE_TYPE
+            | IncompatibleFeatures::FILES_USE_EXTENTS
+            | IncompatibleFeatures::IS_64_BIT
+            | IncompatibleFeatures::FLEXIBLE_BLOCK_GROUPS
+    )
+}
+
+#[test]
+fn incompatible_features_ext2() {
+    assert_eq!(
+        Superblock::new(EXT2).incompatible_features(),
+        IncompatibleFeatures::DIRECTORY_ENTRIES_RECORD_FILE_TYPE
+    )
 }
 
 #[test]
