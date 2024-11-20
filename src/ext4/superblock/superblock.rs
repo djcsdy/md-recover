@@ -570,6 +570,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         }
     }
 
+    pub fn mount_options(&self) -> Ext4String<&[u8]> {
+        Ext4String::from_null_terminated_bytes(self.view().into_mount_options().into_slice())
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
