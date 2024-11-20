@@ -502,6 +502,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_snapshot_list_inode_number().read()
     }
 
+    pub fn error_count(&self) -> u32 {
+        self.view().into_error_count().read()
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
