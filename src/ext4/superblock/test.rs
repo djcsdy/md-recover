@@ -4,6 +4,7 @@ use crate::ext4::superblock::{
     Checksum, CreatorOs, ErrorPolicy, IncompatibleFeatures, ReadOnlyCompatibleFeatures, Superblock,
 };
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use uuid::uuid;
 
 const EXT2: &[u8] = include_bytes!("test-data/ext2");
 const EXT4_1: &[u8] = include_bytes!("test-data/ext4-1");
@@ -273,6 +274,14 @@ fn read_only_compatible_features_ext2() {
         ReadOnlyCompatibleFeatures::SPARSE_SUPERBLOCKS
             | ReadOnlyCompatibleFeatures::CONTAINS_LARGE_FILES
     );
+}
+
+#[test]
+fn uuid() {
+    assert_eq!(
+        Superblock::new(EXT4_3).uuid(),
+        uuid!("968827ba-cc32-4067-ba37-23fb86f9aefd")
+    )
 }
 
 #[test]

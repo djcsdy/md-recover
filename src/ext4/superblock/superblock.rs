@@ -9,6 +9,7 @@ use binary_layout::prelude::*;
 use crc::{Algorithm, Crc, CRC_32_ISCSI};
 use std::io::{Error, ErrorKind, Read, Result};
 use std::time::{Duration, SystemTime};
+use uuid::Uuid;
 
 binary_layout!(layout, LittleEndian, {
     inodes_count: u32,
@@ -321,6 +322,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
 
     pub fn read_only_compatible_features(&self) -> ReadOnlyCompatibleFeatures {
         self.view().into_read_only_compatible_features().read()
+    }
+
+    pub fn uuid(&self) -> Uuid {
+        Uuid::from_slice(self.view().into_uuid().into_slice()).unwrap()
     }
 
     pub fn checksum(&self) -> Checksum {
