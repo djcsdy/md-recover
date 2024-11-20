@@ -220,6 +220,11 @@ fn default_reserved_group_id_3() {
 }
 
 #[test]
+fn first_inode() {
+    assert_eq!(Superblock::new(EXT4_1).first_inode(), 11);
+}
+
+#[test]
 fn checksum() {
     assert_eq!(
         Superblock::new(EXT4_1).checksum(),
