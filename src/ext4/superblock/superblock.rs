@@ -262,6 +262,15 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_minor_revision_level().read()
     }
 
+    pub fn last_check_time(&self) -> SystemTime {
+        let view = self.view();
+        SystemTime::UNIX_EPOCH
+            + Duration::from_secs(
+                (view.last_check_time_low().read() as u64)
+                    | ((view.last_check_time_high().read() as u64) << 32),
+            )
+    }
+
     pub fn read_only_compatible_features(&self) -> ReadOnlyCompatibleFeatures {
         self.view().into_read_only_compatible_features().read()
     }

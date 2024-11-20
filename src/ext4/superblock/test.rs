@@ -166,6 +166,14 @@ fn read_only_compatible_features_ext2() {
 }
 
 #[test]
+fn last_check_time() {
+    assert_eq!(
+        Superblock::new(EXT4_1).last_check_time(),
+        SystemTime::UNIX_EPOCH + Duration::from_secs(1731941452)
+    )
+}
+
+#[test]
 fn checksum() {
     assert_eq!(
         Superblock::new(EXT4_1).checksum(),
