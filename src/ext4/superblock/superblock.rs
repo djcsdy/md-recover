@@ -551,6 +551,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_last_error_inode().read()
     }
 
+    pub fn last_error_line(&self) -> u32 {
+        self.view().into_last_error_line().read()
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
