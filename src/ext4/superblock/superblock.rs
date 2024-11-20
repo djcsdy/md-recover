@@ -362,6 +362,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_algorithm_usage_bitmap().read()
     }
 
+    pub fn preallocate_blocks(&self) -> u8 {
+        self.view().into_preallocate_blocks().read()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
