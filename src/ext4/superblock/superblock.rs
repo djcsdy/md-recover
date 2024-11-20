@@ -632,6 +632,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_filename_character_encoding().read()
     }
 
+    pub fn filename_character_encoding_flags(&self) -> u16 {
+        self.view().into_filename_character_encoding_flags().read()
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
