@@ -461,22 +461,6 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         1 << (self.view().into_log_groups_per_flex().read())
     }
 
-    pub fn checksum(&self) -> Checksum {
-        let view = self.view();
-        match view.checksum_type().read() {
-            ChecksumType::None => Checksum::None,
-            ChecksumType::Crc32c => Checksum::Crc32c(view.checksum().read()),
-            ChecksumType::Unknown(t) => Checksum::Unknown(t, view.checksum().read()),
-        }
-    }
-
-    pub fn expected_checksum(&self) -> u32 {
-        let crc = Crc::<u32>::new(&Self::EXT4_CRC32C);
-        let mut digest = crc.digest();
-        digest.update(&self.0.as_ref()[0..layout::checksum::OFFSET]);
-        digest.finalize()
-    }
-
     pub fn kbytes_written(&self) -> u64 {
         self.view().into_kbytes_written().read()
     }
@@ -642,6 +626,22 @@ impl<S: AsRef<[u8]>> Superblock<S> {
 
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
+    }
+
+    pub fn checksum(&self) -> Checksum {
+        let view = self.view();
+        match view.checksum_type().read() {
+            ChecksumType::None => Checksum::None,
+            ChecksumType::Crc32c => Checksum::Crc32c(view.checksum().read()),
+            ChecksumType::Unknown(t) => Checksum::Unknown(t, view.checksum().read()),
+        }
+    }
+
+    pub fn expected_checksum(&self) -> u32 {
+        let crc = Crc::<u32>::new(&Self::EXT4_CRC32C);
+        let mut digest = crc.digest();
+        digest.update(&self.0.as_ref()[0..layout::checksum::OFFSET]);
+        digest.finalize()
     }
 }
 

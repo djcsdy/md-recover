@@ -354,6 +354,16 @@ fn flags() {
 }
 
 #[test]
+fn first_error_time() {
+    assert_eq!(Superblock::new(EXT4_1).first_error_time(), None);
+}
+
+#[test]
+fn encryption_algorithms() {
+    assert_eq!(Superblock::new(EXT4_1).encryption_algorithms(), vec![]);
+}
+
+#[test]
 fn checksum() {
     assert_eq!(
         Superblock::new(EXT4_1).checksum(),
@@ -369,14 +379,4 @@ fn checksum_ext2() {
 #[test]
 fn expected_checksum() {
     assert_eq!(Superblock::new(EXT4_1).expected_checksum(), 0x42350b17)
-}
-
-#[test]
-fn first_error_time() {
-    assert_eq!(Superblock::new(EXT4_1).first_error_time(), None);
-}
-
-#[test]
-fn encryption_algorithms() {
-    assert_eq!(Superblock::new(EXT4_1).encryption_algorithms(), vec![]);
 }
