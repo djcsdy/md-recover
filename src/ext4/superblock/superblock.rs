@@ -1,13 +1,16 @@
 use super::checksum_type::ChecksumType;
 use super::{
-    CompatibleFeatures, CreatorOs, ErrorPolicy, Flags, HashVersion, IncompatibleFeatures,
-    MountOptions, ReadOnlyCompatibleFeatures, State,
+    CompatibleFeatures, CreatorOs, EncryptionAlgorithm, ErrorPolicy, Flags, HashVersion,
+    IncompatibleFeatures, MountOptions, ReadOnlyCompatibleFeatures, State,
 };
 use crate::ext::SystemTimeExt;
 use crate::ext4::string::Ext4String;
 use crate::ext4::superblock::checksum::Checksum;
 use binary_layout::prelude::*;
+use clap::builder::TypedValueParser;
 use crc::{Algorithm, Crc, CRC_32_ISCSI};
+use itertools::Itertools;
+use num_enum::FromPrimitive;
 use std::io::{Error, ErrorKind, Read, Result};
 use std::time::{Duration, SystemTime};
 use uuid::Uuid;
@@ -592,6 +595,17 @@ impl<S: AsRef<[u8]>> Superblock<S> {
             view.superblock_backup_block_group_0().read(),
             view.superblock_backup_block_group_1().read(),
         ]
+    }
+
+    pub fn encryption_algorithms(&self) -> Vec<EncryptionAlgorithm> {
+        self.view()
+            .into_encryption_algorithms()
+            .into_slice()
+            .iter()
+            .map(|a| *a)
+            .map_into()
+            .filter(|algorithm| *algorithm != EncryptionAlgorithm::Invalid)
+            .collect()
     }
 
     fn view(&self) -> layout::View<&[u8]> {
