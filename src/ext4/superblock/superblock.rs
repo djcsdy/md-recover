@@ -534,6 +534,19 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_first_error_line().read()
     }
 
+    pub fn last_error_time(&self) -> Option<SystemTime> {
+        let view = self.view();
+        let time = SystemTime::from_low_high(
+            view.last_error_time_low().read(),
+            view.last_error_time_high().read(),
+        );
+        if time == SystemTime::UNIX_EPOCH {
+            None
+        } else {
+            Some(time)
+        }
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
