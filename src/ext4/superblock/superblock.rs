@@ -1,7 +1,7 @@
 use super::checksum_type::ChecksumType;
 use super::flags::Flags;
 use super::{
-    CompatibleFeatures, CreatorOs, ErrorPolicy, HashVersion, IncompatibleFeatures,
+    CompatibleFeatures, CreatorOs, ErrorPolicy, HashVersion, IncompatibleFeatures, MountOptions,
     ReadOnlyCompatibleFeatures, State,
 };
 use crate::ext4::superblock::checksum::Checksum;
@@ -58,7 +58,7 @@ binary_layout!(layout, LittleEndian, {
     default_hash_version: HashVersion as u8,
     journal_backup_type: u8,
     group_descriptor_size: u16,
-    default_mount_options: u32,
+    default_mount_options: MountOptions as u32,
     first_meta_block_group: u32,
     mkfs_time_low: u32,
     journal_blocks: [u8; 68],
@@ -408,6 +408,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
 
     pub fn group_descriptor_size(&self) -> u16 {
         self.view().into_group_descriptor_size().read()
+    }
+
+    pub fn default_mount_options(&self) -> MountOptions {
+        self.view().into_default_mount_options().read()
     }
 
     pub fn checksum(&self) -> Checksum {
