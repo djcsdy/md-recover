@@ -230,6 +230,11 @@ fn inode_size() {
 }
 
 #[test]
+fn block_group_number() {
+    assert_eq!(Superblock::new(EXT4_1).block_group_number(), 0);
+}
+
+#[test]
 fn checksum() {
     assert_eq!(
         Superblock::new(EXT4_1).checksum(),

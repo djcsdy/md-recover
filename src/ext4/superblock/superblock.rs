@@ -304,6 +304,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_inode_size().read()
     }
 
+    pub fn block_group_number(&self) -> u16 {
+        self.view().into_block_group_number().read()
+    }
+
     pub fn read_only_compatible_features(&self) -> ReadOnlyCompatibleFeatures {
         self.view().into_read_only_compatible_features().read()
     }
