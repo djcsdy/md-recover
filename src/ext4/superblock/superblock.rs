@@ -494,6 +494,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_snapshot_id().read()
     }
 
+    pub fn snapshot_reserved_blocks_count(&self) -> u64 {
+        self.view().into_snapshot_reserved_blocks_count().read()
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
