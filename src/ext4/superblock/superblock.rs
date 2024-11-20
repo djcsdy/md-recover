@@ -427,6 +427,14 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         }
     }
 
+    pub fn journal_blocks(&self) -> &[u8; 68] {
+        self.view()
+            .into_journal_blocks()
+            .into_slice()
+            .try_into()
+            .unwrap()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
