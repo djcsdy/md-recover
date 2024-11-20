@@ -370,6 +370,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_preallocate_directory_blocks().read()
     }
 
+    pub fn reserved_gdt_blocks(&self) -> u16 {
+        self.view().into_reserved_gdt_blocks().read()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
