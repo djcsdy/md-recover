@@ -298,6 +298,11 @@ fn volume_name_3() {
 }
 
 #[test]
+fn last_mounted_path() {
+    assert_eq!(Superblock::new(EXT4_1).last_mounted_path(), None);
+}
+
+#[test]
 fn checksum() {
     assert_eq!(
         Superblock::new(EXT4_1).checksum(),

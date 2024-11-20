@@ -45,7 +45,7 @@ binary_layout!(layout, LittleEndian, {
     read_only_compatible_features: ReadOnlyCompatibleFeatures as u32,
     uuid: [u8; 16],
     volume_name: [u8; 16],
-    last_mounted: [u8; 64],
+    last_mounted_path: [u8; 64],
     algorithm_usage_bitmap: u32,
     preallocate_blocks: u8,
     preallocate_directory_blocks: u8,
@@ -332,6 +332,21 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         let slice = self
             .view()
             .into_volume_name()
+            .into_slice()
+            .split(|c| *c == 0)
+            .next()
+            .unwrap();
+        if slice.len() > 0 {
+            Some(slice)
+        } else {
+            None
+        }
+    }
+
+    pub fn last_mounted_path(&self) -> Option<&[u8]> {
+        let slice = self
+            .view()
+            .into_last_mounted_path()
             .into_slice()
             .split(|c| *c == 0)
             .next()
