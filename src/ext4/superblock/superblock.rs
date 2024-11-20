@@ -386,6 +386,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_journal_device_number().read()
     }
 
+    pub fn last_orphan(&self) -> u32 {
+        self.view().into_last_orphan().read()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
