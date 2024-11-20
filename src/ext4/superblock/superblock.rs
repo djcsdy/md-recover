@@ -439,6 +439,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_minimum_extra_inode_size().read()
     }
 
+    pub fn wanted_extra_inode_size(&self) -> u16 {
+        self.view().into_wanted_extra_inode_size().read()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
