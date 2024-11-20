@@ -1,7 +1,8 @@
 use crate::ext4::superblock::compatible_features::CompatibleFeatures;
 use crate::ext4::superblock::state::State;
 use crate::ext4::superblock::{
-    Checksum, CreatorOs, ErrorPolicy, IncompatibleFeatures, ReadOnlyCompatibleFeatures, Superblock,
+    Checksum, CreatorOs, ErrorPolicy, Flags, IncompatibleFeatures, ReadOnlyCompatibleFeatures,
+    Superblock,
 };
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use uuid::{uuid, Uuid};
@@ -340,6 +341,14 @@ fn creation_time_2() {
     assert_eq!(
         Superblock::new(EXT4_2).creation_time(),
         Some(SystemTime::UNIX_EPOCH + Duration::from_secs(1732062470))
+    );
+}
+
+#[test]
+fn flags() {
+    assert_eq!(
+        Superblock::new(EXT4_1).flags(),
+        Flags::SIGNED_DIRECTORY_HASH
     );
 }
 

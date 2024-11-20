@@ -1,8 +1,7 @@
 use super::checksum_type::ChecksumType;
-use super::flags::Flags;
 use super::{
-    CompatibleFeatures, CreatorOs, ErrorPolicy, HashVersion, IncompatibleFeatures, MountOptions,
-    ReadOnlyCompatibleFeatures, State,
+    CompatibleFeatures, CreatorOs, ErrorPolicy, Flags, HashVersion, IncompatibleFeatures,
+    MountOptions, ReadOnlyCompatibleFeatures, State,
 };
 use crate::ext::SystemTimeExt;
 use crate::ext4::superblock::checksum::Checksum;
@@ -441,6 +440,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
 
     pub fn wanted_extra_inode_size(&self) -> u16 {
         self.view().into_wanted_extra_inode_size().read()
+    }
+
+    pub fn flags(&self) -> Flags {
+        self.view().into_flags().read()
     }
 
     pub fn checksum(&self) -> Checksum {

@@ -17,6 +17,7 @@ pub use checksum::Checksum;
 pub use compatible_features::CompatibleFeatures;
 pub use creator_os::CreatorOs;
 pub use error_policy::ErrorPolicy;
+pub use flags::Flags;
 pub use hash_version::HashVersion;
 pub use incompatible_features::IncompatibleFeatures;
 pub use mount_options::MountOptions;
