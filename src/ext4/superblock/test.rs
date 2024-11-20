@@ -1,3 +1,4 @@
+use crate::ext4::superblock::compatible_features::CompatibleFeatures;
 use crate::ext4::superblock::state::State;
 use crate::ext4::superblock::{
     Checksum, CreatorOs, ErrorPolicy, ReadOnlyCompatibleFeatures, Superblock,
@@ -210,6 +211,27 @@ fn inode_size() {
 #[test]
 fn block_group_number() {
     assert_eq!(Superblock::new(EXT4_1).block_group_number(), 0);
+}
+
+#[test]
+fn compatible_features_1() {
+    assert_eq!(
+        Superblock::new(EXT4_1).compatible_features(),
+        CompatibleFeatures::SUPPORTS_EXTENDED_ATTRIBUTES
+            | CompatibleFeatures::HAS_RESERVED_GDT_BLOCKS
+            | CompatibleFeatures::HAS_DIRECTORY_INDICES
+    );
+}
+
+#[test]
+fn compatible_features_2() {
+    assert_eq!(
+        Superblock::new(EXT4_2).compatible_features(),
+        CompatibleFeatures::HAS_JOURNAL
+            | CompatibleFeatures::SUPPORTS_EXTENDED_ATTRIBUTES
+            | CompatibleFeatures::HAS_RESERVED_GDT_BLOCKS
+            | CompatibleFeatures::HAS_DIRECTORY_INDICES
+    );
 }
 
 #[test]

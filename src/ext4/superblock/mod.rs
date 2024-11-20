@@ -1,5 +1,6 @@
 mod checksum;
 mod checksum_type;
+mod compatible_features;
 mod creator_os;
 mod error_policy;
 mod flags;
@@ -10,6 +11,7 @@ mod superblock;
 mod test;
 
 pub use checksum::Checksum;
+pub use compatible_features::CompatibleFeatures;
 pub use creator_os::CreatorOs;
 pub use error_policy::ErrorPolicy;
 pub use read_only_compatible_features::ReadOnlyCompatibleFeatures;

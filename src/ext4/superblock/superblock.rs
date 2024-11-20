@@ -1,6 +1,6 @@
 use super::checksum_type::ChecksumType;
 use super::flags::Flags;
-use super::{CreatorOs, ErrorPolicy, ReadOnlyCompatibleFeatures, State};
+use super::{CompatibleFeatures, CreatorOs, ErrorPolicy, ReadOnlyCompatibleFeatures, State};
 use crate::ext4::superblock::checksum::Checksum;
 use binary_layout::prelude::*;
 use crc::{Algorithm, Crc, CRC_32_ISCSI};
@@ -36,7 +36,7 @@ binary_layout!(layout, LittleEndian, {
     first_inode: u32,
     inode_size: u16,
     block_group_number: u16,
-    compatible_features: u32,
+    compatible_features: CompatibleFeatures as u32,
     incompatible_features: u32,
     read_only_compatible_features: ReadOnlyCompatibleFeatures as u32,
     uuid: [u8; 16],
@@ -306,6 +306,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
 
     pub fn block_group_number(&self) -> u16 {
         self.view().into_block_group_number().read()
+    }
+
+    pub fn compatible_features(&self) -> CompatibleFeatures {
+        self.view().into_compatible_features().read()
     }
 
     pub fn read_only_compatible_features(&self) -> ReadOnlyCompatibleFeatures {
