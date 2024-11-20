@@ -414,6 +414,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_default_mount_options().read()
     }
 
+    pub fn first_meta_block_group(&self) -> u32 {
+        self.view().into_first_meta_block_group().read()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
