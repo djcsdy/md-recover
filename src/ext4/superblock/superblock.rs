@@ -446,6 +446,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_flags().read()
     }
 
+    pub fn raid_stride(&self) -> u16 {
+        self.view().into_raid_stride().read()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
