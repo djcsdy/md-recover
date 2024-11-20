@@ -284,6 +284,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_creator_os().read()
     }
 
+    pub fn revision_level(&self) -> u32 {
+        self.view().into_revision_level().read()
+    }
+
     pub fn read_only_compatible_features(&self) -> ReadOnlyCompatibleFeatures {
         self.view().into_read_only_compatible_features().read()
     }

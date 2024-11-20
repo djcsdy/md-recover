@@ -195,6 +195,11 @@ fn creator_os() {
 }
 
 #[test]
+fn revision_level() {
+    assert_eq!(Superblock::new(EXT4_1).revision_level(), 1);
+}
+
+#[test]
 fn checksum() {
     assert_eq!(
         Superblock::new(EXT4_1).checksum(),
