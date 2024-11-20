@@ -454,6 +454,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_multi_mount_prevention_interval().read()
     }
 
+    pub fn multi_mount_prevention_block(&self) -> u64 {
+        self.view().into_multi_mount_prevention_block().read()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
