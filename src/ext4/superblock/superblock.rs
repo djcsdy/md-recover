@@ -271,6 +271,15 @@ impl<S: AsRef<[u8]>> Superblock<S> {
             )
     }
 
+    pub fn check_interval(&self) -> Option<Duration> {
+        let seconds = self.view().into_check_interval().read().into();
+        if seconds == 0 {
+            None
+        } else {
+            Some(Duration::from_secs(seconds))
+        }
+    }
+
     pub fn read_only_compatible_features(&self) -> ReadOnlyCompatibleFeatures {
         self.view().into_read_only_compatible_features().read()
     }
