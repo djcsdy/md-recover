@@ -1,5 +1,7 @@
 use crate::ext4::superblock::state::State;
-use crate::ext4::superblock::{Checksum, ErrorPolicy, ReadOnlyCompatibleFeatures, Superblock};
+use crate::ext4::superblock::{
+    Checksum, CreatorOs, ErrorPolicy, ReadOnlyCompatibleFeatures, Superblock,
+};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 const EXT2: &[u8] = include_bytes!("test-data/ext2");
@@ -185,6 +187,11 @@ fn check_interval_3() {
         Superblock::new(EXT4_3).check_interval(),
         Some(Duration::from_secs(259200))
     )
+}
+
+#[test]
+fn creator_os() {
+    assert_eq!(Superblock::new(EXT4_1).creator_os(), CreatorOs::Linux)
 }
 
 #[test]
