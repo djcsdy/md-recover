@@ -406,6 +406,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_journal_backup_type().read()
     }
 
+    pub fn group_descriptor_size(&self) -> u16 {
+        self.view().into_group_descriptor_size().read()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
