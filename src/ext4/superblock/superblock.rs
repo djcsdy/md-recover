@@ -390,6 +390,14 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_last_orphan().read()
     }
 
+    pub fn hash_seed(&self) -> &[u8; 16] {
+        self.view()
+            .into_hash_seed()
+            .into_slice()
+            .try_into()
+            .unwrap()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
