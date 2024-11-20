@@ -402,6 +402,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_default_hash_version().read()
     }
 
+    pub fn journal_backup_type(&self) -> u8 {
+        self.view().into_journal_backup_type().read()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
