@@ -358,6 +358,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         }
     }
 
+    pub fn algorithm_usage_bitmap(&self) -> u32 {
+        self.view().into_algorithm_usage_bitmap().read()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
