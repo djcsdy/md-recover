@@ -582,6 +582,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_group_quota_inode_number().read()
     }
 
+    pub fn overhead_blocks(&self) -> u32 {
+        self.view().into_overhead_blocks().read()
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
