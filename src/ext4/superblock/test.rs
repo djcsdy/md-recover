@@ -323,6 +323,11 @@ fn journal_inode_number_2() {
 }
 
 #[test]
+fn journal_device_number() {
+    assert_eq!(Superblock::new(EXT4_1).journal_device_number(), 0);
+}
+
+#[test]
 fn checksum() {
     assert_eq!(
         Superblock::new(EXT4_1).checksum(),

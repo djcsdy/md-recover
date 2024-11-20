@@ -382,6 +382,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_journal_inode_number().read()
     }
 
+    pub fn journal_device_number(&self) -> u32 {
+        self.view().into_journal_device_number().read()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
