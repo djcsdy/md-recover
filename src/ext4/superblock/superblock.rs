@@ -5,6 +5,7 @@ use crate::ext4::superblock::checksum::Checksum;
 use binary_layout::prelude::*;
 use crc::{Algorithm, Crc, CRC_32_ISCSI};
 use std::io::{Error, ErrorKind, Read, Result};
+use std::time::{Duration, SystemTime};
 
 binary_layout!(layout, LittleEndian, {
     inodes_count: u32,
@@ -215,6 +216,17 @@ impl<S: AsRef<[u8]>> Superblock<S> {
 
     pub fn inodes_per_group(&self) -> u32 {
         self.view().into_inodes_per_group().read()
+    }
+
+    pub fn mount_time(&self) -> Option<SystemTime> {
+        let view = self.view();
+        let seconds =
+            (view.mount_time_low().read() as u64) | ((view.mount_time_high().read() as u64) << 32);
+        if seconds == 0 {
+            None
+        } else {
+            Some(SystemTime::UNIX_EPOCH + Duration::from_secs(seconds))
+        }
     }
 
     pub fn mount_count(&self) -> u16 {

@@ -1,8 +1,10 @@
 use crate::ext4::superblock::state::State;
 use crate::ext4::superblock::{Checksum, ErrorPolicy, ReadOnlyCompatibleFeatures, Superblock};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 const EXT2: &[u8] = include_bytes!("test-data/ext2");
-const EXT4: &[u8] = include_bytes!("test-data/ext4");
+const EXT4_1: &[u8] = include_bytes!("test-data/ext4-1");
+const EXT4_2: &[u8] = include_bytes!("test-data/ext4-2");
 
 #[test]
 fn size_of_superblock() {
@@ -11,7 +13,7 @@ fn size_of_superblock() {
 
 #[test]
 fn valid_cluster_size() {
-    assert!(Superblock::new(EXT4).valid_cluster_size());
+    assert!(Superblock::new(EXT4_1).valid_cluster_size());
 }
 
 #[test]
@@ -21,7 +23,7 @@ fn valid_cluster_size_ext2() {
 
 #[test]
 fn valid_magic() {
-    assert!(Superblock::new(EXT4).valid_magic());
+    assert!(Superblock::new(EXT4_1).valid_magic());
 }
 
 #[test]
@@ -31,7 +33,7 @@ fn valid_magic_ext2() {
 
 #[test]
 fn valid_clusters_per_group() {
-    assert!(Superblock::new(EXT4).valid_clusters_per_group());
+    assert!(Superblock::new(EXT4_1).valid_clusters_per_group());
 }
 
 #[test]
@@ -41,12 +43,12 @@ fn valid_clusters_per_group_ext2() {
 
 #[test]
 fn valid_error_policy() {
-    assert!(Superblock::new(EXT4).valid_error_policy());
+    assert!(Superblock::new(EXT4_1).valid_error_policy());
 }
 
 #[test]
 fn valid_checksum() {
-    assert!(Superblock::new(EXT4).valid_checksum());
+    assert!(Superblock::new(EXT4_1).valid_checksum());
 }
 
 #[test]
@@ -56,7 +58,7 @@ fn valid_checksum_ext2() {
 
 #[test]
 fn inodes_count() {
-    assert_eq!(Superblock::new(EXT4).inodes_count(), 64);
+    assert_eq!(Superblock::new(EXT4_1).inodes_count(), 64);
 }
 
 #[test]
@@ -66,7 +68,7 @@ fn inodes_count_ext2() {
 
 #[test]
 fn blocks_count() {
-    assert_eq!(Superblock::new(EXT4).blocks_count(), 128);
+    assert_eq!(Superblock::new(EXT4_1).blocks_count(), 128);
 }
 
 #[test]
@@ -76,17 +78,30 @@ fn blocks_count_ext2() {
 
 #[test]
 fn block_size_bytes() {
-    assert_eq!(Superblock::new(EXT4).block_size_bytes(), 4096);
+    assert_eq!(Superblock::new(EXT4_1).block_size_bytes(), 4096);
 }
 
 #[test]
 fn cluster_size_blocks() {
-    assert_eq!(Superblock::new(EXT4).cluster_size_blocks(), 4096);
+    assert_eq!(Superblock::new(EXT4_1).cluster_size_blocks(), 4096);
+}
+
+#[test]
+fn mount_time_1() {
+    assert_eq!(Superblock::new(EXT4_1).mount_time(), None);
+}
+
+#[test]
+fn mount_time_2() {
+    assert_eq!(
+        Superblock::new(EXT4_2).mount_time(),
+        Some(SystemTime::UNIX_EPOCH + Duration::from_secs(1732062563))
+    );
 }
 
 #[test]
 fn magic() {
-    assert_eq!(Superblock::new(EXT4).magic(), 0xef53);
+    assert_eq!(Superblock::new(EXT4_1).magic(), 0xef53);
 }
 
 #[test]
@@ -96,7 +111,7 @@ fn magic_ext2() {
 
 #[test]
 fn state() {
-    assert_eq!(Superblock::new(EXT4).state(), State::CLEANLY_UNMOUNTED);
+    assert_eq!(Superblock::new(EXT4_1).state(), State::CLEANLY_UNMOUNTED);
 }
 
 #[test]
@@ -106,13 +121,16 @@ fn state_ext2() {
 
 #[test]
 fn error_policy() {
-    assert_eq!(Superblock::new(EXT4).error_policy(), ErrorPolicy::Continue);
+    assert_eq!(
+        Superblock::new(EXT4_1).error_policy(),
+        ErrorPolicy::Continue
+    );
 }
 
 #[test]
 fn read_only_compatible_features() {
     assert_eq!(
-        Superblock::new(EXT4).read_only_compatible_features(),
+        Superblock::new(EXT4_1).read_only_compatible_features(),
         ReadOnlyCompatibleFeatures::SPARSE_SUPERBLOCKS
             | ReadOnlyCompatibleFeatures::CONTAINS_LARGE_FILES
             | ReadOnlyCompatibleFeatures::CONTAINS_HUGE_FILES
@@ -134,7 +152,7 @@ fn read_only_compatible_features_ext2() {
 #[test]
 fn checksum() {
     assert_eq!(
-        Superblock::new(EXT4).checksum(),
+        Superblock::new(EXT4_1).checksum(),
         Checksum::Crc32c(0x42350b17)
     )
 }
@@ -146,5 +164,5 @@ fn checksum_ext2() {
 
 #[test]
 fn expected_checksum() {
-    assert_eq!(Superblock::new(EXT4).expected_checksum(), 0x42350b17)
+    assert_eq!(Superblock::new(EXT4_1).expected_checksum(), 0x42350b17)
 }
