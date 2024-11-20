@@ -313,6 +313,16 @@ fn journal_uuid_2() {
 }
 
 #[test]
+fn journal_inode_number_1() {
+    assert_eq!(Superblock::new(EXT4_1).journal_inode_number(), 0);
+}
+
+#[test]
+fn journal_inode_number_2() {
+    assert_eq!(Superblock::new(EXT4_2).journal_inode_number(), 8);
+}
+
+#[test]
 fn checksum() {
     assert_eq!(
         Superblock::new(EXT4_1).checksum(),

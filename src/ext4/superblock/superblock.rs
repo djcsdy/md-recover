@@ -378,6 +378,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         Uuid::from_slice(self.view().into_journal_uuid().into_slice()).unwrap()
     }
 
+    pub fn journal_inode_number(&self) -> u32 {
+        self.view().into_journal_inode_number().read()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
