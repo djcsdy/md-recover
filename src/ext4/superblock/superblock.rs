@@ -608,6 +608,14 @@ impl<S: AsRef<[u8]>> Superblock<S> {
             .collect()
     }
 
+    pub fn encryption_password_salt(&self) -> &[u8; 16] {
+        self.view()
+            .into_encryption_password_salt()
+            .into_slice()
+            .try_into()
+            .unwrap()
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
