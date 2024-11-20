@@ -4,6 +4,7 @@ use super::{
     MountOptions, ReadOnlyCompatibleFeatures, State,
 };
 use crate::ext::SystemTimeExt;
+use crate::ext4::string::Ext4String;
 use crate::ext4::superblock::checksum::Checksum;
 use binary_layout::prelude::*;
 use crc::{Algorithm, Crc, CRC_32_ISCSI};
@@ -323,33 +324,24 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         Uuid::from_slice(self.view().into_uuid().into_slice()).unwrap()
     }
 
-    pub fn volume_name(&self) -> Option<&[u8]> {
-        let slice = self
-            .view()
-            .into_volume_name()
-            .into_slice()
-            .split(|c| *c == 0)
-            .next()
-            .unwrap();
-        if slice.len() > 0 {
-            Some(slice)
-        } else {
+    pub fn volume_name(&self) -> Option<Ext4String<&[u8]>> {
+        let name =
+            Ext4String::from_null_terminated_bytes(self.view().into_volume_name().into_slice());
+        if name.is_empty() {
             None
+        } else {
+            Some(name)
         }
     }
 
-    pub fn last_mounted_path(&self) -> Option<&[u8]> {
-        let slice = self
-            .view()
-            .into_last_mounted_path()
-            .into_slice()
-            .split(|c| *c == 0)
-            .next()
-            .unwrap();
-        if slice.len() > 0 {
-            Some(slice)
-        } else {
+    pub fn last_mounted_path(&self) -> Option<Ext4String<&[u8]>> {
+        let path = Ext4String::from_null_terminated_bytes(
+            self.view().into_last_mounted_path().into_slice(),
+        );
+        if path.is_empty() {
             None
+        } else {
+            Some(path)
         }
     }
 

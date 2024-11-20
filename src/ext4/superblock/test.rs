@@ -1,3 +1,4 @@
+use crate::ext4::string::Ext4String;
 use crate::ext4::superblock::compatible_features::CompatibleFeatures;
 use crate::ext4::superblock::state::State;
 use crate::ext4::superblock::{
@@ -294,7 +295,7 @@ fn volume_name_1() {
 fn volume_name_3() {
     assert_eq!(
         Superblock::new(EXT4_3).volume_name(),
-        Some(b"ext4-3".as_slice())
+        Some(Ext4String::from_null_terminated_bytes(b"ext4-3"))
     );
 }
 
