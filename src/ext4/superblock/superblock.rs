@@ -574,6 +574,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         Ext4String::from_null_terminated_bytes(self.view().into_mount_options().into_slice())
     }
 
+    pub fn user_quota_inode_number(&self) -> u32 {
+        self.view().into_user_quota_inode_number().read()
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
