@@ -4,6 +4,7 @@ use super::{
     CompatibleFeatures, CreatorOs, ErrorPolicy, HashVersion, IncompatibleFeatures, MountOptions,
     ReadOnlyCompatibleFeatures, State,
 };
+use crate::ext::SystemTimeExt;
 use crate::ext4::superblock::checksum::Checksum;
 use binary_layout::prelude::*;
 use crc::{Algorithm, Crc, CRC_32_ISCSI};
@@ -224,22 +225,18 @@ impl<S: AsRef<[u8]>> Superblock<S> {
 
     pub fn mount_time(&self) -> Option<SystemTime> {
         let view = self.view();
-        let seconds =
-            (view.mount_time_low().read() as u64) | ((view.mount_time_high().read() as u64) << 32);
-        if seconds == 0 {
+        let time =
+            SystemTime::from_low_high(view.mount_time_low().read(), view.mount_time_high().read());
+        if time == SystemTime::UNIX_EPOCH {
             None
         } else {
-            Some(SystemTime::UNIX_EPOCH + Duration::from_secs(seconds))
+            Some(time)
         }
     }
 
     pub fn write_time(&self) -> SystemTime {
         let view = self.view();
-        SystemTime::UNIX_EPOCH
-            + Duration::from_secs(
-                (view.write_time_low().read() as u64)
-                    | ((view.write_time_high().read() as u64) << 32),
-            )
+        SystemTime::from_low_high(view.write_time_low().read(), view.write_time_high().read())
     }
 
     pub fn mount_count(&self) -> u16 {
@@ -268,11 +265,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
 
     pub fn last_check_time(&self) -> SystemTime {
         let view = self.view();
-        SystemTime::UNIX_EPOCH
-            + Duration::from_secs(
-                (view.last_check_time_low().read() as u64)
-                    | ((view.last_check_time_high().read() as u64) << 32),
-            )
+        SystemTime::from_low_high(
+            view.last_check_time_low().read(),
+            view.last_check_time_high().read(),
+        )
     }
 
     pub fn check_interval(&self) -> Option<Duration> {
