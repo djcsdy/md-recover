@@ -523,6 +523,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_first_error_inode().read()
     }
 
+    pub fn first_error_block(&self) -> u64 {
+        self.view().into_first_error_block().read()
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
