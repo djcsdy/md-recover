@@ -458,6 +458,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_multi_mount_prevention_block().read()
     }
 
+    pub fn raid_stripe_width(&self) -> u32 {
+        self.view().into_raid_stripe_width().read()
+    }
+
     pub fn checksum(&self) -> Checksum {
         let view = self.view();
         match view.checksum_type().read() {
