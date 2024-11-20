@@ -147,28 +147,6 @@ fn error_policy() {
 }
 
 #[test]
-fn read_only_compatible_features() {
-    assert_eq!(
-        Superblock::new(EXT4_1).read_only_compatible_features(),
-        ReadOnlyCompatibleFeatures::SPARSE_SUPERBLOCKS
-            | ReadOnlyCompatibleFeatures::CONTAINS_LARGE_FILES
-            | ReadOnlyCompatibleFeatures::CONTAINS_HUGE_FILES
-            | ReadOnlyCompatibleFeatures::UNLIMITED_SUBDIRECTORIES
-            | ReadOnlyCompatibleFeatures::CONTAINS_LARGE_INODES
-            | ReadOnlyCompatibleFeatures::METADATA_CHECKSUMS
-    );
-}
-
-#[test]
-fn read_only_compatible_features_ext2() {
-    assert_eq!(
-        Superblock::new(EXT2).read_only_compatible_features(),
-        ReadOnlyCompatibleFeatures::SPARSE_SUPERBLOCKS
-            | ReadOnlyCompatibleFeatures::CONTAINS_LARGE_FILES
-    );
-}
-
-#[test]
 fn last_check_time() {
     assert_eq!(
         Superblock::new(EXT4_1).last_check_time(),
@@ -232,6 +210,28 @@ fn inode_size() {
 #[test]
 fn block_group_number() {
     assert_eq!(Superblock::new(EXT4_1).block_group_number(), 0);
+}
+
+#[test]
+fn read_only_compatible_features() {
+    assert_eq!(
+        Superblock::new(EXT4_1).read_only_compatible_features(),
+        ReadOnlyCompatibleFeatures::SPARSE_SUPERBLOCKS
+            | ReadOnlyCompatibleFeatures::CONTAINS_LARGE_FILES
+            | ReadOnlyCompatibleFeatures::CONTAINS_HUGE_FILES
+            | ReadOnlyCompatibleFeatures::UNLIMITED_SUBDIRECTORIES
+            | ReadOnlyCompatibleFeatures::CONTAINS_LARGE_INODES
+            | ReadOnlyCompatibleFeatures::METADATA_CHECKSUMS
+    );
+}
+
+#[test]
+fn read_only_compatible_features_ext2() {
+    assert_eq!(
+        Superblock::new(EXT2).read_only_compatible_features(),
+        ReadOnlyCompatibleFeatures::SPARSE_SUPERBLOCKS
+            | ReadOnlyCompatibleFeatures::CONTAINS_LARGE_FILES
+    );
 }
 
 #[test]
