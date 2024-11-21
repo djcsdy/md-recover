@@ -2,7 +2,7 @@ use crate::ext::MultiMap;
 use crate::md::algorithm::MdAlgorithm;
 use crate::md::device::{MdDeviceId, MdDeviceSuperblock};
 use crate::md::diagnosis::Diagnosis;
-use crate::md::superblock::{ArrayUuid, ReshapeStatus, Superblock};
+use crate::md::superblock::{ArrayUuid, ReshapeStatus};
 use crate::md::MdDevice;
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsString;
