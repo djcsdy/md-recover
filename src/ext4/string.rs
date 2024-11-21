@@ -3,7 +3,7 @@ use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
 use std::string::FromUtf8Error;
 
-#[derive(Eq, Ord, Clone, Hash, Debug)]
+#[derive(Clone, Hash, Debug)]
 pub struct Ext4String<S: AsRef<[u8]>>(S);
 
 impl<'s> Ext4String<&'s [u8]> {
@@ -56,11 +56,19 @@ impl<S: AsRef<[u8]>> PartialEq<Self> for Ext4String<S> {
     }
 }
 
+impl<S: AsRef<[u8]>> Eq for Ext4String<S> {}
+
 impl<S: AsRef<[u8]>> PartialOrd for Ext4String<S> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl<S: AsRef<[u8]>> Ord for Ext4String<S> {
+    fn cmp(&self, other: &Self) -> Ordering {
         let left = self.to_str_lossy();
         let right = other.to_str_lossy();
-        left.partial_cmp(&right)
+        left.cmp(&right)
     }
 }
 
