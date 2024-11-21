@@ -59,7 +59,7 @@ impl<S: AsRef<[u8]>> PartialEq<Self> for Ext4String<S> {
 impl<S: AsRef<[u8]>> PartialOrd for Ext4String<S> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         let left = self.to_str_lossy();
-        let right = self.to_str_lossy();
+        let right = other.to_str_lossy();
         left.partial_cmp(&right)
     }
 }
