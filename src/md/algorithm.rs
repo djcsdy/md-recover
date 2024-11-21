@@ -15,6 +15,6 @@ impl MdAlgorithm {
             6 => Raid6Algorithm::from_layout(layout).map(|algorithm| Self::Raid6(algorithm)),
             _ => None,
         }
-        .unwrap_or_else(|| Self::Unsupported { level, layout })
+        .unwrap_or(Self::Unsupported { level, layout })
     }
 }
