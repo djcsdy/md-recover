@@ -111,7 +111,7 @@ impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
                             little_endian::DeviceDescriptorLittleEndian::<&[u8]>::SIZE
                         ])
                     })
-                    .all(|descriptor| descriptor.role() < u16::MAX.into())
+                    .all(|descriptor| descriptor.is_valid())
             }
             SuperblockVersion0::BigEndian(view) => {
                 let buffer = view.disks();
@@ -123,7 +123,7 @@ impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
                             little_endian::DeviceDescriptorLittleEndian::<&[u8]>::SIZE
                         ])
                     })
-                    .all(|descriptor| descriptor.role() < u16::MAX.into())
+                    .all(|descriptor| descriptor.is_valid())
             }
         }
     }
