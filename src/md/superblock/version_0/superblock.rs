@@ -1,51 +1,40 @@
 use crate::md::algorithm::MdAlgorithm;
 use crate::md::superblock::reshape_status::ReshapeStatus;
-use crate::md::superblock::version_0::device_descriptor::DeviceDescriptor;
 use crate::md::superblock::version_0::{big_endian, little_endian};
 use crate::md::superblock::{ArrayUuid, Superblock};
 use std::ffi::OsStr;
 use std::io;
 use std::io::{Error, ErrorKind, Read};
 
-pub enum SuperblockVersion0<S: AsRef<[u8]>> {
-    LittleEndian(little_endian::View<S>),
-    BigEndian(big_endian::View<S>),
-}
+const SIZE: usize = if little_endian::SIZE == big_endian::SIZE {
+    little_endian::SIZE
+} else {
+    panic!()
+};
 
-impl SuperblockVersion0<[u8; little_endian::SIZE]> {
-    pub fn read<R: Read>(mut reader: R) -> io::Result<Self> {
-        let mut buffer = [0u8; little_endian::SIZE];
-        reader.read_exact(&mut buffer)?;
-        if SuperblockVersion0::LittleEndian(little_endian::View::new(&buffer)).valid_magic() {
-            if SuperblockVersion0::LittleEndian(little_endian::View::new(&buffer)).valid() {
-                Ok(Self::LittleEndian(little_endian::View::new(buffer)))
-            } else {
-                Err(Error::from(ErrorKind::InvalidData))
-            }
-        } else if SuperblockVersion0::BigEndian(big_endian::View::new(&buffer)).valid() {
-            Ok(Self::BigEndian(big_endian::View::new(buffer)))
+pub(super) const MAX_DEVICES: usize = 27;
+
+pub fn read_superblock_version_0<R: Read>(mut reader: R) -> io::Result<Box<dyn Superblock>> {
+    let mut buffer = [0u8; SIZE];
+    reader.read_exact(&mut buffer)?;
+    let little_endian = little_endian::View::new(buffer);
+    if little_endian.valid_magic() {
+        if little_endian.valid() {
+            Ok(Box::new(little_endian))
+        } else {
+            Err(Error::from(ErrorKind::InvalidData))
+        }
+    } else {
+        let big_endian = big_endian::View::new(little_endian.into_storage());
+        if big_endian.valid() {
+            Ok(Box::new(big_endian))
         } else {
             Err(Error::from(ErrorKind::InvalidData))
         }
     }
 }
 
-impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
-    pub const SIZE: usize = if little_endian::SIZE == big_endian::SIZE {
-        little_endian::SIZE
-    } else {
-        panic!()
-    };
-
-    pub(super) const MAX_DEVICES: usize = 27;
-
-    fn magic(&self) -> u32 {
-        match self {
-            Self::LittleEndian(view) => view.magic().read(),
-            Self::BigEndian(view) => view.magic().read(),
-        }
-    }
-
+pub trait SuperblockVersion0 {
     fn valid_magic(&self) -> bool {
         self.magic() == 0xa92b4efc
     }
@@ -54,105 +43,47 @@ impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
         self.major_version() == 0
     }
 
-    pub fn minor_version(&self) -> u32 {
-        match self {
-            SuperblockVersion0::LittleEndian(view) => view.minor_version().read(),
-            SuperblockVersion0::BigEndian(view) => view.minor_version().read(),
-        }
-    }
-
-    fn array_uuid_0(&self) -> u32 {
-        match self {
-            SuperblockVersion0::LittleEndian(view) => view.array_uuid_0().read(),
-            SuperblockVersion0::BigEndian(view) => view.array_uuid_0().read(),
-        }
-    }
-
-    fn array_uuid_all(&self) -> [u32; 4] {
-        match self {
-            SuperblockVersion0::LittleEndian(view) => [
-                view.array_uuid_0().read(),
-                view.array_uuid_1().read(),
-                view.array_uuid_2().read(),
-                view.array_uuid_3().read(),
-            ],
-            SuperblockVersion0::BigEndian(view) => [
-                view.array_uuid_0().read(),
-                view.array_uuid_1().read(),
-                view.array_uuid_2().read(),
-                view.array_uuid_3().read(),
-            ],
-        }
-    }
-
-    fn level(&self) -> u32 {
-        match self {
-            Self::LittleEndian(view) => view.level().read(),
-            Self::BigEndian(view) => view.level().read(),
-        }
-    }
-
-    fn layout(&self) -> u32 {
-        match self {
-            Self::LittleEndian(view) => view.layout().read(),
-            Self::BigEndian(view) => view.layout().read(),
-        }
-    }
-
-    fn valid_device_descriptors(&self) -> bool {
-        match self {
-            SuperblockVersion0::LittleEndian(view) => {
-                let buffer = view.disks();
-                (0..Self::MAX_DEVICES)
-                    .map(|i| {
-                        little_endian::DeviceDescriptorLittleEndian::new(array_ref![
-                            buffer,
-                            i * little_endian::DeviceDescriptorLittleEndian::<&[u8]>::SIZE,
-                            little_endian::DeviceDescriptorLittleEndian::<&[u8]>::SIZE
-                        ])
-                    })
-                    .all(|descriptor| descriptor.is_valid())
-            }
-            SuperblockVersion0::BigEndian(view) => {
-                let buffer = view.disks();
-                (0..Self::MAX_DEVICES)
-                    .map(|i| {
-                        big_endian::DeviceDescriptorBigEndian::new(array_ref![
-                            buffer,
-                            i * little_endian::DeviceDescriptorLittleEndian::<&[u8]>::SIZE,
-                            little_endian::DeviceDescriptorLittleEndian::<&[u8]>::SIZE
-                        ])
-                    })
-                    .all(|descriptor| descriptor.is_valid())
-            }
-        }
-    }
+    fn valid_device_descriptors(&self) -> bool;
+    fn magic(&self) -> u32;
+    fn major_version(&self) -> u32;
+    fn minor_version(&self) -> u32;
+    fn array_uuid_0(&self) -> u32;
+    fn level(&self) -> u32;
+    fn size(&self) -> u32;
+    fn raid_disks(&self) -> u32;
+    fn array_uuid_1(&self) -> u32;
+    fn array_uuid_2(&self) -> u32;
+    fn array_uuid_3(&self) -> u32;
+    fn event_count(&self) -> u64;
+    fn reshape_status(&self) -> ReshapeStatus;
+    fn layout(&self) -> u32;
+    fn chunk_size(&self) -> u32;
+    fn device_roles(&self) -> Vec<u16>;
 }
 
-impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
+impl<S: SuperblockVersion0> Superblock for S {
     fn valid(&self) -> bool {
         self.valid_magic() && self.valid_major_version() && self.valid_device_descriptors()
     }
 
     fn major_version(&self) -> u32 {
-        match self {
-            Self::LittleEndian(view) => view.major_version().read(),
-            Self::BigEndian(view) => view.major_version().read(),
-        }
+        self.major_version()
     }
 
     fn minor_version(&self) -> u32 {
-        match self {
-            Self::LittleEndian(view) => view.minor_version().read(),
-            Self::BigEndian(view) => view.minor_version().read(),
-        }
+        self.minor_version()
     }
 
     fn array_uuid(&self) -> ArrayUuid {
         if self.minor_version() < 90 {
             ArrayUuid::from_u32(self.array_uuid_0())
         } else {
-            ArrayUuid::from_u32_4(&self.array_uuid_all())
+            ArrayUuid::from_u32_4(&[
+                self.array_uuid_0(),
+                self.array_uuid_1(),
+                self.array_uuid_2(),
+                self.array_uuid_3(),
+            ])
         }
     }
 
@@ -165,68 +96,26 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
     }
 
     fn size(&self) -> u64 {
-        match self {
-            Self::LittleEndian(view) => view.size().read().into(),
-            Self::BigEndian(view) => view.size().read().into(),
-        }
+        self.size().into()
     }
 
     fn chunk_size(&self) -> u32 {
-        match self {
-            Self::LittleEndian(view) => view.chunk_size().read(),
-            Self::BigEndian(view) => view.chunk_size().read(),
-        }
+        self.chunk_size()
     }
 
     fn raid_disks(&self) -> u32 {
-        match self {
-            Self::LittleEndian(view) => view.raid_disks().read(),
-            Self::BigEndian(view) => view.raid_disks().read(),
-        }
+        self.raid_disks()
     }
 
     fn reshape_status(&self) -> ReshapeStatus {
-        match self {
-            Self::LittleEndian(view) => view.reshape_status().into(),
-            Self::BigEndian(view) => view.reshape_status().into(),
-        }
+        self.reshape_status()
     }
 
     fn event_count(&self) -> u64 {
-        match self {
-            SuperblockVersion0::LittleEndian(view) => view.event_count().read(),
-            SuperblockVersion0::BigEndian(view) => view.event_count().read(),
-        }
+        self.event_count()
     }
 
     fn device_roles(&self) -> Vec<u16> {
-        match self {
-            SuperblockVersion0::LittleEndian(view) => {
-                let buffer = view.disks();
-                Vec::from_iter((0..Self::MAX_DEVICES).map(|i| {
-                    little_endian::DeviceDescriptorLittleEndian::new(array_ref![
-                        buffer,
-                        i * little_endian::DeviceDescriptorLittleEndian::<&[u8]>::SIZE,
-                        little_endian::DeviceDescriptorLittleEndian::<&[u8]>::SIZE
-                    ])
-                    .role()
-                    .try_into()
-                    .unwrap()
-                }))
-            }
-            SuperblockVersion0::BigEndian(view) => {
-                let buffer = view.disks();
-                Vec::from_iter((0..Self::MAX_DEVICES).map(|i| {
-                    big_endian::DeviceDescriptorBigEndian::new(array_ref![
-                        buffer,
-                        i * big_endian::DeviceDescriptorBigEndian::<&[u8]>::SIZE,
-                        big_endian::DeviceDescriptorBigEndian::<&[u8]>::SIZE
-                    ])
-                    .role()
-                    .try_into()
-                    .unwrap()
-                }))
-            }
-        }
+        self.device_roles()
     }
 }

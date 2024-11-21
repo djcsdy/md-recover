@@ -1,7 +1,7 @@
 use crate::block_device::{BlockDevice, NativeBlockDevice};
 use crate::md::device::id::MdDeviceId;
 use crate::md::device::superblock::MdDeviceSuperblock;
-use crate::md::superblock::{SuperblockVersion0, SuperblockVersion1};
+use crate::md::superblock::{read_superblock_version_0, SuperblockVersion1};
 use std::ffi::OsStr;
 use std::io::{Result, SeekFrom};
 use std::path::Path;
@@ -57,7 +57,7 @@ impl<'md_device> MdDevice {
 
         if size >= Self::MIN_SUPERBLOCK_0_DEVICE_SIZE {
             device.seek(SeekFrom::Start((size & !65535) - 65536))?;
-            match SuperblockVersion0::read(&mut device) {
+            match read_superblock_version_0(&mut device) {
                 Ok(superblock) => {
                     return Ok(Self {
                         id,

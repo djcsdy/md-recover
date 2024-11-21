@@ -3,4 +3,5 @@ mod device_descriptor;
 mod little_endian;
 mod superblock;
 
-pub use superblock::SuperblockVersion0;
+use superblock::MAX_DEVICES;
+pub use superblock::{read_superblock_version_0, SuperblockVersion0};
