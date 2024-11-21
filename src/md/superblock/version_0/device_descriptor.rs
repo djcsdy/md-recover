@@ -6,7 +6,7 @@ const ROLE_MAX: u32 = 0xfeff;
 pub trait DeviceDescriptor {
     fn is_valid(&self) -> bool {
         let role = self.role();
-        role < ROLE_MAX || role >= ROLE_JOURNAL
+        !(ROLE_MAX..ROLE_JOURNAL).contains(&role)
     }
 
     fn number(&self) -> u32;
