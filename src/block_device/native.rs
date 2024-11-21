@@ -20,8 +20,8 @@ impl NativeBlockDevice {
 }
 
 impl BlockDevice for NativeBlockDevice {
-    fn size(&mut self) -> Result<u64> {
-        BLK_GETSIZE64.ioctl(&mut self.file).map(|(_, size)| size)
+    fn size(&self) -> Result<u64> {
+        BLK_GETSIZE64.ioctl(&self.file).map(|(_, size)| size)
     }
 }
 

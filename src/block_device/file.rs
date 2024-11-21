@@ -20,7 +20,7 @@ impl FileBlockDevice {
 }
 
 impl BlockDevice for FileBlockDevice {
-    fn size(&mut self) -> Result<u64> {
+    fn size(&self) -> Result<u64> {
         self.file.metadata().map(|metadata| metadata.size())
     }
 }
