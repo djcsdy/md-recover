@@ -11,7 +11,7 @@ pub struct NativeBlockDevice {
 
 impl NativeBlockDevice {
     pub fn open_path<P: AsRef<Path>>(path: P) -> Result<Self> {
-        File::open(path).map(|file| Self::from_file(file))
+        File::open(path).map(Self::from_file)
     }
 
     pub fn from_file(file: File) -> Self {
