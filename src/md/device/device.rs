@@ -24,7 +24,7 @@ impl MdDevice {
     }
 }
 
-impl<'md_device> MdDevice {
+impl MdDevice {
     pub fn from_block_device<S: AsRef<OsStr>>(
         mut device: Box<dyn BlockDevice>,
         user_reference: Option<S>,
