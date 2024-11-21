@@ -43,29 +43,23 @@ impl MdDevice {
 
         for (minor_version, offset) in [(2, 8 << 9), (1, 0), (0, (((size >> 9) - 16) & !7) << 9)] {
             device.seek(SeekFrom::Start(offset))?;
-            match SuperblockVersion1::read(&mut device, minor_version) {
-                Ok(superblock) => {
-                    return Ok(Self {
-                        id,
-                        superblock: MdDeviceSuperblock::Superblock(Box::new(superblock)),
-                        device,
-                    });
-                }
-                Err(_) => {}
+            if let Ok(superblock) = SuperblockVersion1::read(&mut device, minor_version) {
+                return Ok(Self {
+                    id,
+                    superblock: MdDeviceSuperblock::Superblock(Box::new(superblock)),
+                    device,
+                });
             }
         }
 
         if size >= Self::MIN_SUPERBLOCK_0_DEVICE_SIZE {
             device.seek(SeekFrom::Start((size & !65535) - 65536))?;
-            match read_superblock_version_0(&mut device) {
-                Ok(superblock) => {
-                    return Ok(Self {
-                        id,
-                        superblock: MdDeviceSuperblock::Superblock(Box::new(superblock)),
-                        device,
-                    })
-                }
-                Err(_) => {}
+            if let Ok(superblock) = read_superblock_version_0(&mut device) {
+                return Ok(Self {
+                    id,
+                    superblock: MdDeviceSuperblock::Superblock(Box::new(superblock)),
+                    device,
+                });
             }
         }
 
