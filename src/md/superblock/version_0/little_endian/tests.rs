@@ -484,7 +484,7 @@ fn view_of_little_endian_superblock_version_0_device_1() {
     assert_eq!(view.number(), 1);
     assert_eq!(view.major(), 0xe9b52f41);
     assert_eq!(view.minor(), 0x08783284);
-    assert_eq!(view.raid_disk(), 1);
+    assert_eq!(view.role(), 1);
     assert_eq!(view.state(), 0);
 }
 
@@ -499,6 +499,6 @@ fn view_of_little_endian_superblock_version_0_device_2() {
     assert_eq!(descriptor.number(), 2);
     assert_eq!(descriptor.major(), 0x9632a95b);
     assert_eq!(descriptor.minor(), 0x4df28944);
-    assert_eq!(descriptor.raid_disk(), 2);
+    assert_eq!(descriptor.role(), 2);
     assert_eq!(descriptor.state(), 0);
 }

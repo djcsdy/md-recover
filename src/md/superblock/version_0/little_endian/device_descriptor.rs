@@ -6,7 +6,7 @@ binary_layout!(layout, LittleEndian, {
     number: u32,
     major: u32,
     minor: u32,
-    raid_disk: u32,
+    role: u32,
     state: u32,
     reserved: [u8; 108]
 });
@@ -33,8 +33,8 @@ impl<S: AsRef<[u8]>> DeviceDescriptor<S> {
         self.0.minor().read()
     }
 
-    pub fn raid_disk(&self) -> u32 {
-        self.0.raid_disk().read()
+    pub fn role(&self) -> u32 {
+        self.0.role().read()
     }
 
     pub fn state(&self) -> u32 {

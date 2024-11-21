@@ -110,7 +110,7 @@ impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
                             little_endian::DeviceDescriptor::<&[u8]>::SIZE
                         ])
                     })
-                    .all(|descriptor| descriptor.raid_disk() < u16::MAX.into())
+                    .all(|descriptor| descriptor.role() < u16::MAX.into())
             }
             SuperblockVersion0::BigEndian(view) => {
                 let buffer = view.disks();
@@ -122,7 +122,7 @@ impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
                             little_endian::DeviceDescriptor::<&[u8]>::SIZE
                         ])
                     })
-                    .all(|descriptor| descriptor.raid_disk() < u16::MAX.into())
+                    .all(|descriptor| descriptor.role() < u16::MAX.into())
             }
         }
     }
@@ -208,7 +208,7 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
                         i * little_endian::DeviceDescriptor::<&[u8]>::SIZE,
                         little_endian::DeviceDescriptor::<&[u8]>::SIZE
                     ])
-                    .raid_disk()
+                    .role()
                     .try_into()
                     .unwrap()
                 }))
@@ -221,7 +221,7 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
                         i * big_endian::DeviceDescriptor::<&[u8]>::SIZE,
                         big_endian::DeviceDescriptor::<&[u8]>::SIZE
                     ])
-                    .raid_disk()
+                    .role()
                     .try_into()
                     .unwrap()
                 }))
