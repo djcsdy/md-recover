@@ -11,8 +11,8 @@ pub enum MdAlgorithm {
 impl MdAlgorithm {
     pub fn from_level_and_layout(level: u32, layout: u32) -> Self {
         match level {
-            5 => Raid5Algorithm::from_layout(layout).map(|algorithm| Self::Raid5(algorithm)),
-            6 => Raid6Algorithm::from_layout(layout).map(|algorithm| Self::Raid6(algorithm)),
+            5 => Raid5Algorithm::from_layout(layout).map(Self::Raid5),
+            6 => Raid6Algorithm::from_layout(layout).map(Self::Raid6),
             _ => None,
         }
         .unwrap_or(Self::Unsupported { level, layout })
