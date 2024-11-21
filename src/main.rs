@@ -1,4 +1,4 @@
-#![allow(unused_imports, dead_code)]
+#![allow(unused_imports, dead_code, clippy::module_inception)]
 
 #[macro_use]
 extern crate arrayref;
