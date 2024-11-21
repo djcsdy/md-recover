@@ -581,7 +581,7 @@ impl<S: AsRef<[u8]>> Superblock<S> {
             .into_encryption_algorithms()
             .into_slice()
             .iter()
-            .map(|a| *a)
+            .copied()
             .map_into()
             .filter(|algorithm| *algorithm != EncryptionAlgorithm::Invalid)
             .collect()
