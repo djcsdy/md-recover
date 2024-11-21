@@ -10,9 +10,9 @@ pub struct MdDeviceId {
     user_reference: Option<OsString>,
 }
 
-impl MdDeviceId {
-    const NEXT_INDEX: AtomicU64 = AtomicU64::new(0);
+static NEXT_INDEX: AtomicU64 = AtomicU64::new(0);
 
+impl MdDeviceId {
     pub fn new<S: AsRef<OsStr>>(user_reference: Option<S>) -> Self {
         Self {
             internal_index: Self::next_index(),
@@ -21,7 +21,7 @@ impl MdDeviceId {
     }
 
     fn next_index() -> u64 {
-        let index = Self::NEXT_INDEX.fetch_add(1, Ordering::AcqRel);
+        let index = NEXT_INDEX.fetch_add(1, Ordering::AcqRel);
         if index == u64::MAX {
             panic!("MdDeviceId index overflow");
         }
