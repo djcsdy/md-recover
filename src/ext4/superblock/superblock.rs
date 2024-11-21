@@ -161,10 +161,7 @@ impl<S: AsRef<[u8]>> Superblock<S> {
     }
 
     pub fn valid_error_policy(&self) -> bool {
-        match self.error_policy() {
-            ErrorPolicy::Unknown(_) => false,
-            _ => true,
-        }
+        !matches!(self.error_policy(), ErrorPolicy::Unknown(_))
     }
 
     pub fn valid_checksum(&self) -> bool {
