@@ -40,10 +40,10 @@ impl MdArray {
             },
         ));
 
-        if set.len() > 0 {
-            Some(set)
-        } else {
+        if set.is_empty() {
             None
+        } else {
+            Some(set)
         }
     }
 
@@ -55,10 +55,10 @@ impl MdArray {
             },
         ));
 
-        if set.len() > 0 {
-            Some(set)
-        } else {
+        if set.is_empty() {
             None
+        } else {
+            Some(set)
         }
     }
 
