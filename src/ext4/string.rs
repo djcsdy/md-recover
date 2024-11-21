@@ -1,9 +1,10 @@
 use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
+use std::hash::{Hash, Hasher};
 use std::string::FromUtf8Error;
 
-#[derive(Clone, Hash, Debug)]
+#[derive(Clone, Debug)]
 pub struct Ext4String<S: AsRef<[u8]>>(S);
 
 impl<'s> Ext4String<&'s [u8]> {
@@ -69,6 +70,12 @@ impl<S: AsRef<[u8]>> Ord for Ext4String<S> {
         let left = self.to_str_lossy();
         let right = other.to_str_lossy();
         left.cmp(&right)
+    }
+}
+
+impl<S: AsRef<[u8]>> Hash for Ext4String<S> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.to_str_lossy().hash(state)
     }
 }
 
