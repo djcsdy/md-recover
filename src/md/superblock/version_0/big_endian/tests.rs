@@ -1,5 +1,6 @@
 use crate::md::superblock::version_0::big_endian;
-use crate::md::superblock::version_0::big_endian::device_descriptor::DeviceDescriptor;
+use crate::md::superblock::version_0::big_endian::device_descriptor::DeviceDescriptorBigEndian;
+use crate::md::superblock::version_0::device_descriptor::DeviceDescriptor;
 
 const DATA: [u8; 4096] = [
     0xa9, 0x2b, 0x4e, 0xfc, // magic
@@ -470,16 +471,16 @@ fn view_of_big_endian_superblock_version_0() {
 
 #[test]
 fn size_of_big_endian_device_descriptor() {
-    assert_eq!(DeviceDescriptor::<&[u8]>::SIZE, 128);
+    assert_eq!(DeviceDescriptorBigEndian::<&[u8]>::SIZE, 128);
 }
 
 #[test]
 fn view_of_big_endian_superblock_version_0_device_1() {
     let superblock_view = big_endian::View::new(DATA);
-    let descriptor = DeviceDescriptor::new(array_ref![
+    let descriptor = DeviceDescriptorBigEndian::new(array_ref![
         superblock_view.disks(),
         0,
-        DeviceDescriptor::<&[u8]>::SIZE
+        DeviceDescriptorBigEndian::<&[u8]>::SIZE
     ]);
     assert_eq!(descriptor.number(), 1);
     assert_eq!(descriptor.major(), 0xe9b52f41);
@@ -491,10 +492,10 @@ fn view_of_big_endian_superblock_version_0_device_1() {
 #[test]
 fn view_of_big_endian_superblock_version_0_device_2() {
     let superblock_view = big_endian::View::new(DATA);
-    let descriptor = DeviceDescriptor::new(array_ref![
+    let descriptor = DeviceDescriptorBigEndian::new(array_ref![
         superblock_view.disks(),
-        DeviceDescriptor::<&[u8]>::SIZE,
-        DeviceDescriptor::<&[u8]>::SIZE
+        DeviceDescriptorBigEndian::<&[u8]>::SIZE,
+        DeviceDescriptorBigEndian::<&[u8]>::SIZE
     ]);
     assert_eq!(descriptor.number(), 2);
     assert_eq!(descriptor.major(), 0x9632a95b);

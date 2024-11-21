@@ -1,4 +1,4 @@
-pub use self::device_descriptor::DeviceDescriptor;
+pub use self::device_descriptor::DeviceDescriptorLittleEndian;
 pub use self::superblock::{View, SIZE};
 
 mod device_descriptor;

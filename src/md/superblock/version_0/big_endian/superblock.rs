@@ -1,4 +1,4 @@
-use super::device_descriptor::DeviceDescriptor;
+use super::device_descriptor::DeviceDescriptorBigEndian;
 use super::reshape_status::NestedReshapeStatusVersion0;
 use crate::md::superblock::SuperblockVersion0;
 use binary_layout::binary_layout;
@@ -40,7 +40,7 @@ binary_layout!(layout, BigEndian, {
     root_pv: u32,
     root_block: u32,
     reserved_2: [u8; 240],
-    disks: [u8; DeviceDescriptor::<&[u8]>::SIZE * SuperblockVersion0::<&[u8]>::MAX_DEVICES],
+    disks: [u8; DeviceDescriptorBigEndian::<&[u8]>::SIZE * SuperblockVersion0::<&[u8]>::MAX_DEVICES],
     reserved_3: [u8; 128]
 });
 

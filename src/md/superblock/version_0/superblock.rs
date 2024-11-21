@@ -1,5 +1,6 @@
 use crate::md::algorithm::MdAlgorithm;
 use crate::md::superblock::reshape_status::ReshapeStatus;
+use crate::md::superblock::version_0::device_descriptor::DeviceDescriptor;
 use crate::md::superblock::version_0::{big_endian, little_endian};
 use crate::md::superblock::{ArrayUuid, Superblock};
 use std::ffi::OsStr;
@@ -104,10 +105,10 @@ impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
                 let buffer = view.disks();
                 (0..Self::MAX_DEVICES)
                     .map(|i| {
-                        little_endian::DeviceDescriptor::new(array_ref![
+                        little_endian::DeviceDescriptorLittleEndian::new(array_ref![
                             buffer,
-                            i * little_endian::DeviceDescriptor::<&[u8]>::SIZE,
-                            little_endian::DeviceDescriptor::<&[u8]>::SIZE
+                            i * little_endian::DeviceDescriptorLittleEndian::<&[u8]>::SIZE,
+                            little_endian::DeviceDescriptorLittleEndian::<&[u8]>::SIZE
                         ])
                     })
                     .all(|descriptor| descriptor.role() < u16::MAX.into())
@@ -116,10 +117,10 @@ impl<S: AsRef<[u8]>> SuperblockVersion0<S> {
                 let buffer = view.disks();
                 (0..Self::MAX_DEVICES)
                     .map(|i| {
-                        big_endian::DeviceDescriptor::new(array_ref![
+                        big_endian::DeviceDescriptorBigEndian::new(array_ref![
                             buffer,
-                            i * little_endian::DeviceDescriptor::<&[u8]>::SIZE,
-                            little_endian::DeviceDescriptor::<&[u8]>::SIZE
+                            i * little_endian::DeviceDescriptorLittleEndian::<&[u8]>::SIZE,
+                            little_endian::DeviceDescriptorLittleEndian::<&[u8]>::SIZE
                         ])
                     })
                     .all(|descriptor| descriptor.role() < u16::MAX.into())
@@ -203,10 +204,10 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
             SuperblockVersion0::LittleEndian(view) => {
                 let buffer = view.disks();
                 Vec::from_iter((0..Self::MAX_DEVICES).map(|i| {
-                    little_endian::DeviceDescriptor::new(array_ref![
+                    little_endian::DeviceDescriptorLittleEndian::new(array_ref![
                         buffer,
-                        i * little_endian::DeviceDescriptor::<&[u8]>::SIZE,
-                        little_endian::DeviceDescriptor::<&[u8]>::SIZE
+                        i * little_endian::DeviceDescriptorLittleEndian::<&[u8]>::SIZE,
+                        little_endian::DeviceDescriptorLittleEndian::<&[u8]>::SIZE
                     ])
                     .role()
                     .try_into()
@@ -216,10 +217,10 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion0<S> {
             SuperblockVersion0::BigEndian(view) => {
                 let buffer = view.disks();
                 Vec::from_iter((0..Self::MAX_DEVICES).map(|i| {
-                    big_endian::DeviceDescriptor::new(array_ref![
+                    big_endian::DeviceDescriptorBigEndian::new(array_ref![
                         buffer,
-                        i * big_endian::DeviceDescriptor::<&[u8]>::SIZE,
-                        big_endian::DeviceDescriptor::<&[u8]>::SIZE
+                        i * big_endian::DeviceDescriptorBigEndian::<&[u8]>::SIZE,
+                        big_endian::DeviceDescriptorBigEndian::<&[u8]>::SIZE
                     ])
                     .role()
                     .try_into()
