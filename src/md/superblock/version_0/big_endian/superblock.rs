@@ -1,7 +1,6 @@
 use super::device_descriptor::DeviceDescriptorBigEndian;
 use super::reshape_status::NestedReshapeStatusVersion0;
 use crate::md::superblock::version_0::device_descriptor::DeviceDescriptor;
-use crate::md::superblock::version_0::MAX_DEVICES;
 use crate::md::superblock::{ReshapeStatus, SuperblockVersion0};
 use binary_layout::binary_layout;
 
@@ -42,7 +41,7 @@ binary_layout!(layout, BigEndian, {
     root_pv: u32,
     root_block: u32,
     reserved_2: [u8; 240],
-    disks: [u8; DeviceDescriptorBigEndian::<&[u8]>::SIZE * MAX_DEVICES],
+    disks: [u8; DeviceDescriptorBigEndian::<&[u8]>::SIZE * SuperblockVersion0::MAX_DEVICES],
     reserved_3: [u8; 128]
 });
 
@@ -51,89 +50,51 @@ pub const SIZE: usize = match layout::SIZE {
     None => panic!(),
 };
 
-impl<S: AsRef<[u8]>> SuperblockVersion0 for View<S> {
-    fn valid_device_descriptors(&self) -> bool {
-        let buffer = self.disks();
-        (0..MAX_DEVICES)
-            .map(|i| {
-                DeviceDescriptorBigEndian::new(array_ref![
-                    buffer,
-                    i * DeviceDescriptorBigEndian::<&[u8]>::SIZE,
-                    DeviceDescriptorBigEndian::<&[u8]>::SIZE
-                ])
-            })
-            .map(DeviceDescriptor::from)
-            .all(|descriptor| descriptor.is_valid())
-    }
-
-    fn magic(&self) -> u32 {
-        self.magic().read()
-    }
-
-    fn major_version(&self) -> u32 {
-        self.major_version().read()
-    }
-
-    fn minor_version(&self) -> u32 {
-        self.minor_version().read()
-    }
-
-    fn array_uuid_0(&self) -> u32 {
-        self.array_uuid_0().read()
-    }
-
-    fn level(&self) -> u32 {
-        self.level().read()
-    }
-
-    fn size(&self) -> u32 {
-        self.size().read()
-    }
-
-    fn raid_disks(&self) -> u32 {
-        self.raid_disks().read()
-    }
-
-    fn array_uuid_1(&self) -> u32 {
-        self.array_uuid_1().read()
-    }
-
-    fn array_uuid_2(&self) -> u32 {
-        self.array_uuid_2().read()
-    }
-
-    fn array_uuid_3(&self) -> u32 {
-        self.array_uuid_3().read()
-    }
-
-    fn event_count(&self) -> u64 {
-        self.event_count().read()
-    }
-
-    fn reshape_status(&self) -> ReshapeStatus {
-        self.reshape_status().into()
-    }
-
-    fn layout(&self) -> u32 {
-        self.layout().read()
-    }
-
-    fn chunk_size(&self) -> u32 {
-        self.chunk_size().read()
-    }
-
-    fn device_roles(&self) -> Vec<u16> {
-        let buffer = self.disks();
-        Vec::from_iter((0..MAX_DEVICES).map(|i| {
+impl<S: AsRef<[u8]>> From<View<S>> for SuperblockVersion0 {
+    fn from(value: View<S>) -> Self {
+        let device_descriptor_buffer = value.disks().as_slice();
+        let disks = Vec::from_iter((0..SuperblockVersion0::MAX_DEVICES).map(|i| {
             DeviceDescriptorBigEndian::new(array_ref![
-                buffer,
+                device_descriptor_buffer,
                 i * DeviceDescriptorBigEndian::<&[u8]>::SIZE,
                 DeviceDescriptorBigEndian::<&[u8]>::SIZE
             ])
-            .role()
-            .read()
-            .try_into()
-            .unwrap()
-        }))
+            .into()
+        }));
+
+        Self {
+            magic: value.magic().read(),
+            major_version: value.major_version().read(),
+            minor_version: value.minor_version().read(),
+            patch_version: value.patch_version().read(),
+            gvalid_words: value.gvalid_words().read(),
+            array_uuid_0: value.array_uuid_0().read(),
+            ctime: value.ctime().read(),
+            level: value.level().read(),
+            size: value.size().read(),
+            nr_disks: value.nr_disks().read(),
+            raid_disks: value.raid_disks().read(),
+            md_minor: value.md_minor().read(),
+            not_persistent: value.not_persistent().read(),
+            array_uuid_1: value.array_uuid_1().read(),
+            array_uuid_2: value.array_uuid_2().read(),
+            array_uuid_3: value.array_uuid_3().read(),
+            utime: value.utime().read(),
+            state: value.state().read(),
+            active_disks: value.active_disks().read(),
+            working_disks: value.working_disks().read(),
+            failed_disks: value.failed_disks().read(),
+            spare_disks: value.spare_disks().read(),
+            superblock_checksum: value.superblock_checksum().read(),
+            event_count: value.event_count().read(),
+            checkpoint_event_count: value.checkpoint_event_count().read(),
+            recovery_checkpoint: value.recovery_checkpoint().read(),
+            reshape_status: value.reshape_status().into(),
+            layout: value.layout().read(),
+            chunk_size: value.chunk_size().read(),
+            root_pv: value.root_pv().read(),
+            root_block: value.root_block().read(),
+            disks,
+        }
     }
 }
