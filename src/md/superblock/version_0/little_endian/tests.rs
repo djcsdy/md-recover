@@ -482,11 +482,11 @@ fn view_of_little_endian_superblock_version_0_device_1() {
         0,
         DeviceDescriptorLittleEndian::<&[u8]>::SIZE
     ]);
-    assert_eq!(view.number(), 1);
-    assert_eq!(view.major(), 0xe9b52f41);
-    assert_eq!(view.minor(), 0x08783284);
-    assert_eq!(view.role(), 1);
-    assert_eq!(view.state(), 0);
+    assert_eq!(view.number().read(), 1);
+    assert_eq!(view.major().read(), 0xe9b52f41);
+    assert_eq!(view.minor().read(), 0x08783284);
+    assert_eq!(view.role().read(), 1);
+    assert_eq!(view.state().read(), 0);
 }
 
 #[test]
@@ -497,9 +497,9 @@ fn view_of_little_endian_superblock_version_0_device_2() {
         DeviceDescriptorLittleEndian::<&[u8]>::SIZE,
         DeviceDescriptorLittleEndian::<&[u8]>::SIZE
     ]);
-    assert_eq!(descriptor.number(), 2);
-    assert_eq!(descriptor.major(), 0x9632a95b);
-    assert_eq!(descriptor.minor(), 0x4df28944);
-    assert_eq!(descriptor.role(), 2);
-    assert_eq!(descriptor.state(), 0);
+    assert_eq!(descriptor.number().read(), 2);
+    assert_eq!(descriptor.major().read(), 0x9632a95b);
+    assert_eq!(descriptor.minor().read(), 0x4df28944);
+    assert_eq!(descriptor.role().read(), 2);
+    assert_eq!(descriptor.state().read(), 0);
 }

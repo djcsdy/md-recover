@@ -62,6 +62,7 @@ impl<S: AsRef<[u8]>> SuperblockVersion0 for View<S> {
                     DeviceDescriptorBigEndian::<&[u8]>::SIZE
                 ])
             })
+            .map(DeviceDescriptor::from)
             .all(|descriptor| descriptor.is_valid())
     }
 
@@ -130,6 +131,7 @@ impl<S: AsRef<[u8]>> SuperblockVersion0 for View<S> {
                 DeviceDescriptorBigEndian::<&[u8]>::SIZE
             ])
             .role()
+            .read()
             .try_into()
             .unwrap()
         }))

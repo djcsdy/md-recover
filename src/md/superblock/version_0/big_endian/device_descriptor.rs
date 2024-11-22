@@ -1,7 +1,8 @@
 use crate::md::superblock::version_0::device_descriptor::DeviceDescriptor;
+use crate::md::superblock::version_0::little_endian::DeviceDescriptorLittleEndian;
 use binary_layout::prelude::*;
 
-pub struct DeviceDescriptorBigEndian<S: AsRef<[u8]>>(layout::View<S>);
+pub use layout::View as DeviceDescriptorBigEndian;
 
 binary_layout!(layout, BigEndian, {
     number: u32,
@@ -17,30 +18,16 @@ impl<S: AsRef<[u8]>> DeviceDescriptorBigEndian<S> {
         Some(size) => size,
         None => panic!(),
     };
-
-    pub fn new(storage: S) -> Self {
-        Self(layout::View::new(storage))
-    }
 }
 
-impl<S: AsRef<[u8]>> DeviceDescriptor for DeviceDescriptorBigEndian<S> {
-    fn number(&self) -> u32 {
-        self.0.number().read()
-    }
-
-    fn major(&self) -> u32 {
-        self.0.major().read()
-    }
-
-    fn minor(&self) -> u32 {
-        self.0.minor().read()
-    }
-
-    fn role(&self) -> u32 {
-        self.0.role().read()
-    }
-
-    fn state(&self) -> u32 {
-        self.0.state().read()
+impl<S: AsRef<[u8]>> From<DeviceDescriptorBigEndian<S>> for DeviceDescriptor {
+    fn from(value: DeviceDescriptorBigEndian<S>) -> Self {
+        Self {
+            number: value.number().read(),
+            major: value.major().read(),
+            minor: value.minor().read(),
+            role: value.role().read(),
+            state: value.state().read(),
+        }
     }
 }
