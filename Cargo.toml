@@ -13,7 +13,7 @@ bitflags = "=2.4.0"
 byteorder = "=1.4.3"
 clap = { version = "=4.4.3", features = ["derive"] }
 crc = "=3.2.1"
-itertools = "=0.11.0"
+itertools = "=0.13.0"
 iocuddle = "=0.1.1"
 num_enum = "=0.7.3"
 os_display = "=0.1.3"
