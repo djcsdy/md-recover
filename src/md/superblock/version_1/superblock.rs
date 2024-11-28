@@ -4,7 +4,7 @@ use crate::md::superblock::version_1::device_flags::DeviceFlags;
 use crate::md::superblock::version_1::features::Features;
 use crate::md::superblock::version_1::ppl_info::PplInfo;
 use crate::md::superblock::version_1::reshape_status::NestedReshapeStatusVersion1;
-use crate::md::superblock::{ArrayUuid, Superblock};
+use crate::md::superblock::{ArrayUuid, MdDeviceRole, Superblock};
 use binary_layout::binary_layout;
 use byteorder::{ByteOrder, LittleEndian, ReadBytesExt};
 use std::ffi::OsStr;
@@ -190,13 +190,13 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
         self.buffer.event_count().read()
     }
 
-    fn device_roles(&self) -> Vec<u16> {
+    fn device_roles(&self) -> Vec<MdDeviceRole> {
         let count = self.buffer.max_devices().read() as usize;
         let mut buffer = vec![0u16; count];
         self.buffer
             .dev_roles()
             .read_u16_into::<LittleEndian>(&mut buffer)
             .unwrap();
-        buffer
+        buffer.into_iter().map(MdDeviceRole::from_u16).collect()
     }
 }

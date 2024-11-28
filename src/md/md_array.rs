@@ -2,7 +2,7 @@ use crate::ext::MultiMap;
 use crate::md::algorithm::MdAlgorithm;
 use crate::md::device::{MdDeviceId, MdDeviceSuperblock};
 use crate::md::diagnosis::Diagnosis;
-use crate::md::superblock::{ArrayUuid, ReshapeStatus};
+use crate::md::superblock::{ArrayUuid, MdDeviceRole, ReshapeStatus};
 use crate::md::MdDevice;
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsString;
@@ -183,7 +183,7 @@ impl MdArray {
         }
     }
 
-    fn diagnose_device_roles_problem(&self) -> Option<HashMap<Vec<u16>, Vec<MdDeviceId>>> {
+    fn diagnose_device_roles_problem(&self) -> Option<HashMap<Vec<MdDeviceRole>, Vec<MdDeviceId>>> {
         let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
             device
                 .superblock

@@ -1,6 +1,6 @@
 use std::ffi::OsStr;
 
-use super::ArrayUuid;
+use super::{ArrayUuid, MdDeviceRole};
 use crate::md::algorithm::MdAlgorithm;
 use crate::md::superblock::reshape_status::ReshapeStatus;
 
@@ -16,7 +16,7 @@ pub trait Superblock {
     fn raid_disks(&self) -> u32;
     fn reshape_status(&self) -> ReshapeStatus;
     fn event_count(&self) -> u64;
-    fn device_roles(&self) -> Vec<u16>;
+    fn device_roles(&self) -> Vec<MdDeviceRole>;
 }
 
 impl Superblock for Box<dyn Superblock> {
@@ -64,7 +64,7 @@ impl Superblock for Box<dyn Superblock> {
         (**self).event_count()
     }
 
-    fn device_roles(&self) -> Vec<u16> {
+    fn device_roles(&self) -> Vec<MdDeviceRole> {
         (**self).device_roles()
     }
 }

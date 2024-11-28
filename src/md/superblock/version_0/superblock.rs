@@ -2,7 +2,7 @@ use crate::md::algorithm::MdAlgorithm;
 use crate::md::superblock::reshape_status::ReshapeStatus;
 use crate::md::superblock::version_0::device_descriptor::DeviceDescriptor;
 use crate::md::superblock::version_0::{big_endian, little_endian};
-use crate::md::superblock::{ArrayUuid, Superblock};
+use crate::md::superblock::{ArrayUuid, MdDeviceRole, Superblock};
 use std::ffi::OsStr;
 use std::io;
 use std::io::{Error, ErrorKind, Read};
@@ -142,11 +142,10 @@ impl Superblock for SuperblockVersion0 {
         self.event_count
     }
 
-    fn device_roles(&self) -> Vec<u16> {
+    fn device_roles(&self) -> Vec<MdDeviceRole> {
         self.disks
             .iter()
             .map(|descriptor| descriptor.role)
-            .map(|role| role as u16)
             .collect()
     }
 }

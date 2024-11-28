@@ -1,4 +1,5 @@
 use crate::md::superblock::version_0::device_descriptor::DeviceDescriptor;
+use crate::md::superblock::MdDeviceRole;
 use binary_layout::prelude::*;
 
 pub use layout::View as DeviceDescriptorLittleEndian;
@@ -7,7 +8,7 @@ binary_layout!(layout, LittleEndian, {
     number: u32,
     major: u32,
     minor: u32,
-    role: u32,
+    role: MdDeviceRole as u32,
     state: u32,
     reserved: [u8; 108]
 });
