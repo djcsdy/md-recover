@@ -41,7 +41,7 @@ fn main() {
     if device_errors.is_empty() {
         let array = MdArray::new(devices);
         let diagnosis = array.diagnose();
-        println!("{:?}", diagnosis);
+        println!("{diagnosis:?}");
     } else {
         for (path, error) in device_errors {
             println!("{}: {}", path.maybe_quote(), error);
