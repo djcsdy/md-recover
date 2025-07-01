@@ -4,7 +4,9 @@ use crate::ext4::inode::linux_2::NestedLinuxSpecific2;
 use crate::ext4::inode::time::decode_extra_time;
 use crate::ext4::inode::{FileMode, FileType, Permissions};
 use binary_layout::binary_layout;
+use byteorder::{LittleEndian, ReadBytesExt};
 use chrono::{DateTime, Duration, Utc};
+use std::io::Read;
 use std::mem::size_of;
 
 const NUM_BLOCKS: usize = 15;
@@ -113,6 +115,14 @@ impl<S: AsRef<[u8]>> Inode<S> {
     pub fn version(&self) -> u64 {
         u64::from(self.view().os_dependent_1().version().read())
             | (u64::from(self.view().version_high().read()) << 32)
+    }
+
+    pub fn blocks(&self) -> [u32; NUM_BLOCKS] {
+        let mut blocks = [0u32; NUM_BLOCKS];
+        (&self.view().blocks()[..])
+            .read_u32_into::<LittleEndian>(&mut blocks)
+            .unwrap();
+        blocks
     }
 
     fn view(&self) -> layout::View<&[u8]> {
