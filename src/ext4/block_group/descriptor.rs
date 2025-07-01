@@ -1,3 +1,4 @@
+use crate::ext4::block_group::Flags;
 use binary_layout::binary_layout;
 use std::io::{Read, Result};
 
@@ -8,7 +9,7 @@ binary_layout!(layout, LittleEndian, {
     free_block_count_low: u16,
     free_inode_count_low: u16,
     used_directories_count_low: u16,
-    flags: u16,
+    flags: Flags as u16,
     exclude_bitmap_block_low: u32,
     block_bitmap_checksum_low: u16,
     inode_bitmap_checksum_low: u16,
@@ -62,6 +63,10 @@ impl<S: AsRef<[u8]>> BlockGroupDescriptor<S> {
     pub fn used_directories_count(&self) -> u32 {
         u32::from(self.view().used_directories_count_low().read())
             | (u32::from(self.view().used_directories_count_high().read()) << 16)
+    }
+
+    pub fn flags(&self) -> Flags {
+        self.view().flags().read()
     }
 
     fn view(&self) -> layout::View<&[u8]> {
