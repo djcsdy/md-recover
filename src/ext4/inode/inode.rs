@@ -1,6 +1,8 @@
 use crate::ext4::inode::linux_2::NestedLinuxSpecific2;
+use crate::ext4::inode::time::decode_extra_time;
 use crate::ext4::inode::{FileMode, FileType, Permissions};
 use binary_layout::binary_layout;
+use chrono::{DateTime, Utc};
 use std::mem::size_of;
 
 const NUM_BLOCKS: usize = 15;
@@ -61,6 +63,13 @@ impl<S: AsRef<[u8]>> Inode<S> {
 
     pub fn file_size_bytes(&self) -> u64 {
         u64::from(self.view().size_low().read()) | (u64::from(self.view().size_high().read()) << 32)
+    }
+
+    pub fn access_time(&self) -> DateTime<Utc> {
+        decode_extra_time(
+            self.view().access_time().read(),
+            self.view().access_time_extra().read(),
+        )
     }
 
     fn view(&self) -> layout::View<&[u8]> {
