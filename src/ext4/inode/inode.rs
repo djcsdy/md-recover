@@ -110,6 +110,11 @@ impl<S: AsRef<[u8]>> Inode<S> {
         self.view().flags().read()
     }
 
+    pub fn version(&self) -> u64 {
+        u64::from(self.view().os_dependent_1().version().read())
+            | (u64::from(self.view().version_high().read()) << 32)
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
