@@ -89,6 +89,10 @@ impl<S: AsRef<[u8]>> BlockGroupDescriptor<S> {
             | (u32::from(self.view().unused_inode_count_high().read()) << 16)
     }
 
+    pub fn checksum(&self) -> u16 {
+        self.view().checksum().read()
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
