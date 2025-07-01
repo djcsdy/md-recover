@@ -33,4 +33,10 @@ binary_layout!(layout, LittleEndian, {
     project_id: u32
 });
 
-pub struct Inode<S: AsRef<[u8]>>(layout::View<S>);
+pub struct Inode<S: AsRef<[u8]>>(S);
+
+impl<S: AsRef<[u8]>> Inode<S> {
+    pub fn new(storage: S) -> Self {
+        Self(storage)
+    }
+}
