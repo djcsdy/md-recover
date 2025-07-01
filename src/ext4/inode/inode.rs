@@ -90,6 +90,11 @@ impl<S: AsRef<[u8]>> Inode<S> {
         DateTime::UNIX_EPOCH + Duration::seconds(i64::from(self.view().delete_time().read()))
     }
 
+    pub fn group_id(&self) -> u32 {
+        u32::from(self.view().group_id_low().read())
+            | (u32::from(self.view().os_dependent_2().group_id_high().read()) << 16)
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
