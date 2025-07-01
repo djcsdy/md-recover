@@ -1,5 +1,6 @@
 mod file_mode;
 mod file_type;
+mod flags;
 mod inode;
 mod linux_2;
 mod permissions;

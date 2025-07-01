@@ -1,3 +1,4 @@
+use crate::ext4::inode::flags::Flags;
 use crate::ext4::inode::linux_2::NestedLinuxSpecific2;
 use crate::ext4::inode::time::decode_extra_time;
 use crate::ext4::inode::{FileMode, FileType, Permissions};
@@ -18,7 +19,7 @@ binary_layout!(layout, LittleEndian, {
     group_id_low: u16,
     links_count: u16,
     block_count_low: u16,
-    flags: u32,
+    flags: Flags as u32,
     os_dependent_1: u32,
     blocks: [u8; size_of::<u32>() * NUM_BLOCKS],
     generation: u32,
