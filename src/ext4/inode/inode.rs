@@ -1,4 +1,4 @@
-use crate::ext4::inode::{FileMode, FileType};
+use crate::ext4::inode::{FileMode, FileType, Permissions};
 use binary_layout::binary_layout;
 use std::mem::size_of;
 
@@ -47,6 +47,10 @@ impl<S: AsRef<[u8]>> Inode<S> {
 
     pub fn file_type(&self) -> FileType {
         self.file_mode().file_type()
+    }
+
+    pub fn permissions(&self) -> Permissions {
+        self.file_mode().permissions()
     }
 
     fn view(&self) -> layout::View<&[u8]> {
