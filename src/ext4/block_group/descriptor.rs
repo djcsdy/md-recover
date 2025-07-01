@@ -33,6 +33,15 @@ impl<S: AsRef<[u8]>> BlockGroupDescriptor<S> {
     pub fn new(storage: S) -> Self {
         Self(storage)
     }
+
+    pub fn block_bitmap_block(&self) -> u64 {
+        u64::from(self.view().block_bitmap_block_low().read())
+            | (u64::from(self.view().block_bitmap_block_high().read()) << 32)
+    }
+
+    fn view(&self) -> layout::View<&[u8]> {
+        layout::View::new(self.0.as_ref())
+    }
 }
 
 impl BlockGroupDescriptor<Vec<u8>> {
