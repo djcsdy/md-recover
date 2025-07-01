@@ -139,6 +139,13 @@ impl<S: AsRef<[u8]>> Inode<S> {
             | (u32::from(self.view().checksum_high().read()) << 16)
     }
 
+    pub fn creation_time(&self) -> DateTime<Utc> {
+        decode_extra_time(
+            self.view().creation_time().read(),
+            self.view().creation_time_extra().read(),
+        )
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
