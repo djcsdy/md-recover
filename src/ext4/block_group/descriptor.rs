@@ -79,6 +79,11 @@ impl<S: AsRef<[u8]>> BlockGroupDescriptor<S> {
             | (u32::from(self.view().block_bitmap_checksum_high().read()) << 16)
     }
 
+    pub fn inode_bitmap_checksum(&self) -> u32 {
+        u32::from(self.view().inode_bitmap_checksum_low().read())
+            | (u32::from(self.view().inode_bitmap_checksum_high().read()) << 16)
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
