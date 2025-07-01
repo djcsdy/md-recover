@@ -59,6 +59,10 @@ impl<S: AsRef<[u8]>> Inode<S> {
             | (u32::from(self.view().os_dependent_2().user_id_high().read()) << 16)
     }
 
+    pub fn file_size_bytes(&self) -> u64 {
+        u64::from(self.view().size_low().read()) | (u64::from(self.view().size_high().read()) << 32)
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
