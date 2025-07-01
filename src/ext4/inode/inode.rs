@@ -1,10 +1,11 @@
+use crate::ext4::inode::FileMode;
 use binary_layout::binary_layout;
 use std::mem::size_of;
 
 const NUM_BLOCKS: usize = 15;
 
 binary_layout!(layout, LittleEndian, {
-    file_mode: u16,
+    file_mode: FileMode as u16,
     user_id_low: u16,
     size_low: u32,
     access_time: u32,
