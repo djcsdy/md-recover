@@ -2,7 +2,7 @@ use crate::ext4::inode::linux_2::NestedLinuxSpecific2;
 use crate::ext4::inode::time::decode_extra_time;
 use crate::ext4::inode::{FileMode, FileType, Permissions};
 use binary_layout::binary_layout;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use std::mem::size_of;
 
 const NUM_BLOCKS: usize = 15;
@@ -84,6 +84,10 @@ impl<S: AsRef<[u8]>> Inode<S> {
             self.view().modified_time().read(),
             self.view().modified_time_extra().read(),
         )
+    }
+
+    pub fn delete_time(&self) -> DateTime<Utc> {
+        DateTime::UNIX_EPOCH + Duration::seconds(i64::from(self.view().delete_time().read()))
     }
 
     fn view(&self) -> layout::View<&[u8]> {
