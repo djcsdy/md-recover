@@ -39,6 +39,11 @@ impl<S: AsRef<[u8]>> BlockGroupDescriptor<S> {
             | (u64::from(self.view().block_bitmap_block_high().read()) << 32)
     }
 
+    pub fn inode_bitmap_block(&self) -> u64 {
+        u64::from(self.view().inode_bitmap_block_low().read())
+            | (u64::from(self.view().inode_bitmap_block_high().read()) << 32)
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
