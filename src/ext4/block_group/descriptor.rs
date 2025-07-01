@@ -54,6 +54,11 @@ impl<S: AsRef<[u8]>> BlockGroupDescriptor<S> {
             | (u32::from(self.view().free_block_count_high().read()) << 16)
     }
 
+    pub fn free_inode_count(&self) -> u32 {
+        u32::from(self.view().free_inode_count_low().read())
+            | (u32::from(self.view().free_inode_count_high().read()) << 16)
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
