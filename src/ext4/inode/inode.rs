@@ -105,6 +105,10 @@ impl<S: AsRef<[u8]>> Inode<S> {
             | (u32::from(self.view().os_dependent_2().block_count_high().read()) << 16)
     }
 
+    pub fn flags(&self) -> Flags {
+        self.view().flags().read()
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
