@@ -125,6 +125,10 @@ impl<S: AsRef<[u8]>> Inode<S> {
         blocks
     }
 
+    pub fn generation(&self) -> u32 {
+        self.view().generation().read()
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
