@@ -95,6 +95,10 @@ impl<S: AsRef<[u8]>> Inode<S> {
             | (u32::from(self.view().os_dependent_2().group_id_high().read()) << 16)
     }
 
+    pub fn links_count(&self) -> u16 {
+        self.view().links_count().read()
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
