@@ -40,4 +40,12 @@ impl<S: AsRef<[u8]>> Inode<S> {
     pub fn new(storage: S) -> Self {
         Self(storage)
     }
+
+    pub fn file_mode(&self) -> FileMode {
+        self.view().file_mode().read()
+    }
+
+    fn view(&self) -> layout::View<&[u8]> {
+        layout::View::new(self.0.as_ref())
+    }
 }
