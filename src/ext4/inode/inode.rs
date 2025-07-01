@@ -1,3 +1,4 @@
+use crate::ext4::inode::linux_2::NestedLinuxSpecific2;
 use crate::ext4::inode::{FileMode, FileType, Permissions};
 use binary_layout::binary_layout;
 use std::mem::size_of;
@@ -22,7 +23,7 @@ binary_layout!(layout, LittleEndian, {
     file_acl_low: u32,
     size_high: u32,
     obsolete_fragment_address: u32,
-    os_dependent_2: [u8; 12],
+    os_dependent_2: NestedLinuxSpecific2,
     extra_isize: u16,
     checksum_high: u16,
     change_time_extra: u32,

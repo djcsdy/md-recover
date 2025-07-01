@@ -1,6 +1,7 @@
 mod file_mode;
 mod file_type;
 mod inode;
+mod linux_2;
 mod permissions;
 
 pub use file_mode::FileMode;
