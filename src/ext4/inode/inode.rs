@@ -134,6 +134,11 @@ impl<S: AsRef<[u8]>> Inode<S> {
             | (u64::from(self.view().os_dependent_2().file_acl_high().read()) << 32)
     }
 
+    pub fn checksum(&self) -> u32 {
+        u32::from(self.view().os_dependent_2().checksum_low().read())
+            | (u32::from(self.view().checksum_high().read()) << 16)
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
