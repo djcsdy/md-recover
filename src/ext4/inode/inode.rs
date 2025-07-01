@@ -79,6 +79,13 @@ impl<S: AsRef<[u8]>> Inode<S> {
         )
     }
 
+    pub fn modified_time(&self) -> DateTime<Utc> {
+        decode_extra_time(
+            self.view().modified_time().read(),
+            self.view().modified_time_extra().read(),
+        )
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
     }
