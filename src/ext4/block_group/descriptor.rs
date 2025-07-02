@@ -1,107 +1,93 @@
+use crate::ext::WideUnsigned;
 use crate::ext4::block_group::Flags;
-use binary_layout::binary_layout;
-use std::io::{Read, Result};
+use crate::parser::number::{le_u16_or_default, le_u32_or_default};
+use nom::branch::alt;
+use nom::combinator::{opt, success};
+use nom::error::ErrorKind;
+use nom::number::complete::{le_u16, le_u32};
+use nom::{IResult, Needed, Parser};
 
-binary_layout!(layout, LittleEndian, {
-    block_bitmap_block_low: u32,
-    inode_bitmap_block_low: u32,
-    inode_table_block_low: u32,
-    free_block_count_low: u16,
-    free_inode_count_low: u16,
-    used_directories_count_low: u16,
-    flags: Flags as u16,
-    exclude_bitmap_block_low: u32,
-    block_bitmap_checksum_low: u16,
-    inode_bitmap_checksum_low: u16,
-    unused_inode_count_low: u16,
+#[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug)]
+pub struct BlockGroupDescriptor {
+    block_bitmap_block: u64,
+    inode_bitmap_block: u64,
+    inode_table_block: u64,
+    free_block_count: u32,
+    free_inode_count: u32,
+    used_directories_count: u32,
+    flags: Flags,
+    exclude_bitmap_block: u64,
+    block_bitmap_checksum: u32,
+    inode_bitmap_checksum: u32,
+    unused_inode_count: u32,
     checksum: u16,
-    block_bitmap_block_high: u32,
-    inode_bitmap_block_high: u32,
-    inode_table_block_high: u32,
-    free_block_count_high: u16,
-    free_inode_count_high: u16,
-    used_directories_count_high: u16,
-    unused_inode_count_high: u16,
-    exclude_bitmap_block_high: u32,
-    block_bitmap_checksum_high: u16,
-    inode_bitmap_checksum_high: u16,
-    reserved: u32,
-});
-
-pub struct BlockGroupDescriptor<S: AsRef<[u8]>>(S);
-
-impl<S: AsRef<[u8]>> BlockGroupDescriptor<S> {
-    pub fn new(storage: S) -> Self {
-        Self(storage)
-    }
-
-    pub fn block_bitmap_block(&self) -> u64 {
-        u64::from(self.view().block_bitmap_block_low().read())
-            | (u64::from(self.view().block_bitmap_block_high().read()) << 32)
-    }
-
-    pub fn inode_bitmap_block(&self) -> u64 {
-        u64::from(self.view().inode_bitmap_block_low().read())
-            | (u64::from(self.view().inode_bitmap_block_high().read()) << 32)
-    }
-
-    pub fn inode_table_block(&self) -> u64 {
-        u64::from(self.view().inode_table_block_low().read())
-            | (u64::from(self.view().inode_table_block_high().read()) << 32)
-    }
-
-    pub fn free_block_count(&self) -> u32 {
-        u32::from(self.view().free_block_count_low().read())
-            | (u32::from(self.view().free_block_count_high().read()) << 16)
-    }
-
-    pub fn free_inode_count(&self) -> u32 {
-        u32::from(self.view().free_inode_count_low().read())
-            | (u32::from(self.view().free_inode_count_high().read()) << 16)
-    }
-
-    pub fn used_directories_count(&self) -> u32 {
-        u32::from(self.view().used_directories_count_low().read())
-            | (u32::from(self.view().used_directories_count_high().read()) << 16)
-    }
-
-    pub fn flags(&self) -> Flags {
-        self.view().flags().read()
-    }
-
-    pub fn exclude_bitmap_block(&self) -> u64 {
-        u64::from(self.view().exclude_bitmap_block_low().read())
-            | (u64::from(self.view().exclude_bitmap_block_high().read()) << 32)
-    }
-
-    pub fn block_bitmap_checksum(&self) -> u32 {
-        u32::from(self.view().block_bitmap_checksum_low().read())
-            | (u32::from(self.view().block_bitmap_checksum_high().read()) << 16)
-    }
-
-    pub fn inode_bitmap_checksum(&self) -> u32 {
-        u32::from(self.view().inode_bitmap_checksum_low().read())
-            | (u32::from(self.view().inode_bitmap_checksum_high().read()) << 16)
-    }
-
-    pub fn unused_inode_count(&self) -> u32 {
-        u32::from(self.view().unused_inode_count_low().read())
-            | (u32::from(self.view().unused_inode_count_high().read()) << 16)
-    }
-
-    pub fn checksum(&self) -> u16 {
-        self.view().checksum().read()
-    }
-
-    fn view(&self) -> layout::View<&[u8]> {
-        layout::View::new(self.0.as_ref())
-    }
 }
 
-impl BlockGroupDescriptor<Vec<u8>> {
-    pub fn read<R: Read>(mut reader: R) -> Result<Self> {
-        let mut buf = vec![0u8; layout::SIZE.unwrap()];
-        reader.read_exact(&mut buf)?;
-        Ok(Self::new(buf))
+impl BlockGroupDescriptor {
+    pub fn parse_complete(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, block_bitmap_block_low) = le_u32_or_default(0).parse_complete(input)?;
+        let (input, inode_bitmap_block_low) = le_u32_or_default(0).parse_complete(input)?;
+        let (input, inode_table_block_low) = le_u32_or_default(0).parse_complete(input)?;
+        let (input, free_block_count_low) = le_u16_or_default(0).parse_complete(input)?;
+        let (input, free_inode_count_low) = le_u16_or_default(0).parse_complete(input)?;
+        let (input, used_directories_count_low) = le_u16_or_default(0).parse_complete(input)?;
+        let (input, flags_bits) = le_u16_or_default(0).parse_complete(input)?;
+        let (input, exclude_bitmap_block_low) = le_u32_or_default(0).parse_complete(input)?;
+        let (input, block_bitmap_checksum_low) = le_u16_or_default(0).parse_complete(input)?;
+        let (input, inode_bitmap_checksum_low) = le_u16_or_default(0).parse_complete(input)?;
+        let (input, unused_inode_count_low) = le_u16_or_default(0).parse_complete(input)?;
+        let (input, checksum) = le_u16_or_default(0).parse_complete(input)?;
+        let (input, block_bitmap_block_high) = le_u32_or_default(0).parse_complete(input)?;
+        let (input, inode_bitmap_block_high) = le_u32_or_default(0).parse_complete(input)?;
+        let (input, inode_table_block_high) = le_u32_or_default(0).parse_complete(input)?;
+        let (input, free_block_count_high) = le_u16_or_default(0).parse_complete(input)?;
+        let (input, free_inode_count_high) = le_u16_or_default(0).parse_complete(input)?;
+        let (input, used_directories_count_high) = le_u16_or_default(0).parse_complete(input)?;
+        let (input, unused_inode_count_high) = le_u16_or_default(0).parse_complete(input)?;
+        let (input, exclude_bitmap_block_high) = le_u32_or_default(0).parse_complete(input)?;
+        let (input, block_bitmap_checksum_high) = le_u16_or_default(0).parse_complete(input)?;
+        let (input, inode_bitmap_checksum_high) = le_u16_or_default(0).parse_complete(input)?;
+
+        Ok((
+            input,
+            Self {
+                block_bitmap_block: u64::from_low_high(
+                    block_bitmap_block_low,
+                    block_bitmap_block_high,
+                ),
+                inode_bitmap_block: u64::from_low_high(
+                    inode_bitmap_block_low,
+                    inode_bitmap_block_high,
+                ),
+                inode_table_block: u64::from_low_high(
+                    inode_table_block_low,
+                    inode_table_block_high,
+                ),
+                free_block_count: u32::from_low_high(free_block_count_low, free_block_count_high),
+                free_inode_count: u32::from_low_high(free_inode_count_low, free_inode_count_high),
+                used_directories_count: u32::from_low_high(
+                    used_directories_count_low,
+                    used_directories_count_high,
+                ),
+                flags: Flags::from_bits_retain(flags_bits),
+                exclude_bitmap_block: u64::from_low_high(
+                    exclude_bitmap_block_low,
+                    exclude_bitmap_block_high,
+                ),
+                block_bitmap_checksum: u32::from_low_high(
+                    block_bitmap_checksum_low,
+                    block_bitmap_checksum_high,
+                ),
+                inode_bitmap_checksum: u32::from_low_high(
+                    inode_bitmap_checksum_low,
+                    inode_bitmap_checksum_high,
+                ),
+                unused_inode_count: u32::from_low_high(
+                    unused_inode_count_low,
+                    unused_inode_count_high,
+                ),
+                checksum,
+            },
+        ))
     }
 }
