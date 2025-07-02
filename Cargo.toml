@@ -17,6 +17,7 @@ crc = "=3.3.0"
 derive_more = { version = "=2.0.1", features = ["from", "into"] }
 itertools = "=0.14.0"
 iocuddle = "=0.1.1"
+nom = "=8.0.0"
 num_enum = "=0.7.4"
 os_display = "=0.1.4"
 uuid = "=1.17.0"
