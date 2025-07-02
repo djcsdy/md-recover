@@ -19,6 +19,7 @@ mod ext;
 mod ext4;
 mod ioctl;
 mod md;
+pub(crate) mod parser;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
