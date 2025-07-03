@@ -17,6 +17,12 @@ impl FileBlockDevice {
     pub fn from_file(file: File) -> Self {
         Self { file }
     }
+
+    pub fn try_clone(&self) -> Result<Self> {
+        Ok(Self {
+            file: self.file.try_clone()?,
+        })
+    }
 }
 
 impl BlockDevice for FileBlockDevice {
