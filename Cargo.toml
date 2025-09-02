@@ -9,7 +9,7 @@ description = "Data recovery tool for Linux MD Software RAID devices"
 [dependencies]
 arrayref = "=0.3.9"
 binary-layout = "=4.0.2"
-bitflags = "=2.9.3"
+bitflags = "=2.9.4"
 byteorder = "=1.5.0"
 chrono = "=0.4.41"
 clap = { version = "=4.5.46", features = ["derive"] }
