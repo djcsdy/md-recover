@@ -12,7 +12,7 @@ binary-layout = "=4.0.2"
 bitflags = "=2.9.4"
 byteorder = "=1.5.0"
 chrono = "=0.4.42"
-clap = { version = "=4.5.48", features = ["derive"] }
+clap = { version = "=4.5.49", features = ["derive"] }
 crc = "=3.3.0"
 derive_more = { version = "=2.0.1", features = ["from", "into"] }
 itertools = "=0.14.0"
