@@ -37,7 +37,8 @@ impl<D: BlockDevice> Ext4Fs<D> {
         for _ in 0..group_count {
             let mut buf = vec![0u8; group_size];
             device.read_exact(&mut buf)?;
-            let (_, group_descriptor) = BlockGroupDescriptor::parse_complete(&buf)
+            let (_, group_descriptor) = BlockGroupDescriptor::parse
+                .parse_complete(&buf)
                 .map_err(|_| Error::from(ErrorKind::InvalidData))?;
             group_descriptors.push(group_descriptor);
         }
