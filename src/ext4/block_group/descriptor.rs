@@ -1,6 +1,6 @@
 use crate::ext::WideUnsigned;
 use crate::ext4::block_group::Flags;
-use crate::parser::number::{le_u16_or_default, le_u32_or_default};
+use crate::parser::number::{le_u16_or_default_eof, le_u32_or_default_eof};
 use nom::{IResult, Needed, Parser};
 
 #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug)]
@@ -21,28 +21,29 @@ pub struct BlockGroupDescriptor {
 
 impl BlockGroupDescriptor {
     pub fn parse_complete(input: &[u8]) -> IResult<&[u8], Self> {
-        let (input, block_bitmap_block_low) = le_u32_or_default(0).parse_complete(input)?;
-        let (input, inode_bitmap_block_low) = le_u32_or_default(0).parse_complete(input)?;
-        let (input, inode_table_block_low) = le_u32_or_default(0).parse_complete(input)?;
-        let (input, free_block_count_low) = le_u16_or_default(0).parse_complete(input)?;
-        let (input, free_inode_count_low) = le_u16_or_default(0).parse_complete(input)?;
-        let (input, used_directories_count_low) = le_u16_or_default(0).parse_complete(input)?;
-        let (input, flags_bits) = le_u16_or_default(0).parse_complete(input)?;
-        let (input, exclude_bitmap_block_low) = le_u32_or_default(0).parse_complete(input)?;
-        let (input, block_bitmap_checksum_low) = le_u16_or_default(0).parse_complete(input)?;
-        let (input, inode_bitmap_checksum_low) = le_u16_or_default(0).parse_complete(input)?;
-        let (input, unused_inode_count_low) = le_u16_or_default(0).parse_complete(input)?;
-        let (input, checksum) = le_u16_or_default(0).parse_complete(input)?;
-        let (input, block_bitmap_block_high) = le_u32_or_default(0).parse_complete(input)?;
-        let (input, inode_bitmap_block_high) = le_u32_or_default(0).parse_complete(input)?;
-        let (input, inode_table_block_high) = le_u32_or_default(0).parse_complete(input)?;
-        let (input, free_block_count_high) = le_u16_or_default(0).parse_complete(input)?;
-        let (input, free_inode_count_high) = le_u16_or_default(0).parse_complete(input)?;
-        let (input, used_directories_count_high) = le_u16_or_default(0).parse_complete(input)?;
-        let (input, unused_inode_count_high) = le_u16_or_default(0).parse_complete(input)?;
-        let (input, exclude_bitmap_block_high) = le_u32_or_default(0).parse_complete(input)?;
-        let (input, block_bitmap_checksum_high) = le_u16_or_default(0).parse_complete(input)?;
-        let (input, inode_bitmap_checksum_high) = le_u16_or_default(0).parse_complete(input)?;
+        let (input, block_bitmap_block_low) = le_u32_or_default_eof(0).parse_complete(input)?;
+        let (input, inode_bitmap_block_low) = le_u32_or_default_eof(0).parse_complete(input)?;
+        let (input, inode_table_block_low) = le_u32_or_default_eof(0).parse_complete(input)?;
+        let (input, free_block_count_low) = le_u16_or_default_eof(0).parse_complete(input)?;
+        let (input, free_inode_count_low) = le_u16_or_default_eof(0).parse_complete(input)?;
+        let (input, used_directories_count_low) = le_u16_or_default_eof(0).parse_complete(input)?;
+        let (input, flags_bits) = le_u16_or_default_eof(0).parse_complete(input)?;
+        let (input, exclude_bitmap_block_low) = le_u32_or_default_eof(0).parse_complete(input)?;
+        let (input, block_bitmap_checksum_low) = le_u16_or_default_eof(0).parse_complete(input)?;
+        let (input, inode_bitmap_checksum_low) = le_u16_or_default_eof(0).parse_complete(input)?;
+        let (input, unused_inode_count_low) = le_u16_or_default_eof(0).parse_complete(input)?;
+        let (input, checksum) = le_u16_or_default_eof(0).parse_complete(input)?;
+        let (input, block_bitmap_block_high) = le_u32_or_default_eof(0).parse_complete(input)?;
+        let (input, inode_bitmap_block_high) = le_u32_or_default_eof(0).parse_complete(input)?;
+        let (input, inode_table_block_high) = le_u32_or_default_eof(0).parse_complete(input)?;
+        let (input, free_block_count_high) = le_u16_or_default_eof(0).parse_complete(input)?;
+        let (input, free_inode_count_high) = le_u16_or_default_eof(0).parse_complete(input)?;
+        let (input, used_directories_count_high) =
+            le_u16_or_default_eof(0).parse_complete(input)?;
+        let (input, unused_inode_count_high) = le_u16_or_default_eof(0).parse_complete(input)?;
+        let (input, exclude_bitmap_block_high) = le_u32_or_default_eof(0).parse_complete(input)?;
+        let (input, block_bitmap_checksum_high) = le_u16_or_default_eof(0).parse_complete(input)?;
+        let (input, inode_bitmap_checksum_high) = le_u16_or_default_eof(0).parse_complete(input)?;
 
         Ok((
             input,
