@@ -1,5 +1,5 @@
-use nom::branch::{alt, Choice};
-use nom::combinator::{opt, success};
+use nom::branch::alt;
+use nom::combinator::success;
 use nom::error::ParseError;
 use nom::number::complete::{le_u16, le_u32};
 use nom::{IResult, Input, Parser};
