@@ -19,16 +19,6 @@ fn size_of_superblock() {
 }
 
 #[test]
-fn valid_cluster_size() {
-    assert!(Superblock::new(EXT4_1).valid_cluster_size());
-}
-
-#[test]
-fn valid_cluster_size_ext2() {
-    assert!(Superblock::new(EXT2).valid_cluster_size());
-}
-
-#[test]
 fn valid_magic() {
     assert!(Superblock::new(EXT4_1).valid_magic());
 }
@@ -36,6 +26,16 @@ fn valid_magic() {
 #[test]
 fn valid_magic_ext2() {
     assert!(Superblock::new(EXT2).valid_magic());
+}
+
+#[test]
+fn valid_cluster_size() {
+    assert!(Superblock::new(EXT4_1).valid_cluster_size());
+}
+
+#[test]
+fn valid_cluster_size_ext2() {
+    assert!(Superblock::new(EXT2).valid_cluster_size());
 }
 
 #[test]

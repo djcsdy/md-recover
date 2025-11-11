@@ -144,6 +144,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
             && self.valid_checksum()
     }
 
+    pub fn valid_magic(&self) -> bool {
+        self.magic() == 0xef53
+    }
+
     pub fn valid_cluster_size(&self) -> bool {
         self.read_only_compatible_features()
             .contains(ReadOnlyCompatibleFeatures::BIGALLOC)
@@ -154,10 +158,6 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.read_only_compatible_features()
             .contains(ReadOnlyCompatibleFeatures::BIGALLOC)
             || self.clusters_per_group() == self.blocks_per_group()
-    }
-
-    pub fn valid_magic(&self) -> bool {
-        self.magic() == 0xef53
     }
 
     pub fn valid_error_policy(&self) -> bool {
