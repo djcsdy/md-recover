@@ -137,9 +137,9 @@ impl<S: AsRef<[u8]>> Superblock<S> {
     }
 
     pub fn valid(&self) -> bool {
-        self.valid_cluster_size()
+        self.valid_magic()
+            && self.valid_cluster_size()
             && self.valid_clusters_per_group()
-            && self.valid_magic()
             && self.valid_error_policy()
             && self.valid_checksum()
     }
