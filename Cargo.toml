@@ -21,3 +21,7 @@ nom = "=8.0.0"
 num_enum = "=0.7.5"
 os_display = "=0.1.4"
 uuid = "=1.18.1"
+
+[dev-dependencies]
+anyhow = "1.0.100"
+flate2 = "1.1.5"
