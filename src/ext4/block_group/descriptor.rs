@@ -1,10 +1,6 @@
 use crate::ext::WideUnsigned;
 use crate::ext4::block_group::Flags;
 use crate::parser::number::{le_u16_or_default, le_u32_or_default};
-use nom::branch::alt;
-use nom::combinator::{opt, success};
-use nom::error::ErrorKind;
-use nom::number::complete::{le_u16, le_u32};
 use nom::{IResult, Needed, Parser};
 
 #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug)]
