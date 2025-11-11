@@ -8,11 +8,11 @@ use crate::ext4::superblock::{
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use uuid::{uuid, Uuid};
 
-const EXT2: &[u8] = include_bytes!("test-data/ext2");
-const EXT4_1: &[u8] = include_bytes!("test-data/ext4-1");
-const EXT4_2: &[u8] = include_bytes!("test-data/ext4-2");
-const EXT4_3: &[u8] = include_bytes!("test-data/ext4-3");
-const RANDOM: &[u8] = include_bytes!("test-data/random");
+const EXT2: &[u8] = include_bytes!("test_data/ext2");
+const EXT4_1: &[u8] = include_bytes!("test_data/ext4-1");
+const EXT4_2: &[u8] = include_bytes!("test_data/ext4-2");
+const EXT4_3: &[u8] = include_bytes!("test_data/ext4-3");
+const RANDOM: &[u8] = include_bytes!("test_data/random");
 
 #[test]
 fn size_of_superblock() {
