@@ -10,6 +10,7 @@ use binary_layout::prelude::*;
 use crc::{Algorithm, Crc, CRC_32_ISCSI};
 use itertools::Itertools;
 use std::io::{Error, ErrorKind, Read, Result};
+use std::ops::Shl;
 use std::time::{Duration, SystemTime};
 use uuid::Uuid;
 
@@ -138,9 +139,11 @@ impl<S: AsRef<[u8]>> Superblock<S> {
 
     pub fn valid(&self) -> bool {
         self.valid_magic()
+            && self.valid_block_size()
             && self.valid_cluster_size()
             && self.valid_clusters_per_group()
             && self.valid_error_policy()
+            && self.valid_groups_per_flex()
             && self.valid_checksum()
     }
 
@@ -148,10 +151,16 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.magic() == 0xef53
     }
 
+    pub fn valid_block_size(&self) -> bool {
+        self.view().into_log_block_size().read() < 53
+    }
+
     pub fn valid_cluster_size(&self) -> bool {
-        self.read_only_compatible_features()
-            .contains(ReadOnlyCompatibleFeatures::BIGALLOC)
-            || self.cluster_size_blocks() == self.block_size_bytes()
+        self.view().into_log_cluster_size().read() < 53
+            && (self
+                .read_only_compatible_features()
+                .contains(ReadOnlyCompatibleFeatures::BIGALLOC)
+                || self.cluster_size_blocks() == self.block_size_bytes())
     }
 
     pub fn valid_clusters_per_group(&self) -> bool {
@@ -162,6 +171,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
 
     pub fn valid_error_policy(&self) -> bool {
         !matches!(self.error_policy(), ErrorPolicy::Unknown(_))
+    }
+
+    pub fn valid_groups_per_flex(&self) -> bool {
+        self.view().into_log_groups_per_flex().read() < 63
     }
 
     pub fn valid_checksum(&self) -> bool {
@@ -202,11 +215,11 @@ impl<S: AsRef<[u8]>> Superblock<S> {
     }
 
     pub fn block_size_bytes(&self) -> u64 {
-        1 << (10 + self.view().into_log_block_size().read())
+        1u64.unbounded_shl(10 + self.view().into_log_block_size().read())
     }
 
     pub fn cluster_size_blocks(&self) -> u64 {
-        1 << (10 + self.view().into_log_cluster_size().read())
+        1u64.unbounded_shl(10 + self.view().into_log_cluster_size().read())
     }
 
     pub fn blocks_per_group(&self) -> u32 {
@@ -453,7 +466,7 @@ impl<S: AsRef<[u8]>> Superblock<S> {
     }
 
     pub fn groups_per_flex(&self) -> u64 {
-        1 << (self.view().into_log_groups_per_flex().read())
+        1u64.unbounded_shl(self.view().into_log_groups_per_flex().read().into())
     }
 
     pub fn kbytes_written(&self) -> u64 {

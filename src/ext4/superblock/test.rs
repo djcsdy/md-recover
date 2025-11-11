@@ -12,6 +12,7 @@ const EXT2: &[u8] = include_bytes!("test-data/ext2");
 const EXT4_1: &[u8] = include_bytes!("test-data/ext4-1");
 const EXT4_2: &[u8] = include_bytes!("test-data/ext4-2");
 const EXT4_3: &[u8] = include_bytes!("test-data/ext4-3");
+const RANDOM: &[u8] = include_bytes!("test-data/random");
 
 #[test]
 fn size_of_superblock() {
@@ -29,6 +30,11 @@ fn valid_magic_ext2() {
 }
 
 #[test]
+fn valid_magic_random() {
+    assert!(!Superblock::new(RANDOM).valid_magic());
+}
+
+#[test]
 fn valid_cluster_size() {
     assert!(Superblock::new(EXT4_1).valid_cluster_size());
 }
@@ -36,6 +42,11 @@ fn valid_cluster_size() {
 #[test]
 fn valid_cluster_size_ext2() {
     assert!(Superblock::new(EXT2).valid_cluster_size());
+}
+
+#[test]
+fn valid_cluster_size_random() {
+    assert!(!Superblock::new(RANDOM).valid_cluster_size())
 }
 
 #[test]
@@ -49,8 +60,28 @@ fn valid_clusters_per_group_ext2() {
 }
 
 #[test]
+fn valid_clusters_per_group_random() {
+    assert!(!Superblock::new(RANDOM).valid_clusters_per_group());
+}
+
+#[test]
 fn valid_error_policy() {
     assert!(Superblock::new(EXT4_1).valid_error_policy());
+}
+
+#[test]
+fn valid_error_policy_random() {
+    assert!(!Superblock::new(RANDOM).valid_error_policy());
+}
+
+#[test]
+fn valid_groups_per_flex() {
+    assert!(Superblock::new(EXT4_1).valid_groups_per_flex());
+}
+
+#[test]
+fn valid_groups_per_flex_random() {
+    assert!(!Superblock::new(RANDOM).valid_groups_per_flex());
 }
 
 #[test]
@@ -61,6 +92,11 @@ fn valid_checksum() {
 #[test]
 fn valid_checksum_ext2() {
     assert!(Superblock::new(EXT2).valid_checksum());
+}
+
+#[test]
+fn valid_checksum_random() {
+    assert!(!Superblock::new(RANDOM).valid_checksum());
 }
 
 #[test]
@@ -89,8 +125,18 @@ fn block_size_bytes() {
 }
 
 #[test]
+fn block_size_bytes_random() {
+    assert_eq!(Superblock::new(RANDOM).block_size_bytes(), 0);
+}
+
+#[test]
 fn cluster_size_blocks() {
     assert_eq!(Superblock::new(EXT4_1).cluster_size_blocks(), 4096);
+}
+
+#[test]
+fn cluster_size_blocks_random() {
+    assert_eq!(Superblock::new(RANDOM).cluster_size_blocks(), 0);
 }
 
 #[test]
