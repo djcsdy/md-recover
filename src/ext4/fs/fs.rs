@@ -33,11 +33,7 @@ impl<D: BlockDevice> Ext4Fs<D> {
             return Err(Error::from(ErrorKind::Unsupported));
         }
 
-        let group_descriptors_block_index = if superblock.block_size_bytes() == 1024 {
-            2
-        } else {
-            1
-        };
+        let group_descriptors_block_index = u64::from(superblock.first_data_block()) + 1;
         device.seek(SeekFrom::Start(
             group_descriptors_block_index * superblock.block_size_bytes(),
         ))?;
