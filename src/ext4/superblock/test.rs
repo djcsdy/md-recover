@@ -120,6 +120,16 @@ fn blocks_count_ext2() {
 }
 
 #[test]
+fn first_data_block() {
+    assert_eq!(Superblock::new(EXT4_1).first_data_block(), 0);
+}
+
+#[test]
+fn first_data_block_ext2() {
+    assert_eq!(Superblock::new(EXT2).first_data_block(), 0);
+}
+
+#[test]
 fn block_size_bytes() {
     assert_eq!(Superblock::new(EXT4_1).block_size_bytes(), 4096);
 }
