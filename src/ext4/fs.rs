@@ -20,7 +20,7 @@ impl<D: BlockDevice> Ext4Fs<D> {
 
         let block_count = superblock.blocks_count();
         let blocks_per_group = u64::from(superblock.blocks_per_group());
-        let group_count = usize::try_from(block_count / blocks_per_group)
+        let group_count = usize::try_from(block_count.div_ceil(blocks_per_group))
             .map_err(|_| Error::from(ErrorKind::Unsupported))?;
         let group_size = usize::from(superblock.group_descriptor_size());
 
