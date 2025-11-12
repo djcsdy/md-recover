@@ -4,5 +4,3 @@ mod fs;
 mod inode;
 mod string;
 mod superblock;
-#[cfg(test)]
-mod test;
