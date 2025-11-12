@@ -1,22 +1,23 @@
 use crate::ext::WideUnsigned;
 use crate::ext4::block_group::Flags;
 use crate::parser::number::{le_u16_or_default_eof, le_u32_or_default_eof};
+use nom::bytes::take;
 use nom::{IResult, Needed, Parser};
 
 #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug)]
 pub struct BlockGroupDescriptor {
-    block_bitmap_block: u64,
-    inode_bitmap_block: u64,
-    inode_table_block: u64,
-    free_block_count: u32,
-    free_inode_count: u32,
-    used_directories_count: u32,
-    flags: Flags,
-    exclude_bitmap_block: u64,
-    block_bitmap_checksum: u32,
-    inode_bitmap_checksum: u32,
-    unused_inode_count: u32,
-    checksum: u16,
+    pub block_bitmap_block: u64,
+    pub inode_bitmap_block: u64,
+    pub inode_table_block: u64,
+    pub free_block_count: u32,
+    pub free_inode_count: u32,
+    pub used_directories_count: u32,
+    pub flags: Flags,
+    pub exclude_bitmap_block: u64,
+    pub block_bitmap_checksum: u32,
+    pub inode_bitmap_checksum: u32,
+    pub unused_inode_count: u32,
+    pub checksum: u16,
 }
 
 impl BlockGroupDescriptor {
@@ -43,6 +44,7 @@ impl BlockGroupDescriptor {
         let (input, exclude_bitmap_block_high) = le_u32_or_default_eof(0).parse(input)?;
         let (input, block_bitmap_checksum_high) = le_u16_or_default_eof(0).parse(input)?;
         let (input, inode_bitmap_checksum_high) = le_u16_or_default_eof(0).parse(input)?;
+        let (input, _) = take(4usize).parse(input)?;
 
         Ok((
             input,
