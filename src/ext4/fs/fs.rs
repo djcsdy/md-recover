@@ -9,7 +9,7 @@ use std::io::{Error, ErrorKind, Result, SeekFrom};
 
 pub struct Ext4Fs<D: BlockDevice> {
     device: D,
-    superblock: Superblock<Vec<u8>>,
+    pub(super) superblock: Superblock<Vec<u8>>,
     pub(super) group_descriptors: Vec<BlockGroupDescriptor>,
 }
 
