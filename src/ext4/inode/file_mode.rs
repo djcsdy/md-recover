@@ -11,7 +11,7 @@ impl FileMode {
     pub fn from_file_type_and_permissions(file_type: FileType, permissions: Permissions) -> Self {
         Self(
             (u16::from(u8::from(file_type)) << 12)
-                & permissions.intersection(Permissions::all()).bits(),
+                | permissions.intersection(Permissions::all()).bits(),
         )
     }
 
@@ -34,5 +34,29 @@ impl LayoutAs<u16> for FileMode {
 
     fn try_write(v: Self) -> Result<u16, Self::WriteError> {
         Ok(v.into())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::ext4::inode::{FileMode, FileType, Permissions};
+
+    #[test]
+    fn from_file_type_and_permissions() {
+        assert_eq!(
+            FileMode::from_file_type_and_permissions(
+                FileType::Directory,
+                Permissions::USER_READ | Permissions::USER_WRITE | Permissions::USER_EXECUTE
+            ),
+            FileMode::from(0x41c0)
+        );
+
+        assert_eq!(
+            FileMode::from_file_type_and_permissions(
+                FileType::Socket,
+                Permissions::from_bits_retain(0xffff)
+            ),
+            FileMode::from(0xcfff)
+        );
     }
 }
