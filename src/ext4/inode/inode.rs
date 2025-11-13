@@ -1,164 +1,99 @@
+use crate::ext::WideUnsigned;
 use crate::ext4::inode::flags::Flags;
-use crate::ext4::inode::linux_1::NestedLinuxSpecific1;
-use crate::ext4::inode::linux_2::NestedLinuxSpecific2;
 use crate::ext4::inode::time::decode_extra_time;
 use crate::ext4::inode::{FileMode, FileType, Permissions};
-use binary_layout::binary_layout;
-use byteorder::{LittleEndian, ReadBytesExt};
+use crate::parser::number::{le_u16_or_default_eof, le_u32_or_default_eof};
 use chrono::{DateTime, Duration, Utc};
+use nom::bytes::take;
+use nom::multi::many;
+use nom::number::{le_u16, le_u32};
+use nom::{IResult, Parser};
 use std::io::{Read, Result};
-use std::mem::size_of;
 
 const NUM_BLOCKS: usize = 15;
 
-binary_layout!(layout, LittleEndian, {
-    file_mode: FileMode as u16,
-    user_id_low: u16,
-    size_low: u32,
-    access_time: u32,
-    change_time: u32,
-    modified_time: u32,
-    delete_time: u32,
-    group_id_low: u16,
-    links_count: u16,
-    block_count_low: u16,
-    flags: Flags as u32,
-    os_dependent_1: NestedLinuxSpecific1,
-    blocks: [u8; size_of::<u32>() * NUM_BLOCKS],
-    generation: u32,
-    file_acl_low: u32,
-    size_high: u32,
-    obsolete_fragment_address: u32,
-    os_dependent_2: NestedLinuxSpecific2,
-    extra_isize: u16,
-    checksum_high: u16,
-    change_time_extra: u32,
-    modified_time_extra: u32,
-    access_time_extra: u32,
-    creation_time: u32,
-    creation_time_extra: u32,
-    version_high: u32,
-    project_id: u32
-});
-
-pub struct Inode<S: AsRef<[u8]>>(S);
-
-impl<S: AsRef<[u8]>> Inode<S> {
-    pub fn new(storage: S) -> Self {
-        Self(storage)
-    }
-
-    pub fn file_mode(&self) -> FileMode {
-        self.view().file_mode().read()
-    }
-
-    pub fn file_type(&self) -> FileType {
-        self.file_mode().file_type()
-    }
-
-    pub fn permissions(&self) -> Permissions {
-        self.file_mode().permissions()
-    }
-
-    pub fn owner_user_id(&self) -> u32 {
-        u32::from(self.view().user_id_low().read())
-            | (u32::from(self.view().os_dependent_2().user_id_high().read()) << 16)
-    }
-
-    pub fn file_size_bytes(&self) -> u64 {
-        u64::from(self.view().size_low().read()) | (u64::from(self.view().size_high().read()) << 32)
-    }
-
-    pub fn access_time(&self) -> DateTime<Utc> {
-        decode_extra_time(
-            self.view().access_time().read(),
-            self.view().access_time_extra().read(),
-        )
-    }
-
-    pub fn change_time(&self) -> DateTime<Utc> {
-        decode_extra_time(
-            self.view().change_time().read(),
-            self.view().change_time_extra().read(),
-        )
-    }
-
-    pub fn modified_time(&self) -> DateTime<Utc> {
-        decode_extra_time(
-            self.view().modified_time().read(),
-            self.view().modified_time_extra().read(),
-        )
-    }
-
-    pub fn delete_time(&self) -> DateTime<Utc> {
-        DateTime::UNIX_EPOCH + Duration::seconds(i64::from(self.view().delete_time().read()))
-    }
-
-    pub fn group_id(&self) -> u32 {
-        u32::from(self.view().group_id_low().read())
-            | (u32::from(self.view().os_dependent_2().group_id_high().read()) << 16)
-    }
-
-    pub fn links_count(&self) -> u16 {
-        self.view().links_count().read()
-    }
-
-    pub fn block_count(&self) -> u32 {
-        u32::from(self.view().block_count_low().read())
-            | (u32::from(self.view().os_dependent_2().block_count_high().read()) << 16)
-    }
-
-    pub fn flags(&self) -> Flags {
-        self.view().flags().read()
-    }
-
-    pub fn version(&self) -> u64 {
-        u64::from(self.view().os_dependent_1().version().read())
-            | (u64::from(self.view().version_high().read()) << 32)
-    }
-
-    pub fn blocks(&self) -> [u32; NUM_BLOCKS] {
-        let mut blocks = [0u32; NUM_BLOCKS];
-        (&self.view().blocks()[..])
-            .read_u32_into::<LittleEndian>(&mut blocks)
-            .unwrap();
-        blocks
-    }
-
-    pub fn generation(&self) -> u32 {
-        self.view().generation().read()
-    }
-
-    pub fn file_acl(&self) -> u64 {
-        u64::from(self.view().file_acl_low().read())
-            | (u64::from(self.view().os_dependent_2().file_acl_high().read()) << 32)
-    }
-
-    pub fn checksum(&self) -> u32 {
-        u32::from(self.view().os_dependent_2().checksum_low().read())
-            | (u32::from(self.view().checksum_high().read()) << 16)
-    }
-
-    pub fn creation_time(&self) -> DateTime<Utc> {
-        decode_extra_time(
-            self.view().creation_time().read(),
-            self.view().creation_time_extra().read(),
-        )
-    }
-
-    pub fn project_id(&self) -> u32 {
-        self.view().project_id().read()
-    }
-
-    fn view(&self) -> layout::View<&[u8]> {
-        layout::View::new(self.0.as_ref())
-    }
+#[derive(Eq, PartialEq, Clone, Hash, Debug)]
+pub struct Inode {
+    pub file_mode: FileMode,
+    pub owner_user_id: u32,
+    pub file_size_bytes: u64,
+    pub access_time: DateTime<Utc>,
+    pub change_time: DateTime<Utc>,
+    pub modified_time: DateTime<Utc>,
+    pub delete_time: DateTime<Utc>,
+    pub group_id: u32,
+    pub links_count: u16,
+    pub block_count: u32,
+    pub flags: Flags,
+    pub version: u64,
+    pub blocks: [u32; NUM_BLOCKS],
+    pub generation: u32,
+    pub file_acl: u64,
+    pub checksum: u32,
+    pub creation_time: DateTime<Utc>,
+    pub project_id: u32,
 }
 
-impl Inode<Vec<u8>> {
-    pub fn read<R: Read>(mut reader: R) -> Result<Self> {
-        let mut buf = vec![0u8; layout::SIZE.unwrap()];
-        reader.read_exact(&mut buf)?;
-        Ok(Inode::new(buf))
+impl Inode {
+    pub fn parse(input: &[u8]) -> IResult<&[u8], Self> {
+        let (input, file_mode_bits) = le_u16().parse(input)?;
+        let (input, user_id_low) = le_u16().parse(input)?;
+        let (input, size_low) = le_u32().parse(input)?;
+        let (input, access_time_low) = le_u32().parse(input)?;
+        let (input, change_time_low) = le_u32().parse(input)?;
+        let (input, modified_time_low) = le_u32().parse(input)?;
+        let (input, delete_time) = le_u32().parse(input)?;
+        let (input, group_id_low) = le_u16().parse(input)?;
+        let (input, links_count) = le_u16().parse(input)?;
+        let (input, block_count_low) = le_u16().parse(input)?;
+        let (input, flags_bits) = le_u32().parse(input)?;
+        let (input, version_low) = le_u32().parse(input)?; // Linux-specific
+        let (input, blocks): (_, Vec<u32>) = many(NUM_BLOCKS, le_u32()).parse(input)?;
+        let (input, generation) = le_u32_or_default_eof(0).parse(input)?;
+        let (input, file_acl_low) = le_u32_or_default_eof(0).parse(input)?;
+        let (input, size_high) = le_u32_or_default_eof(0).parse(input)?;
+        let (input, _obsolete_fragment_address) = le_u32_or_default_eof(0).parse(input)?;
+
+        // Linux-specific:
+        let (input, block_count_high) = le_u16_or_default_eof(0).parse(input)?;
+        let (input, file_acl_high) = le_u16_or_default_eof(0).parse(input)?;
+        let (input, user_id_high) = le_u16_or_default_eof(0).parse(input)?;
+        let (input, group_id_high) = le_u16_or_default_eof(0).parse(input)?;
+        let (input, checksum_low) = le_u16_or_default_eof(0).parse(input)?;
+        let (input, _) = le_u16_or_default_eof(0).parse(input)?;
+
+        let (input, _extra_isize) = le_u16_or_default_eof(0).parse(input)?;
+        let (input, checksum_high) = le_u16_or_default_eof(0).parse(input)?;
+        let (input, change_time_extra) = le_u32_or_default_eof(0).parse(input)?;
+        let (input, modified_time_extra) = le_u32_or_default_eof(0).parse(input)?;
+        let (input, access_time_extra) = le_u32_or_default_eof(0).parse(input)?;
+        let (input, creation_time_low) = le_u32_or_default_eof(0).parse(input)?;
+        let (input, creation_time_extra) = le_u32_or_default_eof(0).parse(input)?;
+        let (input, version_high) = le_u32_or_default_eof(0).parse(input)?;
+        let (input, project_id) = le_u32_or_default_eof(0).parse(input)?;
+
+        Ok((
+            input,
+            Self {
+                file_mode: FileMode::from(file_mode_bits),
+                owner_user_id: u32::from_low_high(user_id_low, user_id_high),
+                file_size_bytes: u64::from_low_high(size_low, size_high),
+                access_time: decode_extra_time(access_time_low, access_time_extra),
+                change_time: decode_extra_time(change_time_low, change_time_extra),
+                modified_time: decode_extra_time(modified_time_low, modified_time_extra),
+                delete_time: decode_extra_time(delete_time, 0),
+                group_id: u32::from_low_high(group_id_low, group_id_high),
+                links_count,
+                block_count: u32::from_low_high(block_count_low, block_count_high),
+                flags: Flags::from_bits_retain(flags_bits),
+                version: u64::from_low_high(version_low, version_high),
+                blocks: blocks.try_into().unwrap(),
+                generation,
+                file_acl: u64::from_low_high(file_acl_low, u32::from(file_acl_high)),
+                checksum: u32::from_low_high(checksum_low, checksum_high),
+                creation_time: decode_extra_time(creation_time_low, creation_time_extra),
+                project_id,
+            },
+        ))
     }
 }
