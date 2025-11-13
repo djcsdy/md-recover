@@ -4,7 +4,7 @@ use crate::parser::number::{le_u16_or_default_eof, le_u32_or_default_eof};
 use nom::bytes::take;
 use nom::{IResult, Needed, Parser};
 
-#[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug)]
+#[derive(Eq, PartialEq, Clone, Hash, Debug)]
 pub struct BlockGroupDescriptor {
     pub block_bitmap_block: u64,
     pub inode_bitmap_block: u64,
