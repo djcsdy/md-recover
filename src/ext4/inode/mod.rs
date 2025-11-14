@@ -9,5 +9,6 @@ mod time;
 
 pub use file_mode::FileMode;
 pub use file_type::FileType;
+pub use flags::Flags;
 pub use inode::Inode;
 pub use permissions::Permissions;

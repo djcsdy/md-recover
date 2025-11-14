@@ -1,10 +1,13 @@
 use crate::block_device::BlockDevice;
+use crate::ext::LongMul;
 use crate::ext4::block_group::BlockGroupDescriptor;
+use crate::ext4::inode::Inode;
 use crate::ext4::superblock::{CreatorOs, IncompatibleFeatures, Superblock};
+use crate::parser::bytes::take_parse;
 use bitflags::Flags;
 use nom::bytes::take;
 use nom::multi::many;
-use nom::Parser;
+use nom::{IResult, Parser};
 use std::io::{Error, ErrorKind, Result, SeekFrom};
 
 pub struct Ext4Fs<D: BlockDevice> {
@@ -52,5 +55,39 @@ impl<D: BlockDevice> Ext4Fs<D> {
             superblock,
             group_descriptors,
         })
+    }
+
+    pub fn read_root_inode(&mut self) -> Result<Inode> {
+        self.read_inode(2)
+    }
+
+    fn read_inode(&mut self, inode_number: u32) -> Result<Inode> {
+        if inode_number == 0 || inode_number > self.superblock.inodes_count() {
+            return Err(Error::from(ErrorKind::InvalidInput));
+        }
+
+        let group_index = (inode_number - 1) / self.superblock.inodes_per_group();
+        let index_in_group = (inode_number - 1) % self.superblock.inodes_per_group();
+
+        let group = self
+            .group_descriptors
+            .get(usize::try_from(group_index).map_err(|_| Error::from(ErrorKind::InvalidInput))?)
+            .ok_or_else(|| Error::from(ErrorKind::InvalidInput))?;
+
+        let inode_offset_within_table =
+            index_in_group.long_mul(u32::from(self.superblock.inode_size()));
+        let inode_byte_offset = group
+            .inode_table_block
+            .checked_mul(self.superblock.block_size_bytes())
+            .and_then(|base| base.checked_add(inode_offset_within_table))
+            .ok_or_else(|| Error::from(ErrorKind::InvalidData))?;
+
+        self.device.seek(SeekFrom::Start(inode_byte_offset))?;
+        let mut buf = [0; 256];
+        self.device.read_exact(&mut buf)?;
+        match Inode::parse.parse_complete(&buf) {
+            Ok((_, inode)) => Ok(inode),
+            Err(_) => Err(Error::from(ErrorKind::InvalidData)),
+        }
     }
 }
