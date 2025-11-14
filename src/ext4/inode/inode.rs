@@ -23,7 +23,7 @@ pub struct Inode {
     pub delete_time: DateTime<Utc>,
     pub group_id: u32,
     pub links_count: u16,
-    pub block_count: u32,
+    pub block_count: u64,
     pub flags: Flags,
     pub version: u64,
     pub blocks: [u32; NUM_BLOCKS],
@@ -45,7 +45,7 @@ impl Inode {
         let (input, delete_time) = le_u32().parse(input)?;
         let (input, group_id_low) = le_u16().parse(input)?;
         let (input, links_count) = le_u16().parse(input)?;
-        let (input, block_count_low) = le_u16().parse(input)?;
+        let (input, block_count_low) = le_u32().parse(input)?;
         let (input, flags_bits) = le_u32().parse(input)?;
         let (input, version_low) = le_u32().parse(input)?; // Linux-specific
         let (input, blocks): (_, Vec<u32>) = many(NUM_BLOCKS, le_u32()).parse(input)?;
@@ -84,7 +84,7 @@ impl Inode {
                 delete_time: decode_extra_time(delete_time, 0),
                 group_id: u32::from_low_high(group_id_low, group_id_high),
                 links_count,
-                block_count: u32::from_low_high(block_count_low, block_count_high),
+                block_count: u64::from_low_high(block_count_low, u32::from(block_count_high)),
                 flags: Flags::from_bits_retain(flags_bits),
                 version: u64::from_low_high(version_low, version_high),
                 blocks: blocks.try_into().unwrap(),
