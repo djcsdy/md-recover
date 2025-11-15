@@ -2,7 +2,7 @@ use crate::ext::WideUnsigned;
 use crate::ext4::block_group::Flags;
 use crate::parser::number::{le_u16_or_default_eof, le_u32_or_default_eof};
 use nom::bytes::take;
-use nom::{IResult, Needed, Parser};
+use nom::{IResult, Parser};
 
 #[derive(Eq, PartialEq, Clone, Hash, Debug)]
 pub struct BlockGroupDescriptor {
