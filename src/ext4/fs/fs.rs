@@ -54,11 +54,11 @@ impl<D: BlockDevice> Ext4Fs<D> {
         })
     }
 
-    pub fn read_root_inode(&mut self) -> Result<Inode<Vec<u8>>> {
+    pub fn read_root_inode(&mut self) -> Result<Inode> {
         self.read_inode(2)
     }
 
-    fn read_inode(&mut self, inode_number: u32) -> Result<Inode<Vec<u8>>> {
+    fn read_inode(&mut self, inode_number: u32) -> Result<Inode> {
         if inode_number == 0 || inode_number > self.superblock.inodes_count() {
             return Err(Error::from(ErrorKind::InvalidInput));
         }

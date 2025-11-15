@@ -3,7 +3,7 @@ use crate::ext4::inode::linux_1::NestedLinuxSpecific1;
 use crate::ext4::inode::linux_2::NestedLinuxSpecific2;
 use crate::ext4::inode::time::decode_extra_time;
 use crate::ext4::inode::{FileMode, FileType, Permissions};
-use binary_layout::binary_layout;
+use binary_layout::{binary_layout, Field};
 use byteorder::{LittleEndian, ReadBytesExt};
 use chrono::{DateTime, Duration, Utc};
 use std::mem::size_of;
@@ -40,10 +40,22 @@ binary_layout!(layout, LittleEndian, {
     project_id: u32
 });
 
-pub struct Inode<S: AsRef<[u8]>>(S);
+pub struct Inode([u8; layout::SIZE.unwrap()]);
 
-impl<S: AsRef<[u8]>> Inode<S> {
-    pub fn new(storage: S) -> Self {
+impl Inode {
+    pub fn new<B: AsRef<[u8]>>(buffer: B) -> Self {
+        let source_length = layout::extra_isize::OFFSET
+            + (if buffer.as_ref().len()
+                > layout::extra_isize::OFFSET + layout::extra_isize::SIZE.unwrap()
+            {
+                usize::from(layout::View::new(buffer.as_ref()).extra_isize().read())
+            } else {
+                0
+            })
+            .clamp(0, layout::SIZE.unwrap());
+
+        let mut storage = [0u8; layout::SIZE.unwrap()];
+        storage[..source_length].copy_from_slice(&buffer.as_ref()[..source_length]);
         Self(storage)
     }
 
