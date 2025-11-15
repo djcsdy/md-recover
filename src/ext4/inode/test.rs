@@ -5,8 +5,8 @@ use chrono::{DateTime, NaiveDate, NaiveTime};
 const ROOT: &[u8] = include_bytes!("test_data/root");
 
 #[test]
-fn root() -> anyhow::Result<()> {
-    let inode = Inode::read(ROOT)?;
+fn root() {
+    let inode = Inode::new(ROOT);
     assert_eq!(
         inode.file_mode(),
         FileMode::from_file_type_and_permissions(
@@ -64,5 +64,4 @@ fn root() -> anyhow::Result<()> {
             .and_utc()
     );
     assert_eq!(inode.project_id(), 0);
-    Ok(())
 }
