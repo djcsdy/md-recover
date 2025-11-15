@@ -54,11 +54,11 @@ impl<D: BlockDevice> Ext4Fs<D> {
         })
     }
 
-    pub fn read_root_inode(&mut self) -> Result<Inode> {
+    pub fn read_root_inode(&mut self) -> Result<Inode<Vec<u8>>> {
         self.read_inode(2)
     }
 
-    fn read_inode(&mut self, inode_number: u32) -> Result<Inode> {
+    fn read_inode(&mut self, inode_number: u32) -> Result<Inode<Vec<u8>>> {
         if inode_number == 0 || inode_number > self.superblock.inodes_count() {
             return Err(Error::from(ErrorKind::InvalidInput));
         }
@@ -80,11 +80,6 @@ impl<D: BlockDevice> Ext4Fs<D> {
             .ok_or_else(|| Error::from(ErrorKind::InvalidData))?;
 
         self.device.seek(SeekFrom::Start(inode_byte_offset))?;
-        let mut buf = [0; 256];
-        self.device.read_exact(&mut buf)?;
-        match Inode::parse.parse_complete(&buf) {
-            Ok((_, inode)) => Ok(inode),
-            Err(_) => Err(Error::from(ErrorKind::InvalidData)),
-        }
+        Inode::read(&mut self.device)
     }
 }

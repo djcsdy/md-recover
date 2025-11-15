@@ -1,3 +1,6 @@
+use binary_layout::LayoutAs;
+use std::convert::Infallible;
+
 bitflags! {
     #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Default, Debug)]
     pub struct Flags: u32 {
@@ -28,5 +31,18 @@ bitflags! {
         const INHERIT_PROJECT_ID = 0x20000000;
         const CASE_FOLDED = 0x40000000;
         const RESERVED = 0x80000000;
+    }
+}
+
+impl LayoutAs<u32> for Flags {
+    type ReadError = Infallible;
+    type WriteError = Infallible;
+
+    fn try_read(v: u32) -> Result<Self, Self::ReadError> {
+        Ok(Self::from_bits_retain(v))
+    }
+
+    fn try_write(v: Self) -> Result<u32, Self::WriteError> {
+        Ok(v.bits())
     }
 }
