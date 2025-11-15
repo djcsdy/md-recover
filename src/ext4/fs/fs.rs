@@ -4,7 +4,6 @@ use crate::ext4::block_group::BlockGroupDescriptor;
 use crate::ext4::inode::Inode;
 use crate::ext4::superblock::{CreatorOs, Superblock};
 use bitflags::Flags;
-use nom::Parser;
 use std::io::{Error, ErrorKind, Result, SeekFrom};
 
 pub struct Ext4Fs<D: BlockDevice> {
@@ -41,10 +40,7 @@ impl<D: BlockDevice> Ext4Fs<D> {
         for _ in 0..group_count {
             let mut buf = vec![0u8; group_size];
             device.read_exact(&mut buf)?;
-            let (_, group_descriptor) = BlockGroupDescriptor::parse
-                .parse_complete(&buf)
-                .map_err(|_| Error::from(ErrorKind::InvalidData))?;
-            group_descriptors.push(group_descriptor);
+            group_descriptors.push(BlockGroupDescriptor::new(buf))
         }
 
         Ok(Self {
@@ -74,7 +70,7 @@ impl<D: BlockDevice> Ext4Fs<D> {
         let inode_offset_within_table =
             index_in_group.long_mul(u32::from(self.superblock.inode_size()));
         let inode_byte_offset = group
-            .inode_table_block
+            .inode_table_block()
             .checked_mul(self.superblock.block_size_bytes())
             .and_then(|base| base.checked_add(inode_offset_within_table))
             .ok_or_else(|| Error::from(ErrorKind::InvalidData))?;

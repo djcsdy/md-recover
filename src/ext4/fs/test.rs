@@ -1,6 +1,5 @@
 use crate::block_device::InMemoryBlockDevice;
 use crate::ext::ReadAll;
-use crate::ext4::block_group::BlockGroupDescriptor;
 use crate::ext4::fs::Ext4Fs;
 use crate::ext4::inode::{FileMode, FileType, Permissions};
 use crate::ext4::superblock::{
@@ -97,23 +96,22 @@ fn open_100mb_empty() -> anyhow::Result<()> {
             | ReadOnlyCompatibleFeatures::CONTAINS_LARGE_INODES
             | ReadOnlyCompatibleFeatures::METADATA_CHECKSUMS
     );
+    assert_eq!(fs.group_descriptors.len(), 1);
+    assert_eq!(fs.group_descriptors[0].block_bitmap_block(), 0xe);
+    assert_eq!(fs.group_descriptors[0].inode_bitmap_block(), 0x1e);
+    assert_eq!(fs.group_descriptors[0].inode_table_block(), 0x2e);
+    assert_eq!(fs.group_descriptors[0].free_block_count(), 22954);
+    assert_eq!(fs.group_descriptors[0].free_inode_count(), 25589);
+    assert_eq!(fs.group_descriptors[0].used_directories_count(), 2);
     assert_eq!(
-        fs.group_descriptors,
-        vec![BlockGroupDescriptor {
-            block_bitmap_block: 0xe,
-            inode_bitmap_block: 0x1e,
-            inode_table_block: 0x2e,
-            free_block_count: 22954,
-            free_inode_count: 25589,
-            used_directories_count: 2,
-            flags: block_group::Flags::INODE_TABLE_ZEROED,
-            exclude_bitmap_block: 0,
-            block_bitmap_checksum: 0x30609723,
-            inode_bitmap_checksum: 0x957502e9,
-            unused_inode_count: 0x63f5,
-            checksum: 0x67e2,
-        }]
+        fs.group_descriptors[0].flags(),
+        block_group::Flags::INODE_TABLE_ZEROED
     );
+    assert_eq!(fs.group_descriptors[0].exclude_bitmap_block(), 0);
+    assert_eq!(fs.group_descriptors[0].block_bitmap_checksum(), 0x30609723);
+    assert_eq!(fs.group_descriptors[0].inode_bitmap_checksum(), 0x957502e9);
+    assert_eq!(fs.group_descriptors[0].unused_inode_count(), 0x63f5);
+    assert_eq!(fs.group_descriptors[0].checksum(), 0x67e2);
     Ok(())
 }
 
