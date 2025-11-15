@@ -3,6 +3,7 @@ use crate::md::superblock::version_0::little_endian::DeviceDescriptorLittleEndia
 use crate::md::superblock::MdDeviceRole;
 use binary_layout::prelude::*;
 
+#[allow(unused_imports)]
 pub use layout::View as DeviceDescriptorBigEndian;
 
 binary_layout!(layout, BigEndian, {

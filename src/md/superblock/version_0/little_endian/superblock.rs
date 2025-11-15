@@ -4,6 +4,7 @@ use crate::md::superblock::version_0::device_descriptor::DeviceDescriptor;
 use crate::md::superblock::{ReshapeStatus, Superblock, SuperblockVersion0};
 use binary_layout::binary_layout;
 
+#[allow(unused_imports)]
 pub use self::layout::View;
 
 binary_layout!(layout, LittleEndian, {

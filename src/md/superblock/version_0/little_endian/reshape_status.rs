@@ -2,8 +2,11 @@ use binary_layout::prelude::*;
 
 use crate::md::algorithm::MdAlgorithm;
 use crate::md::superblock::reshape_status::ReshapeStatus;
-pub use layout::NestedView as NestedReshapeStatusVersion0;
-pub use layout::View as ReshapeStatusVersion0;
+
+#[allow(unused_imports)]
+pub use self::{
+    layout::NestedView as NestedReshapeStatusVersion0, layout::View as ReshapeStatusVersion0,
+};
 
 binary_layout!(layout, LittleEndian, {
     reshape_position: u64,

@@ -2,4 +2,5 @@ mod fs;
 #[cfg(test)]
 mod test;
 
-pub use fs::Ext4Fs;
+#[allow(unused_imports)]
+pub use self::fs::Ext4Fs;

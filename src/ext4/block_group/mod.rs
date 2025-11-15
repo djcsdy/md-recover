@@ -3,5 +3,5 @@ mod flags;
 #[cfg(test)]
 mod test;
 
-pub use descriptor::BlockGroupDescriptor;
-pub use flags::Flags;
+#[allow(unused_imports)]
+pub use self::{descriptor::BlockGroupDescriptor, flags::Flags};

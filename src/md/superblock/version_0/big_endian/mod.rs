@@ -1,8 +1,11 @@
-pub use self::device_descriptor::DeviceDescriptorBigEndian;
-pub use self::superblock::{View, SIZE};
-
 mod device_descriptor;
 mod reshape_status;
 mod superblock;
 #[cfg(test)]
 mod tests;
+
+#[allow(unused_imports)]
+pub use self::{
+    device_descriptor::DeviceDescriptorBigEndian,
+    superblock::{View, SIZE},
+};

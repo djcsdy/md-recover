@@ -6,4 +6,5 @@ mod superblock;
 #[cfg(test)]
 mod tests;
 
+#[allow(unused_imports)]
 pub use superblock::SuperblockVersion1;

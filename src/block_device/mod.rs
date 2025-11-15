@@ -3,7 +3,8 @@ mod file;
 mod in_memory;
 mod native;
 
-pub use block_device::BlockDevice;
-pub use file::FileBlockDevice;
-pub use in_memory::InMemoryBlockDevice;
-pub use native::NativeBlockDevice;
+#[allow(unused_imports)]
+pub use self::{
+    block_device::BlockDevice, file::FileBlockDevice, in_memory::InMemoryBlockDevice,
+    native::NativeBlockDevice,
+};

@@ -14,15 +14,11 @@ mod superblock;
 #[cfg(test)]
 mod test;
 
-pub use checksum::Checksum;
-pub use compatible_features::CompatibleFeatures;
-pub use creator_os::CreatorOs;
-pub use encryption_algorithm::EncryptionAlgorithm;
-pub use error_policy::ErrorPolicy;
-pub use flags::Flags;
-pub use hash_version::HashVersion;
-pub use incompatible_features::IncompatibleFeatures;
-pub use mount_options::MountOptions;
-pub use read_only_compatible_features::ReadOnlyCompatibleFeatures;
-pub use state::State;
-pub use superblock::Superblock;
+#[allow(unused_imports)]
+pub use self::{
+    checksum::Checksum, compatible_features::CompatibleFeatures, creator_os::CreatorOs,
+    encryption_algorithm::EncryptionAlgorithm, error_policy::ErrorPolicy, flags::Flags,
+    hash_version::HashVersion, incompatible_features::IncompatibleFeatures,
+    mount_options::MountOptions, read_only_compatible_features::ReadOnlyCompatibleFeatures,
+    state::State, superblock::Superblock,
+};
