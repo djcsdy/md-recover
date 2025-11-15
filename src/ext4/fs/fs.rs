@@ -80,6 +80,8 @@ impl<D: BlockDevice> Ext4Fs<D> {
             .ok_or_else(|| Error::from(ErrorKind::InvalidData))?;
 
         self.device.seek(SeekFrom::Start(inode_byte_offset))?;
-        Inode::read(&mut self.device)
+        let mut buffer = vec![0; usize::from(self.superblock.inode_size())];
+        self.device.read_exact(&mut buffer)?;
+        Ok(Inode::new(buffer))
     }
 }

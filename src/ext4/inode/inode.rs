@@ -6,7 +6,6 @@ use crate::ext4::inode::{FileMode, FileType, Permissions};
 use binary_layout::binary_layout;
 use byteorder::{LittleEndian, ReadBytesExt};
 use chrono::{DateTime, Duration, Utc};
-use std::io::{Read, Result};
 use std::mem::size_of;
 
 const NUM_BLOCKS: usize = 15;
@@ -152,13 +151,5 @@ impl<S: AsRef<[u8]>> Inode<S> {
 
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
-    }
-}
-
-impl Inode<Vec<u8>> {
-    pub fn read<R: Read>(mut reader: R) -> Result<Self> {
-        let mut buf = vec![0u8; layout::SIZE.unwrap()];
-        reader.read_exact(&mut buf)?;
-        Ok(Inode::new(buf))
     }
 }
