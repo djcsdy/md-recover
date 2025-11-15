@@ -1,5 +1,4 @@
 use nom::bytes::take;
-use nom::error::ParseError;
 use nom::{IResult, Input, Parser, ToUsize};
 
 pub fn take_parse<C, I, O, P>(

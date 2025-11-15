@@ -1,15 +1,13 @@
 use crate::ext::WideUnsigned;
 use crate::ext4::inode::flags::Flags;
 use crate::ext4::inode::time::decode_extra_time;
-use crate::ext4::inode::{FileMode, FileType, Permissions};
+use crate::ext4::inode::FileMode;
 use crate::parser::bytes::take_parse;
 use crate::parser::number::{le_u16_or_default_eof, le_u32_or_default_eof};
-use chrono::{DateTime, Duration, Utc};
-use nom::bytes::take;
+use chrono::{DateTime, Utc};
 use nom::multi::many;
 use nom::number::{le_u16, le_u32};
 use nom::{IResult, Parser};
-use std::io::{Read, Result};
 
 const NUM_BLOCKS: usize = 15;
 

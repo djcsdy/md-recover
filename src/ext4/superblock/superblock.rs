@@ -10,7 +10,6 @@ use binary_layout::prelude::*;
 use crc::{Algorithm, Crc, CRC_32_ISCSI};
 use itertools::Itertools;
 use std::io::{Error, ErrorKind, Read, Result};
-use std::ops::Shl;
 use std::time::{Duration, SystemTime};
 use uuid::Uuid;
 

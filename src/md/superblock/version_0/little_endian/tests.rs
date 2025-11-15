@@ -1,4 +1,3 @@
-use crate::md::superblock::version_0::device_descriptor::DeviceDescriptor;
 use crate::md::superblock::version_0::little_endian;
 use crate::md::superblock::version_0::little_endian::device_descriptor::DeviceDescriptorLittleEndian;
 

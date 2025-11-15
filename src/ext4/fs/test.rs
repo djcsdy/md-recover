@@ -9,10 +9,7 @@ use crate::ext4::superblock::{
 use crate::ext4::{block_group, inode};
 use chrono::{DateTime, NaiveDate, NaiveTime};
 use flate2::read::GzDecoder;
-use std::fs::File;
-use std::io::Read;
-use std::time::SystemTime;
-use std::{fs, io};
+use std::io;
 
 fn zero_32mb_device() -> io::Result<InMemoryBlockDevice> {
     static GZIPPED: &[u8] = include_bytes!("../test_data/zero-32MB.gz");

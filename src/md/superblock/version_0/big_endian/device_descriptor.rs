@@ -1,5 +1,4 @@
 use crate::md::superblock::version_0::device_descriptor::DeviceDescriptor;
-use crate::md::superblock::version_0::little_endian::DeviceDescriptorLittleEndian;
 use crate::md::superblock::MdDeviceRole;
 use binary_layout::prelude::*;
 

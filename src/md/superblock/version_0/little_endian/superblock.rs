@@ -1,7 +1,6 @@
 use super::device_descriptor::DeviceDescriptorLittleEndian;
 use super::reshape_status::NestedReshapeStatusVersion0;
-use crate::md::superblock::version_0::device_descriptor::DeviceDescriptor;
-use crate::md::superblock::{ReshapeStatus, Superblock, SuperblockVersion0};
+use crate::md::superblock::SuperblockVersion0;
 use binary_layout::binary_layout;
 
 #[allow(unused_imports)]

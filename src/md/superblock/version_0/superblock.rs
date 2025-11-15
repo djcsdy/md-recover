@@ -6,7 +6,6 @@ use crate::md::superblock::{ArrayUuid, MdDeviceRole, Superblock};
 use std::ffi::OsStr;
 use std::io;
 use std::io::{Error, ErrorKind, Read};
-use std::time::SystemTime;
 
 pub struct SuperblockVersion0 {
     pub(super) magic: u32,

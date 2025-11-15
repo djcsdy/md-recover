@@ -1,6 +1,6 @@
 use crate::ext4::inode::flags::Flags;
 use crate::ext4::inode::{FileMode, FileType, Inode, Permissions};
-use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime};
+use chrono::{DateTime, NaiveDate, NaiveTime};
 use nom::Parser;
 
 const ROOT: &[u8] = include_bytes!("test_data/root");

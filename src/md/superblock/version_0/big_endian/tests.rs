@@ -1,6 +1,5 @@
 use crate::md::superblock::version_0::big_endian;
 use crate::md::superblock::version_0::big_endian::device_descriptor::DeviceDescriptorBigEndian;
-use crate::md::superblock::version_0::device_descriptor::DeviceDescriptor;
 
 const DATA: [u8; 4096] = [
     0xa9, 0x2b, 0x4e, 0xfc, // magic

@@ -2,12 +2,9 @@ use crate::block_device::BlockDevice;
 use crate::ext::LongMul;
 use crate::ext4::block_group::BlockGroupDescriptor;
 use crate::ext4::inode::Inode;
-use crate::ext4::superblock::{CreatorOs, IncompatibleFeatures, Superblock};
-use crate::parser::bytes::take_parse;
+use crate::ext4::superblock::{CreatorOs, Superblock};
 use bitflags::Flags;
-use nom::bytes::take;
-use nom::multi::many;
-use nom::{IResult, Parser};
+use nom::Parser;
 use std::io::{Error, ErrorKind, Result, SeekFrom};
 
 pub struct Ext4Fs<D: BlockDevice> {
