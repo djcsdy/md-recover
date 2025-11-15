@@ -15,10 +15,7 @@ binary_layout!(layout, BigEndian, {
 });
 
 impl<S: AsRef<[u8]>> DeviceDescriptorBigEndian<S> {
-    pub const SIZE: usize = match layout::SIZE {
-        Some(size) => size,
-        None => panic!(),
-    };
+    pub const SIZE: usize = layout::SIZE.unwrap();
 }
 
 impl<S: AsRef<[u8]>> From<DeviceDescriptorBigEndian<S>> for DeviceDescriptor {

@@ -45,10 +45,7 @@ binary_layout!(layout, LittleEndian, {
     reserved_3: [u8; 128]
 });
 
-pub const SIZE: usize = match layout::SIZE {
-    Some(size) => size,
-    None => panic!(),
-};
+pub const SIZE: usize = layout::SIZE.unwrap();
 
 impl<S: AsRef<[u8]>> From<View<S>> for SuperblockVersion0 {
     fn from(value: View<S>) -> Self {
