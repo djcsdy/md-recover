@@ -73,12 +73,17 @@ impl Inode {
     }
 
     pub fn owner_user_id(&self) -> u32 {
-        u32::from(self.view().user_id_low().read())
-            | (u32::from(self.view().os_dependent_2().user_id_high().read()) << 16)
+        u32::from_low_high(
+            self.view().user_id_low().read(),
+            self.view().os_dependent_2().user_id_high().read(),
+        )
     }
 
     pub fn file_size_bytes(&self) -> u64 {
-        u64::from(self.view().size_low().read()) | (u64::from(self.view().size_high().read()) << 32)
+        u64::from_low_high(
+            self.view().size_low().read(),
+            self.view().size_high().read(),
+        )
     }
 
     pub fn access_time(&self) -> DateTime<Utc> {
@@ -107,8 +112,10 @@ impl Inode {
     }
 
     pub fn group_id(&self) -> u32 {
-        u32::from(self.view().group_id_low().read())
-            | (u32::from(self.view().os_dependent_2().group_id_high().read()) << 16)
+        u32::from_low_high(
+            self.view().group_id_low().read(),
+            self.view().os_dependent_2().group_id_high().read(),
+        )
     }
 
     pub fn links_count(&self) -> u16 {
@@ -144,13 +151,17 @@ impl Inode {
     }
 
     pub fn file_acl(&self) -> u64 {
-        u64::from(self.view().file_acl_low().read())
-            | (u64::from(self.view().os_dependent_2().file_acl_high().read()) << 32)
+        u64::from_low_high(
+            self.view().file_acl_low().read(),
+            u32::from(self.view().os_dependent_2().file_acl_high().read()),
+        )
     }
 
     pub fn checksum(&self) -> u32 {
-        u32::from(self.view().os_dependent_2().checksum_low().read())
-            | (u32::from(self.view().checksum_high().read()) << 16)
+        u32::from_low_high(
+            self.view().os_dependent_2().checksum_low().read(),
+            self.view().checksum_high().read(),
+        )
     }
 
     pub fn creation_time(&self) -> DateTime<Utc> {
