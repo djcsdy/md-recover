@@ -1,4 +1,5 @@
 mod block_group;
+mod crc;
 mod dir_entry;
 mod extent;
 mod fs;

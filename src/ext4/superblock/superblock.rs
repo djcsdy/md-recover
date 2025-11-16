@@ -4,10 +4,11 @@ use super::{
     IncompatibleFeatures, MountOptions, ReadOnlyCompatibleFeatures, State,
 };
 use crate::ext::SystemTimeExt;
+use crate::ext4::crc::EXT4_CRC32C;
 use crate::ext4::string::Ext4String;
 use crate::ext4::superblock::checksum::Checksum;
 use binary_layout::prelude::*;
-use crc::{Algorithm, Crc, CRC_32_ISCSI};
+use crc::Crc;
 use itertools::Itertools;
 use std::io::{Error, ErrorKind, Read, Result};
 use std::time::{Duration, SystemTime};
@@ -121,17 +122,6 @@ binary_layout!(layout, LittleEndian, {
 pub struct Superblock<S: AsRef<[u8]>>(S);
 
 impl<S: AsRef<[u8]>> Superblock<S> {
-    const EXT4_CRC32C: Algorithm<u32> = Algorithm {
-        width: CRC_32_ISCSI.width,
-        poly: CRC_32_ISCSI.poly,
-        init: CRC_32_ISCSI.init,
-        refin: CRC_32_ISCSI.refin,
-        refout: CRC_32_ISCSI.refout,
-        xorout: 0,
-        check: CRC_32_ISCSI.check,
-        residue: CRC_32_ISCSI.residue,
-    };
-
     pub fn new(storage: S) -> Self {
         Self(storage)
     }
@@ -645,7 +635,7 @@ impl<S: AsRef<[u8]>> Superblock<S> {
     }
 
     pub fn expected_checksum(&self) -> u32 {
-        let crc = Crc::<u32>::new(&Self::EXT4_CRC32C);
+        let crc = Crc::<u32>::new(&EXT4_CRC32C);
         let mut digest = crc.digest();
         digest.update(&self.0.as_ref()[0..layout::checksum::OFFSET]);
         digest.finalize()
