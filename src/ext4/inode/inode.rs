@@ -7,12 +7,11 @@ use crate::ext4::inode::time::decode_extra_time;
 use crate::ext4::inode::{FileMode, FileType, Permissions};
 use crate::ext4::superblock::{ReadOnlyCompatibleFeatures, Superblock};
 use binary_layout::{binary_layout, Field};
-use byteorder::{LittleEndian, ReadBytesExt};
 use chrono::{DateTime, Duration, Utc};
 use crc::Crc;
 use std::mem::size_of;
 
-const NUM_BLOCKS: usize = 15;
+const BLOCKS_SIZE: usize = size_of::<u32>() * 15;
 
 binary_layout!(layout, LittleEndian, {
     file_mode: FileMode as u16,
@@ -27,7 +26,7 @@ binary_layout!(layout, LittleEndian, {
     block_count_low: u32,
     flags: Flags as u32,
     os_dependent_1: NestedLinuxSpecific1,
-    blocks: [u8; size_of::<u32>() * NUM_BLOCKS],
+    blocks: [u8; BLOCKS_SIZE],
     generation: u32,
     file_acl_low: u32,
     size_high: u32,
@@ -170,12 +169,8 @@ impl Inode {
             | (u64::from(self.view().version_high().read()) << 32)
     }
 
-    pub fn blocks(&self) -> [u32; NUM_BLOCKS] {
-        let mut blocks = [0u32; NUM_BLOCKS];
-        (&self.view().blocks()[..])
-            .read_u32_into::<LittleEndian>(&mut blocks)
-            .unwrap();
-        blocks
+    pub(in crate::ext4) fn blocks_buffer(&self) -> &[u8; BLOCKS_SIZE] {
+        array_ref![self.storage.as_ref(), layout::blocks::OFFSET, BLOCKS_SIZE]
     }
 
     pub fn generation(&self) -> u32 {
