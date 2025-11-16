@@ -26,7 +26,7 @@ impl Read for InMemoryBlockDevice {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
         let available = self.mem.len().saturating_sub(self.pos);
         let to_read = buf.len().clamp(0, available);
-        buf[..to_read].copy_from_slice(&self.mem[self.pos..self.pos + to_read]);
+        buf[..to_read].copy_from_slice(&self.mem[self.pos..][..to_read]);
         self.pos += to_read;
         Ok(to_read)
     }
