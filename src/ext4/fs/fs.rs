@@ -78,6 +78,6 @@ impl<D: BlockDevice> Ext4Fs<D> {
         self.device.seek(SeekFrom::Start(inode_byte_offset))?;
         let mut buffer = vec![0; usize::from(self.superblock.inode_size())];
         self.device.read_exact(&mut buffer)?;
-        Ok(Inode::new(buffer))
+        Ok(Inode::new(&self.superblock, inode_number, buffer))
     }
 }

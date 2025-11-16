@@ -1,12 +1,15 @@
 use crate::ext::WideUnsigned;
+use crate::ext4::crc::EXT4_CRC32C;
 use crate::ext4::inode::flags::Flags;
 use crate::ext4::inode::linux_1::NestedLinuxSpecific1;
 use crate::ext4::inode::linux_2::NestedLinuxSpecific2;
 use crate::ext4::inode::time::decode_extra_time;
 use crate::ext4::inode::{FileMode, FileType, Permissions};
+use crate::ext4::superblock::{ReadOnlyCompatibleFeatures, Superblock};
 use binary_layout::{binary_layout, Field};
 use byteorder::{LittleEndian, ReadBytesExt};
 use chrono::{DateTime, Duration, Utc};
+use crc::Crc;
 use std::mem::size_of;
 
 const NUM_BLOCKS: usize = 15;
@@ -41,23 +44,52 @@ binary_layout!(layout, LittleEndian, {
     project_id: u32
 });
 
-pub struct Inode([u8; layout::SIZE.unwrap()]);
+pub struct Inode {
+    storage: [u8; layout::SIZE.unwrap()],
+    checksum_seed: u32,
+}
 
 impl Inode {
-    pub fn new<B: AsRef<[u8]>>(buffer: B) -> Self {
-        let source_length = layout::extra_isize::OFFSET
-            + (if buffer.as_ref().len()
-                > layout::extra_isize::OFFSET + layout::extra_isize::SIZE.unwrap()
-            {
-                usize::from(layout::View::new(buffer.as_ref()).extra_isize().read())
-            } else {
-                0
-            })
-            .clamp(0, layout::SIZE.unwrap());
+    pub fn new(
+        superblock: &Superblock<impl AsRef<[u8]>>,
+        inode_number: u32,
+        buffer: impl AsRef<[u8]>,
+    ) -> Self {
+        let storage = {
+            let source_length = layout::extra_isize::OFFSET
+                + (if buffer.as_ref().len()
+                    > layout::extra_isize::OFFSET + layout::extra_isize::SIZE.unwrap()
+                {
+                    usize::from(layout::View::new(buffer.as_ref()).extra_isize().read())
+                } else {
+                    0
+                })
+                .clamp(0, layout::SIZE.unwrap());
 
-        let mut storage = [0u8; layout::SIZE.unwrap()];
-        storage[..source_length].copy_from_slice(&buffer.as_ref()[..source_length]);
-        Self(storage)
+            let mut storage = [0u8; layout::SIZE.unwrap()];
+            storage[..source_length].copy_from_slice(&buffer.as_ref()[..source_length]);
+            storage
+        };
+
+        let checksum_seed = if superblock
+            .read_only_compatible_features()
+            .contains(ReadOnlyCompatibleFeatures::METADATA_CHECKSUMS)
+        {
+            let crc = Crc::<u32>::new(&EXT4_CRC32C);
+            let mut digest = crc.digest_with_initial(superblock.checksum_seed());
+            digest.update(&inode_number.to_le_bytes());
+            digest.update(
+                &buffer.as_ref()[layout::generation::OFFSET..][..layout::generation::SIZE.unwrap()],
+            );
+            digest.finalize()
+        } else {
+            0
+        };
+
+        Self {
+            storage,
+            checksum_seed,
+        }
     }
 
     pub fn file_mode(&self) -> FileMode {
@@ -175,7 +207,11 @@ impl Inode {
         self.view().project_id().read()
     }
 
+    pub fn checksum_seed(&self) -> u32 {
+        self.checksum_seed
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
-        layout::View::new(self.0.as_ref())
+        layout::View::new(self.storage.as_ref())
     }
 }
