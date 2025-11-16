@@ -606,7 +606,22 @@ impl<S: AsRef<[u8]>> Superblock<S> {
     }
 
     pub fn checksum_seed(&self) -> u32 {
-        self.view().into_checksum_seed().read()
+        if self
+            .incompatible_features()
+            .contains(IncompatibleFeatures::METADATA_CHECKSUM_SEED)
+        {
+            self.view().into_checksum_seed().read()
+        } else if self
+            .read_only_compatible_features()
+            .contains(ReadOnlyCompatibleFeatures::METADATA_CHECKSUMS)
+        {
+            let crc = Crc::<u32>::new(&EXT4_CRC32C);
+            let mut digest = crc.digest();
+            digest.update(self.view().into_uuid().as_ref());
+            digest.finalize()
+        } else {
+            0
+        }
     }
 
     pub fn filename_character_encoding(&self) -> u16 {
