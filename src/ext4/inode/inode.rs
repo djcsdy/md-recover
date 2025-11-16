@@ -1,3 +1,4 @@
+use crate::ext::WideUnsigned;
 use crate::ext4::inode::flags::Flags;
 use crate::ext4::inode::linux_1::NestedLinuxSpecific1;
 use crate::ext4::inode::linux_2::NestedLinuxSpecific2;
@@ -114,9 +115,11 @@ impl Inode {
         self.view().links_count().read()
     }
 
-    pub fn block_count(&self) -> u32 {
-        u32::from(self.view().block_count_low().read())
-            | (u32::from(self.view().os_dependent_2().block_count_high().read()) << 16)
+    pub fn block_count(&self) -> u64 {
+        u64::from_low_high(
+            self.view().block_count_low().read(),
+            u32::from(self.view().os_dependent_2().block_count_high().read()),
+        )
     }
 
     pub fn flags(&self) -> Flags {
