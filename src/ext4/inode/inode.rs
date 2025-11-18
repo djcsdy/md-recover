@@ -45,7 +45,7 @@ binary_layout!(layout, LittleEndian, {
 
 pub struct Inode {
     storage: [u8; layout::SIZE.unwrap()],
-    checksum_seed: u32,
+    metadata_checksum_seed: Option<u32>,
 }
 
 impl Inode {
@@ -80,14 +80,14 @@ impl Inode {
             digest.update(
                 &buffer.as_ref()[layout::generation::OFFSET..][..layout::generation::SIZE.unwrap()],
             );
-            digest.finalize()
+            Some(digest.finalize())
         } else {
-            0
+            None
         };
 
         Self {
             storage,
-            checksum_seed,
+            metadata_checksum_seed: checksum_seed,
         }
     }
 
@@ -202,8 +202,8 @@ impl Inode {
         self.view().project_id().read()
     }
 
-    pub fn checksum_seed(&self) -> u32 {
-        self.checksum_seed
+    pub(in crate::ext4) fn metadata_checksum_seed(&self) -> Option<u32> {
+        self.metadata_checksum_seed
     }
 
     fn view(&self) -> layout::View<&[u8]> {
