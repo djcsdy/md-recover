@@ -1,5 +1,5 @@
 use crate::ext::WideUnsigned;
-use crate::ext4::units::{FileBlockIndex, FsBlockIndex};
+use crate::ext4::units::{BlockCount, FileBlockIndex, FsBlockIndex};
 use binary_layout::binary_layout;
 
 binary_layout!(layout, LittleEndian, {
@@ -24,8 +24,8 @@ impl<S: AsRef<[u8]>> Extent<S> {
         self.0.length().read() & 0x8000 == 0x8000
     }
 
-    pub fn length(&self) -> u16 {
-        self.0.length().read() & 0x7fff
+    pub fn length(&self) -> BlockCount<u16> {
+        BlockCount(self.0.length().read() & 0x7fff)
     }
 
     pub fn start(&self) -> FsBlockIndex {
