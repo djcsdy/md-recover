@@ -59,11 +59,11 @@ fn open_100mb_empty() -> anyhow::Result<()> {
     let fs = Ext4Fs::open(ext4_100mb_empty_device()?)?;
     assert!(fs.superblock.valid());
     assert_eq!(fs.superblock.inodes_count(), 25600);
-    assert_eq!(fs.superblock.blocks_count(), 25600);
-    assert_eq!(fs.superblock.reserved_blocks_count(), 1280);
-    assert_eq!(fs.superblock.free_blocks_count(), 22954);
+    assert_eq!(fs.superblock.blocks_count(), BlockCount(25600));
+    assert_eq!(fs.superblock.reserved_blocks_count(), BlockCount(1280));
+    assert_eq!(fs.superblock.free_blocks_count(), BlockCount(22954));
     assert_eq!(fs.superblock.free_inodes_count(), 25589);
-    assert_eq!(fs.superblock.first_data_block(), 0);
+    assert_eq!(fs.superblock.first_data_block(), FsBlockIndex(0));
     assert_eq!(fs.superblock.block_size_bytes(), 4096);
     assert_eq!(fs.superblock.cluster_size_blocks(), 4096);
     assert_eq!(fs.superblock.blocks_per_group(), 32768);

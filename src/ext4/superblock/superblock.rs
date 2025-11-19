@@ -7,6 +7,7 @@ use crate::ext::SystemTimeExt;
 use crate::ext4::crc::EXT4_CRC32C;
 use crate::ext4::string::Ext4String;
 use crate::ext4::superblock::checksum::Checksum;
+use crate::ext4::units::{BlockCount, FsBlockIndex};
 use binary_layout::prelude::*;
 use crc::Crc;
 use itertools::Itertools;
@@ -178,29 +179,36 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().into_inodes_count().read()
     }
 
-    pub fn blocks_count(&self) -> u64 {
+    pub fn blocks_count(&self) -> BlockCount<u64> {
         let view = self.view();
-        view.blocks_count_low().read() as u64 | ((view.blocks_count_high().read() as u64) << 32)
+        BlockCount(
+            view.blocks_count_low().read() as u64
+                | ((view.blocks_count_high().read() as u64) << 32),
+        )
     }
 
-    pub fn reserved_blocks_count(&self) -> u64 {
+    pub fn reserved_blocks_count(&self) -> BlockCount<u64> {
         let view = self.view();
-        view.reserved_blocks_count_low().read() as u64
-            | ((view.reserved_blocks_count_high().read() as u64) << 32)
+        BlockCount(
+            view.reserved_blocks_count_low().read() as u64
+                | ((view.reserved_blocks_count_high().read() as u64) << 32),
+        )
     }
 
-    pub fn free_blocks_count(&self) -> u64 {
+    pub fn free_blocks_count(&self) -> BlockCount<u64> {
         let view = self.view();
-        view.free_blocks_count_low().read() as u64
-            | ((view.free_blocks_count_high().read() as u64) << 32)
+        BlockCount(
+            view.free_blocks_count_low().read() as u64
+                | ((view.free_blocks_count_high().read() as u64) << 32),
+        )
     }
 
     pub fn free_inodes_count(&self) -> u32 {
         self.view().into_free_inodes_count().read()
     }
 
-    pub fn first_data_block(&self) -> u32 {
-        self.view().into_first_data_block().read()
+    pub fn first_data_block(&self) -> FsBlockIndex {
+        FsBlockIndex(u64::from(self.view().into_first_data_block().read()))
     }
 
     pub fn block_size_bytes(&self) -> u64 {

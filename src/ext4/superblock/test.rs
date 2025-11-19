@@ -5,6 +5,7 @@ use crate::ext4::superblock::{
     Checksum, CreatorOs, ErrorPolicy, Flags, IncompatibleFeatures, ReadOnlyCompatibleFeatures,
     Superblock,
 };
+use crate::ext4::units::{BlockCount, FsBlockIndex};
 use std::time::{Duration, SystemTime};
 use uuid::{uuid, Uuid};
 
@@ -111,22 +112,22 @@ fn inodes_count_ext2() {
 
 #[test]
 fn blocks_count() {
-    assert_eq!(Superblock::new(EXT4_1).blocks_count(), 128);
+    assert_eq!(Superblock::new(EXT4_1).blocks_count(), BlockCount(128));
 }
 
 #[test]
 fn blocks_count_ext2() {
-    assert_eq!(Superblock::new(EXT2).blocks_count(), 128);
+    assert_eq!(Superblock::new(EXT2).blocks_count(), BlockCount(128));
 }
 
 #[test]
 fn first_data_block() {
-    assert_eq!(Superblock::new(EXT4_1).first_data_block(), 0);
+    assert_eq!(Superblock::new(EXT4_1).first_data_block(), FsBlockIndex(0));
 }
 
 #[test]
 fn first_data_block_ext2() {
-    assert_eq!(Superblock::new(EXT2).first_data_block(), 0);
+    assert_eq!(Superblock::new(EXT2).first_data_block(), FsBlockIndex(0));
 }
 
 #[test]
