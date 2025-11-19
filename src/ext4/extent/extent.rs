@@ -1,8 +1,9 @@
 use crate::ext::WideUnsigned;
+use crate::ext4::units::{FileBlockIndex, FsBlockIndex};
 use binary_layout::binary_layout;
 
 binary_layout!(layout, LittleEndian, {
-    block: u32,
+    block: FileBlockIndex as u32,
     length: u16,
     start_high: u16,
     start_low: u32,
@@ -15,7 +16,7 @@ impl<S: AsRef<[u8]>> Extent<S> {
         Self(layout::View::new(storage))
     }
 
-    pub fn block(&self) -> u32 {
+    pub fn block(&self) -> FileBlockIndex {
         self.0.block().read()
     }
 
@@ -27,10 +28,10 @@ impl<S: AsRef<[u8]>> Extent<S> {
         self.0.length().read() & 0x7fff
     }
 
-    pub fn start(&self) -> u64 {
-        u64::from_low_high(
+    pub fn start(&self) -> FsBlockIndex {
+        FsBlockIndex(u64::from_low_high(
             self.0.start_low().read(),
             u32::from(self.0.start_high().read()),
-        )
+        ))
     }
 }
