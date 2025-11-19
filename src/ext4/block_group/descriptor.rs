@@ -1,6 +1,6 @@
 use crate::ext::WideUnsigned;
 use crate::ext4::block_group::Flags;
-use crate::ext4::units::FsBlockIndex;
+use crate::ext4::units::{BlockCount, FsBlockIndex};
 use binary_layout::binary_layout;
 
 binary_layout!(layout, LittleEndian, {
@@ -59,11 +59,11 @@ impl BlockGroupDescriptor {
         ))
     }
 
-    pub fn free_block_count(&self) -> u32 {
-        u32::from_low_high(
+    pub fn free_block_count(&self) -> BlockCount<u32> {
+        BlockCount(u32::from_low_high(
             self.view().free_block_count_low().read(),
             self.view().free_block_count_high().read(),
-        )
+        ))
     }
 
     pub fn free_inode_count(&self) -> u32 {

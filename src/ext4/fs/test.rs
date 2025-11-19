@@ -5,7 +5,7 @@ use crate::ext4::inode::{FileMode, FileType, Permissions};
 use crate::ext4::superblock::{
     CompatibleFeatures, CreatorOs, IncompatibleFeatures, ReadOnlyCompatibleFeatures,
 };
-use crate::ext4::units::FsBlockIndex;
+use crate::ext4::units::{BlockCount, FsBlockIndex};
 use crate::ext4::{block_group, inode};
 use chrono::{DateTime, NaiveDate, NaiveTime};
 use flate2::read::GzDecoder;
@@ -110,7 +110,10 @@ fn open_100mb_empty() -> anyhow::Result<()> {
         fs.group_descriptors[0].inode_table_block(),
         FsBlockIndex(0x2e)
     );
-    assert_eq!(fs.group_descriptors[0].free_block_count(), 22954);
+    assert_eq!(
+        fs.group_descriptors[0].free_block_count(),
+        BlockCount(22954)
+    );
     assert_eq!(fs.group_descriptors[0].free_inode_count(), 25589);
     assert_eq!(fs.group_descriptors[0].used_directories_count(), 2);
     assert_eq!(
