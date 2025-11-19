@@ -3,7 +3,7 @@ use crate::ext4::units::{BlockCount, FileBlockIndex, FsBlockIndex};
 use binary_layout::binary_layout;
 
 binary_layout!(layout, LittleEndian, {
-    block: FileBlockIndex as u32,
+    first_file_block_index: FileBlockIndex as u32,
     length: u16,
     start_high: u16,
     start_low: u32,
@@ -16,8 +16,8 @@ impl<S: AsRef<[u8]>> Extent<S> {
         Self(layout::View::new(storage))
     }
 
-    pub fn block(&self) -> FileBlockIndex {
-        self.0.block().read()
+    pub fn first_file_block_index(&self) -> FileBlockIndex {
+        self.0.first_file_block_index().read()
     }
 
     pub fn initialized(&self) -> bool {
