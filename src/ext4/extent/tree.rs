@@ -96,6 +96,7 @@ impl<S: AsRef<[u8]>> ExtentTree<S> {
 #[cfg(test)]
 mod test {
     use crate::ext4::extent::tree::ExtentTree;
+    use crate::ext4::extent::{extent, index};
     use crate::ext4::inode::Inode;
     use crate::ext4::superblock::Superblock;
 
@@ -103,7 +104,7 @@ mod test {
     const ROOT_INODE: &[u8] = include_bytes!("test_data/root_inode");
 
     #[test]
-    fn test() -> anyhow::Result<()> {
+    fn root() -> anyhow::Result<()> {
         let superblock = Superblock::new(SUPERBLOCK);
         let inode = Inode::new(&superblock, 2, ROOT_INODE);
         let tree = ExtentTree::from_inode(&inode);
@@ -112,5 +113,10 @@ mod test {
         assert_eq!(tree.depth(), 0);
         assert_eq!(tree.generation(), 0);
         Ok(())
+    }
+
+    #[test]
+    pub fn extent_and_index_are_the_same_size() {
+        assert_eq!(extent::layout::SIZE.unwrap(), index::layout::SIZE.unwrap());
     }
 }
