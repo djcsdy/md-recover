@@ -1,6 +1,7 @@
 use crate::ext4::inode::flags::Flags;
 use crate::ext4::inode::{FileMode, FileType, Inode, Permissions};
 use crate::ext4::superblock::Superblock;
+use crate::ext4::units::BlockCount;
 use chrono::{DateTime, NaiveDate, NaiveTime};
 
 const SUPERBLOCK: &[u8] = include_bytes!("test_data/superblock");
@@ -49,7 +50,7 @@ fn root() {
     assert_eq!(inode.delete_time(), DateTime::UNIX_EPOCH);
     assert_eq!(inode.group_id(), 0);
     assert_eq!(inode.links_count(), 3);
-    assert_eq!(inode.block_count(), 8);
+    assert_eq!(inode.block_count(), BlockCount(8));
     assert_eq!(inode.flags(), Flags::HAS_EXTENTS);
     assert_eq!(inode.version(), 0);
     assert_eq!(

@@ -6,6 +6,7 @@ use crate::ext4::inode::linux_2::NestedLinuxSpecific2;
 use crate::ext4::inode::time::decode_extra_time;
 use crate::ext4::inode::{FileMode, FileType, Permissions};
 use crate::ext4::superblock::{ReadOnlyCompatibleFeatures, Superblock};
+use crate::ext4::units::BlockCount;
 use binary_layout::{binary_layout, Field};
 use chrono::{DateTime, Duration, Utc};
 use crc::Crc;
@@ -153,11 +154,11 @@ impl Inode {
         self.view().links_count().read()
     }
 
-    pub fn block_count(&self) -> u64 {
-        u64::from_low_high(
+    pub fn block_count(&self) -> BlockCount<u64> {
+        BlockCount(u64::from_low_high(
             self.view().block_count_low().read(),
             u32::from(self.view().os_dependent_2().block_count_high().read()),
-        )
+        ))
     }
 
     pub fn flags(&self) -> Flags {

@@ -174,7 +174,7 @@ fn read_root_inode() -> anyhow::Result<()> {
     assert_eq!(inode.delete_time(), DateTime::UNIX_EPOCH);
     assert_eq!(inode.group_id(), 0);
     assert_eq!(inode.links_count(), 3);
-    assert_eq!(inode.block_count(), 8);
+    assert_eq!(inode.block_count(), BlockCount(8));
     assert_eq!(inode.flags(), inode::Flags::HAS_EXTENTS);
     assert_eq!(inode.version(), 0);
     assert_eq!(
