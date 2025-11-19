@@ -5,8 +5,8 @@ use binary_layout::binary_layout;
 binary_layout!(layout, LittleEndian, {
     first_file_block_index: FileBlockIndex as u32,
     length: u16,
-    start_high: u16,
-    start_low: u32,
+    first_fs_block_index_high: u16,
+    first_fs_block_index_low: u32,
 });
 
 pub struct Extent<S: AsRef<[u8]>>(layout::View<S>);
@@ -28,10 +28,10 @@ impl<S: AsRef<[u8]>> Extent<S> {
         BlockCount(self.0.length().read() & 0x7fff)
     }
 
-    pub fn start(&self) -> FsBlockIndex {
+    pub fn first_fs_block_index(&self) -> FsBlockIndex {
         FsBlockIndex(u64::from_low_high(
-            self.0.start_low().read(),
-            u32::from(self.0.start_high().read()),
+            self.0.first_fs_block_index_low().read(),
+            u32::from(self.0.first_fs_block_index_high().read()),
         ))
     }
 }
