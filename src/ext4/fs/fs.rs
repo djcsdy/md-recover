@@ -2,7 +2,7 @@ use crate::block_device::BlockDevice;
 use crate::ext::LongMul;
 use crate::ext4::block_group::BlockGroupDescriptor;
 use crate::ext4::inode::Inode;
-use crate::ext4::superblock::{CreatorOs, Superblock};
+use crate::ext4::superblock::{CreatorOs, IncompatibleFeatures, Superblock};
 use bitflags::Flags;
 use std::io::{Error, ErrorKind, Result, SeekFrom};
 
@@ -27,6 +27,9 @@ impl<D: BlockDevice> Ext4Fs<D> {
             || group_size == 0
             || superblock.inodes_per_group() == 0
             || superblock.creator_os() != CreatorOs::Linux
+            || !superblock
+                .incompatible_features()
+                .contains(IncompatibleFeatures::FILES_USE_EXTENTS)
             || superblock.incompatible_features().contains_unknown_bits()
         {
             return Err(Error::from(ErrorKind::Unsupported));
