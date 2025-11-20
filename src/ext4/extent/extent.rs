@@ -21,7 +21,7 @@ impl<S: AsRef<[u8]>> Extent<S> {
     }
 
     pub fn initialized(&self) -> bool {
-        self.0.length().read() & 0x8000 == 0x8000
+        self.0.length().read() & 0x8000 != 0x8000
     }
 
     pub fn length(&self) -> BlockCount<u16> {

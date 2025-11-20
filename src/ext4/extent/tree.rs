@@ -1,10 +1,14 @@
 use crate::ext4::crc::EXT4_CRC32C;
+use crate::ext4::extent::extent::Extent;
 use crate::ext4::extent::header::NestedExtentHeader;
-use crate::ext4::extent::tail;
+use crate::ext4::extent::index::ExtentIndex;
+use crate::ext4::extent::node::ExtentNode;
+use crate::ext4::extent::{extent, tail};
 use crate::ext4::extent::{header, index};
 use crate::ext4::inode::Inode;
 use binary_layout::{binary_layout, Field};
 use crc::Crc;
+use std::iter::FusedIterator;
 
 binary_layout!(layout, LittleEndian, {
     header: NestedExtentHeader,
@@ -88,23 +92,63 @@ impl<S: AsRef<[u8]>> ExtentTree<S> {
         self.view().header().generation().read()
     }
 
+    pub fn iter_nodes(&'_ self) -> ExtentTreeIter<'_, S> {
+        ExtentTreeIter { tree: self, pos: 0 }
+    }
+
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.storage.as_ref())
     }
 }
 
+pub struct ExtentTreeIter<'tree, S: AsRef<[u8]>> {
+    tree: &'tree ExtentTree<S>,
+    pos: usize,
+}
+
+impl<'tree, S: AsRef<[u8]>> Iterator for ExtentTreeIter<'tree, S> {
+    type Item = ExtentNode<&'tree [u8]>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.pos < usize::from(self.tree.view().header().entries().read()) {
+            let item_storage = &self.tree.view().into_indices_and_tail().into_slice()
+                [self.pos * extent::layout::SIZE.unwrap()..][..extent::layout::SIZE.unwrap()];
+
+            self.pos += 1;
+
+            if self.tree.view().header().depth().read() == 0 {
+                Some(ExtentNode::Leaf(Extent::new(item_storage)))
+            } else {
+                Some(ExtentNode::Index(ExtentIndex::new(item_storage)))
+            }
+        } else {
+            None
+        }
+    }
+}
+
+impl<'tree, S: AsRef<[u8]>> FusedIterator for ExtentTreeIter<'tree, S> {}
+
 #[cfg(test)]
 mod test {
+    use crate::ext4::extent::node::ExtentNode;
     use crate::ext4::extent::tree::ExtentTree;
     use crate::ext4::extent::{extent, index};
     use crate::ext4::inode::Inode;
     use crate::ext4::superblock::Superblock;
+    use crate::ext4::units::{BlockCount, FileBlockIndex, FsBlockIndex};
+    use itertools::Itertools;
 
     const SUPERBLOCK: &[u8] = include_bytes!("test_data/superblock");
     const ROOT_INODE: &[u8] = include_bytes!("test_data/root_inode");
 
     #[test]
-    fn root() -> anyhow::Result<()> {
+    pub fn extent_and_index_are_the_same_size() {
+        assert_eq!(extent::layout::SIZE.unwrap(), index::layout::SIZE.unwrap());
+    }
+
+    #[test]
+    fn root_fields() {
         let superblock = Superblock::new(SUPERBLOCK);
         let inode = Inode::new(&superblock, 2, ROOT_INODE);
         let tree = ExtentTree::from_inode(&inode);
@@ -112,11 +156,23 @@ mod test {
         assert_eq!(tree.max(), 4);
         assert_eq!(tree.depth(), 0);
         assert_eq!(tree.generation(), 0);
-        Ok(())
     }
 
     #[test]
-    pub fn extent_and_index_are_the_same_size() {
-        assert_eq!(extent::layout::SIZE.unwrap(), index::layout::SIZE.unwrap());
+    pub fn root_iter() {
+        let superblock = Superblock::new(SUPERBLOCK);
+        let inode = Inode::new(&superblock, 2, ROOT_INODE);
+        let tree = ExtentTree::from_inode(&inode);
+        let extents = tree.iter_nodes().collect_vec();
+        assert_eq!(extents.len(), 1);
+        match &extents[0] {
+            ExtentNode::Leaf(leaf) => {
+                assert!(leaf.initialized());
+                assert_eq!(leaf.first_file_block_index(), FileBlockIndex(0));
+                assert_eq!(leaf.length(), BlockCount(1));
+                assert_eq!(leaf.first_fs_block_index(), FsBlockIndex(15));
+            }
+            ExtentNode::Index(_) => panic!("Expected Leaf node"),
+        }
     }
 }
