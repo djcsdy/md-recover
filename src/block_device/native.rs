@@ -29,6 +29,12 @@ impl BlockDevice for NativeBlockDevice {
     fn size(&self) -> Result<u64> {
         BLK_GETSIZE64.ioctl(&self.file).map(|(_, size)| size)
     }
+
+    fn try_clone(&self) -> Result<Self> {
+        Ok(Self {
+            file: self.file.try_clone()?,
+        })
+    }
 }
 
 impl Read for NativeBlockDevice {

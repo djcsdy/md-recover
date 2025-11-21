@@ -29,6 +29,12 @@ impl BlockDevice for FileBlockDevice {
     fn size(&self) -> Result<u64> {
         self.file.metadata().map(|metadata| metadata.size())
     }
+
+    fn try_clone(&self) -> Result<Self> {
+        Ok(Self {
+            file: self.file.try_clone()?,
+        })
+    }
 }
 
 impl Read for FileBlockDevice {

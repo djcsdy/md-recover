@@ -20,6 +20,10 @@ impl BlockDevice for InMemoryBlockDevice {
     fn size(&self) -> std::io::Result<u64> {
         Ok(self.mem.len().try_into().unwrap())
     }
+
+    fn try_clone(&self) -> std::io::Result<Self> {
+        Ok(self.clone())
+    }
 }
 
 impl Read for InMemoryBlockDevice {
