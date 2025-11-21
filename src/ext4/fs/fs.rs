@@ -59,6 +59,14 @@ impl<D: BlockDevice> Ext4Fs<D> {
         self.read_inode(InodeNumber(2))
     }
 
+    pub fn try_clone(&self) -> Result<Self> {
+        Ok(Self {
+            device: self.device.try_clone()?,
+            superblock: self.superblock.clone(),
+            group_descriptors: self.group_descriptors.clone(),
+        })
+    }
+
     fn read_inode(&mut self, inode_number: InodeNumber) -> Result<Inode> {
         if inode_number == InodeNumber(0) || inode_number > self.superblock.inodes_count() {
             return Err(Error::from(ErrorKind::InvalidInput));
