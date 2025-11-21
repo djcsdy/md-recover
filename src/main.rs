@@ -14,7 +14,6 @@ use os_display::Quotable;
 use crate::md::{MdArray, MdDevice};
 
 mod block_device;
-mod confidence;
 mod ext;
 mod ext4;
 mod ioctl;
