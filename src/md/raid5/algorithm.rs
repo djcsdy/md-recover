@@ -33,11 +33,11 @@ impl Raid5Algorithm {
         sectors_per_chunk: u32,
         raid_disks: u32,
     ) -> (u64, u32, u32) {
-        let sector_in_chunk = sector % sectors_per_chunk as u64;
-        let chunk_index = sector / sectors_per_chunk as u64;
+        let sector_in_chunk = sector % u64::from(sectors_per_chunk);
+        let chunk_index = sector / u64::from(sectors_per_chunk);
         let data_disks = raid_disks - 1;
-        let data_disk_index = (chunk_index % data_disks as u64) as u32;
-        let stripe = (chunk_index / data_disks as u64) as u32;
+        let data_disk_index = (chunk_index % u64::from(data_disks)) as u32;
+        let stripe = (chunk_index / u64::from(data_disks)) as u32;
 
         let parity_disk = match self {
             Raid5Algorithm::LeftAsymmetric | Raid5Algorithm::LeftSymmetric => {
@@ -59,7 +59,7 @@ impl Raid5Algorithm {
             Raid5Algorithm::ParityN => data_disk_index,
         };
 
-        let new_sector = chunk_index * sectors_per_chunk as u64 + sector_in_chunk;
+        let new_sector = chunk_index * u64::from(sectors_per_chunk) + sector_in_chunk;
 
         (new_sector, parity_disk, data_disk)
     }

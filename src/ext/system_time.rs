@@ -6,6 +6,6 @@ pub trait SystemTimeExt {
 
 impl SystemTimeExt for SystemTime {
     fn from_low_high(low: u32, high: u8) -> Self {
-        Self::UNIX_EPOCH + Duration::from_secs((low as u64) | ((high as u64) << 32))
+        Self::UNIX_EPOCH + Duration::from_secs(u64::from(low) | (u64::from(high) << 32))
     }
 }
