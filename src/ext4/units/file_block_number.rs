@@ -6,9 +6,9 @@ use std::convert::Infallible;
     Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug, From, Into, Display, Deref, DerefMut,
 )]
 #[display("file block #{_0}")]
-pub struct FileBlockIndex(pub u32);
+pub struct FileBlockNumber(pub u32);
 
-impl LayoutAs<u32> for FileBlockIndex {
+impl LayoutAs<u32> for FileBlockNumber {
     type ReadError = Infallible;
     type WriteError = Infallible;
 

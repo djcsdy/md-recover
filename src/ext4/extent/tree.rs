@@ -136,7 +136,7 @@ mod test {
     use crate::ext4::extent::{extent, index};
     use crate::ext4::inode::Inode;
     use crate::ext4::superblock::Superblock;
-    use crate::ext4::units::{BlockCount, FileBlockIndex, FsBlockIndex};
+    use crate::ext4::units::{BlockCount, FileBlockNumber, FsBlockNumber};
     use itertools::Itertools;
 
     const SUPERBLOCK: &[u8] = include_bytes!("test_data/superblock");
@@ -168,9 +168,9 @@ mod test {
         match &extents[0] {
             ExtentNode::Leaf(leaf) => {
                 assert!(leaf.initialized());
-                assert_eq!(leaf.first_file_block_index(), FileBlockIndex(0));
+                assert_eq!(leaf.first_file_block_index(), FileBlockNumber(0));
                 assert_eq!(leaf.length(), BlockCount(1));
-                assert_eq!(leaf.first_fs_block_index(), FsBlockIndex(15));
+                assert_eq!(leaf.first_fs_block_index(), FsBlockNumber(15));
             }
             ExtentNode::Index(_) => panic!("Expected Leaf node"),
         }

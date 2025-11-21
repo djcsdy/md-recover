@@ -1,6 +1,6 @@
 use crate::ext::WideUnsigned;
 use crate::ext4::block_group::Flags;
-use crate::ext4::units::{BlockCount, FsBlockIndex};
+use crate::ext4::units::{BlockCount, FsBlockNumber};
 use binary_layout::binary_layout;
 
 binary_layout!(layout, LittleEndian, {
@@ -38,22 +38,22 @@ impl BlockGroupDescriptor {
         Self(storage)
     }
 
-    pub fn block_bitmap_block(&self) -> FsBlockIndex {
-        FsBlockIndex(u64::from_low_high(
+    pub fn block_bitmap_block(&self) -> FsBlockNumber {
+        FsBlockNumber(u64::from_low_high(
             self.view().block_bitmap_block_low().read(),
             self.view().block_bitmap_block_high().read(),
         ))
     }
 
-    pub fn inode_bitmap_block(&self) -> FsBlockIndex {
-        FsBlockIndex(u64::from_low_high(
+    pub fn inode_bitmap_block(&self) -> FsBlockNumber {
+        FsBlockNumber(u64::from_low_high(
             self.view().inode_bitmap_block_low().read(),
             self.view().inode_bitmap_block_high().read(),
         ))
     }
 
-    pub fn inode_table_block(&self) -> FsBlockIndex {
-        FsBlockIndex(u64::from_low_high(
+    pub fn inode_table_block(&self) -> FsBlockNumber {
+        FsBlockNumber(u64::from_low_high(
             self.view().inode_table_block_low().read(),
             self.view().inode_table_block_high().read(),
         ))
@@ -83,8 +83,8 @@ impl BlockGroupDescriptor {
         self.view().flags().read()
     }
 
-    pub fn exclude_bitmap_block(&self) -> FsBlockIndex {
-        FsBlockIndex(u64::from_low_high(
+    pub fn exclude_bitmap_block(&self) -> FsBlockNumber {
+        FsBlockNumber(u64::from_low_high(
             self.view().exclude_bitmap_block_low().read(),
             self.view().exclude_bitmap_block_high().read(),
         ))

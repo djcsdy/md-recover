@@ -5,7 +5,7 @@ use crate::ext4::inode::{FileMode, FileType, Permissions};
 use crate::ext4::superblock::{
     CompatibleFeatures, CreatorOs, IncompatibleFeatures, ReadOnlyCompatibleFeatures,
 };
-use crate::ext4::units::{BlockCount, FsBlockIndex};
+use crate::ext4::units::{BlockCount, FsBlockNumber};
 use crate::ext4::{block_group, inode};
 use chrono::{DateTime, NaiveDate, NaiveTime};
 use flate2::read::GzDecoder;
@@ -63,7 +63,7 @@ fn open_100mb_empty() -> anyhow::Result<()> {
     assert_eq!(fs.superblock.reserved_blocks_count(), BlockCount(1280));
     assert_eq!(fs.superblock.free_blocks_count(), BlockCount(22954));
     assert_eq!(fs.superblock.free_inodes_count(), 25589);
-    assert_eq!(fs.superblock.first_data_block(), FsBlockIndex(0));
+    assert_eq!(fs.superblock.first_data_block(), FsBlockNumber(0));
     assert_eq!(fs.superblock.block_size_bytes(), 4096);
     assert_eq!(fs.superblock.cluster_size_blocks(), 4096);
     assert_eq!(fs.superblock.blocks_per_group(), 32768);
@@ -100,15 +100,15 @@ fn open_100mb_empty() -> anyhow::Result<()> {
     assert_eq!(fs.group_descriptors.len(), 1);
     assert_eq!(
         fs.group_descriptors[0].block_bitmap_block(),
-        FsBlockIndex(0xe)
+        FsBlockNumber(0xe)
     );
     assert_eq!(
         fs.group_descriptors[0].inode_bitmap_block(),
-        FsBlockIndex(0x1e)
+        FsBlockNumber(0x1e)
     );
     assert_eq!(
         fs.group_descriptors[0].inode_table_block(),
-        FsBlockIndex(0x2e)
+        FsBlockNumber(0x2e)
     );
     assert_eq!(
         fs.group_descriptors[0].free_block_count(),
@@ -122,7 +122,7 @@ fn open_100mb_empty() -> anyhow::Result<()> {
     );
     assert_eq!(
         fs.group_descriptors[0].exclude_bitmap_block(),
-        FsBlockIndex(0)
+        FsBlockNumber(0)
     );
     assert_eq!(fs.group_descriptors[0].block_bitmap_checksum(), 0x30609723);
     assert_eq!(fs.group_descriptors[0].inode_bitmap_checksum(), 0x957502e9);
