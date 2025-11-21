@@ -166,8 +166,10 @@ impl Inode {
     }
 
     pub fn version(&self) -> u64 {
-        u64::from(self.view().os_dependent_1().version().read())
-            | (u64::from(self.view().version_high().read()) << 32)
+        u64::from_low_high(
+            self.view().os_dependent_1().version().read(),
+            self.view().version_high().read(),
+        )
     }
 
     pub(in crate::ext4) fn blocks_buffer(&self) -> &[u8; BLOCKS_SIZE] {

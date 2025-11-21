@@ -3,7 +3,7 @@ use super::{
     CompatibleFeatures, CreatorOs, EncryptionAlgorithm, ErrorPolicy, Flags, HashVersion,
     IncompatibleFeatures, MountOptions, ReadOnlyCompatibleFeatures, State,
 };
-use crate::ext::SystemTimeExt;
+use crate::ext::{SystemTimeExt, WideUnsigned};
 use crate::ext4::crc::EXT4_CRC32C;
 use crate::ext4::string::Ext4String;
 use crate::ext4::superblock::checksum::Checksum;
@@ -181,26 +181,26 @@ impl<S: AsRef<[u8]>> Superblock<S> {
 
     pub fn blocks_count(&self) -> BlockCount<u64> {
         let view = self.view();
-        BlockCount(
-            view.blocks_count_low().read() as u64
-                | ((view.blocks_count_high().read() as u64) << 32),
-        )
+        BlockCount(u64::from_low_high(
+            view.blocks_count_low().read(),
+            view.blocks_count_high().read(),
+        ))
     }
 
     pub fn reserved_blocks_count(&self) -> BlockCount<u64> {
         let view = self.view();
-        BlockCount(
-            view.reserved_blocks_count_low().read() as u64
-                | ((view.reserved_blocks_count_high().read() as u64) << 32),
-        )
+        BlockCount(u64::from_low_high(
+            view.reserved_blocks_count_low().read(),
+            view.reserved_blocks_count_high().read(),
+        ))
     }
 
     pub fn free_blocks_count(&self) -> BlockCount<u64> {
         let view = self.view();
-        BlockCount(
-            view.free_blocks_count_low().read() as u64
-                | ((view.free_blocks_count_high().read() as u64) << 32),
-        )
+        BlockCount(u64::from_low_high(
+            view.free_blocks_count_low().read(),
+            view.free_blocks_count_high().read(),
+        ))
     }
 
     pub fn free_inodes_count(&self) -> u32 {
