@@ -168,9 +168,9 @@ mod test {
         match &extents[0] {
             ExtentNode::Leaf(leaf) => {
                 assert!(leaf.initialized());
-                assert_eq!(leaf.first_file_block_index(), FileBlockNumber(0));
+                assert_eq!(leaf.first_file_block_number(), FileBlockNumber(0));
                 assert_eq!(leaf.length(), BlockCount(1));
-                assert_eq!(leaf.first_fs_block_index(), FsBlockNumber(15));
+                assert_eq!(leaf.first_fs_block_number(), FsBlockNumber(15));
             }
             ExtentNode::Index(_) => panic!("Expected Leaf node"),
         }

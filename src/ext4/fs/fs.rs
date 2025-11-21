@@ -35,9 +35,9 @@ impl<D: BlockDevice> Ext4Fs<D> {
             return Err(Error::from(ErrorKind::Unsupported));
         }
 
-        let group_descriptors_block_index = u64::from(superblock.first_data_block()) + 1;
+        let group_descriptors_block_number = u64::from(superblock.first_data_block()) + 1;
         device.seek(SeekFrom::Start(
-            group_descriptors_block_index * superblock.block_size_bytes(),
+            group_descriptors_block_number * superblock.block_size_bytes(),
         ))?;
         let mut group_descriptors = Vec::with_capacity(group_count);
         for _ in 0..group_count {
