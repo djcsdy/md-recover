@@ -7,5 +7,5 @@ mod inode_number;
 #[allow(unused_imports)]
 pub use self::{
     block_count::BlockCount, file_block_number::FileBlockNumber, fs_block_number::FsBlockNumber,
-    inode_number::InodeNumber,
+    inode_count::InodeCount, inode_number::InodeNumber,
 };
