@@ -5,7 +5,7 @@ use crate::ext4::superblock::{
     Checksum, CreatorOs, ErrorPolicy, Flags, IncompatibleFeatures, ReadOnlyCompatibleFeatures,
     Superblock,
 };
-use crate::ext4::units::{BlockCount, FsBlockNumber};
+use crate::ext4::units::{BlockCount, FsBlockNumber, InodeCount};
 use std::time::{Duration, SystemTime};
 use uuid::{uuid, Uuid};
 
@@ -102,12 +102,12 @@ fn valid_checksum_random() {
 
 #[test]
 fn inodes_count() {
-    assert_eq!(Superblock::new(EXT4_1).inodes_count(), 64);
+    assert_eq!(Superblock::new(EXT4_1).inodes_count(), InodeCount(64));
 }
 
 #[test]
 fn inodes_count_ext2() {
-    assert_eq!(Superblock::new(EXT2).inodes_count(), 64);
+    assert_eq!(Superblock::new(EXT2).inodes_count(), InodeCount(64));
 }
 
 #[test]

@@ -3,6 +3,7 @@ use crate::ext::LongMul;
 use crate::ext4::block_group::BlockGroupDescriptor;
 use crate::ext4::inode::Inode;
 use crate::ext4::superblock::{CreatorOs, IncompatibleFeatures, Superblock};
+use crate::ext4::units::{InodeCount, InodeNumber};
 use bitflags::Flags;
 use std::io::{Error, ErrorKind, Result, SeekFrom};
 
@@ -25,7 +26,7 @@ impl<D: BlockDevice> Ext4Fs<D> {
 
         if blocks_per_group == 0
             || group_size == 0
-            || superblock.inodes_per_group() == 0
+            || superblock.inodes_per_group() == InodeCount(0)
             || superblock.creator_os() != CreatorOs::Linux
             || !superblock
                 .incompatible_features()
@@ -54,16 +55,16 @@ impl<D: BlockDevice> Ext4Fs<D> {
     }
 
     pub fn read_root_inode(&mut self) -> Result<Inode> {
-        self.read_inode(2)
+        self.read_inode(InodeNumber(2))
     }
 
-    fn read_inode(&mut self, inode_number: u32) -> Result<Inode> {
-        if inode_number == 0 || inode_number > self.superblock.inodes_count() {
+    fn read_inode(&mut self, inode_number: InodeNumber) -> Result<Inode> {
+        if inode_number == InodeNumber(0) || inode_number > self.superblock.inodes_count() {
             return Err(Error::from(ErrorKind::InvalidInput));
         }
 
-        let group_index = (inode_number - 1) / self.superblock.inodes_per_group();
-        let index_in_group = (inode_number - 1) % self.superblock.inodes_per_group();
+        let group_index = (*inode_number - 1) / *self.superblock.inodes_per_group();
+        let index_in_group = (*inode_number - 1) % *self.superblock.inodes_per_group();
 
         let group = self
             .group_descriptors

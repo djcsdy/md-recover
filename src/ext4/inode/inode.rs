@@ -6,7 +6,7 @@ use crate::ext4::inode::linux_2::NestedLinuxSpecific2;
 use crate::ext4::inode::time::decode_extra_time;
 use crate::ext4::inode::{FileMode, FileType, Permissions};
 use crate::ext4::superblock::{ReadOnlyCompatibleFeatures, Superblock};
-use crate::ext4::units::BlockCount;
+use crate::ext4::units::{BlockCount, InodeNumber};
 use binary_layout::{binary_layout, Field};
 use chrono::{DateTime, Duration, Utc};
 use crc::Crc;
@@ -52,7 +52,7 @@ pub struct Inode {
 impl Inode {
     pub fn new(
         superblock: &Superblock<impl AsRef<[u8]>>,
-        inode_number: u32,
+        inode_number: InodeNumber,
         buffer: impl AsRef<[u8]>,
     ) -> Self {
         let storage = {

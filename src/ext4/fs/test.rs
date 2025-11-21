@@ -5,7 +5,7 @@ use crate::ext4::inode::{FileMode, FileType, Permissions};
 use crate::ext4::superblock::{
     CompatibleFeatures, CreatorOs, IncompatibleFeatures, ReadOnlyCompatibleFeatures,
 };
-use crate::ext4::units::{BlockCount, FsBlockNumber};
+use crate::ext4::units::{BlockCount, FsBlockNumber, InodeCount};
 use crate::ext4::{block_group, inode};
 use chrono::{DateTime, NaiveDate, NaiveTime};
 use flate2::read::GzDecoder;
@@ -58,17 +58,17 @@ fn open_random_2mb_zero_30mb() -> anyhow::Result<()> {
 fn open_100mb_empty() -> anyhow::Result<()> {
     let fs = Ext4Fs::open(ext4_100mb_empty_device()?)?;
     assert!(fs.superblock.valid());
-    assert_eq!(fs.superblock.inodes_count(), 25600);
+    assert_eq!(fs.superblock.inodes_count(), InodeCount(25600));
     assert_eq!(fs.superblock.blocks_count(), BlockCount(25600));
     assert_eq!(fs.superblock.reserved_blocks_count(), BlockCount(1280));
     assert_eq!(fs.superblock.free_blocks_count(), BlockCount(22954));
-    assert_eq!(fs.superblock.free_inodes_count(), 25589);
+    assert_eq!(fs.superblock.free_inodes_count(), InodeCount(25589));
     assert_eq!(fs.superblock.first_data_block(), FsBlockNumber(0));
     assert_eq!(fs.superblock.block_size_bytes(), 4096);
     assert_eq!(fs.superblock.cluster_size_blocks(), 4096);
     assert_eq!(fs.superblock.blocks_per_group(), 32768);
     assert_eq!(fs.superblock.clusters_per_group(), 32768);
-    assert_eq!(fs.superblock.inodes_per_group(), 25600);
+    assert_eq!(fs.superblock.inodes_per_group(), InodeCount(25600));
     assert_eq!(fs.superblock.creator_os(), CreatorOs::Linux);
     assert_eq!(fs.superblock.revision_level(), 1);
     assert_eq!(fs.superblock.first_inode(), 11);

@@ -1,7 +1,7 @@
 use crate::ext4::inode::flags::Flags;
 use crate::ext4::inode::{FileMode, FileType, Inode, Permissions};
 use crate::ext4::superblock::Superblock;
-use crate::ext4::units::BlockCount;
+use crate::ext4::units::{BlockCount, InodeNumber};
 use chrono::{DateTime, NaiveDate, NaiveTime};
 
 const SUPERBLOCK: &[u8] = include_bytes!("test_data/superblock");
@@ -10,7 +10,7 @@ const ROOT: &[u8] = include_bytes!("test_data/root");
 #[test]
 fn root() {
     let superblock = Superblock::new(SUPERBLOCK);
-    let inode = Inode::new(&superblock, 2, ROOT);
+    let inode = Inode::new(&superblock, InodeNumber(2), ROOT);
     assert_eq!(
         inode.file_mode(),
         FileMode::from_file_type_and_permissions(

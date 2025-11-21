@@ -136,7 +136,7 @@ mod test {
     use crate::ext4::extent::{extent, index};
     use crate::ext4::inode::Inode;
     use crate::ext4::superblock::Superblock;
-    use crate::ext4::units::{BlockCount, FileBlockNumber, FsBlockNumber};
+    use crate::ext4::units::{BlockCount, FileBlockNumber, FsBlockNumber, InodeNumber};
     use itertools::Itertools;
 
     const SUPERBLOCK: &[u8] = include_bytes!("test_data/superblock");
@@ -150,7 +150,7 @@ mod test {
     #[test]
     fn root_fields() {
         let superblock = Superblock::new(SUPERBLOCK);
-        let inode = Inode::new(&superblock, 2, ROOT_INODE);
+        let inode = Inode::new(&superblock, InodeNumber(2), ROOT_INODE);
         let tree = ExtentTree::from_inode(&inode);
         assert!(tree.valid());
         assert_eq!(tree.max(), 4);
@@ -161,7 +161,7 @@ mod test {
     #[test]
     pub fn root_iter() {
         let superblock = Superblock::new(SUPERBLOCK);
-        let inode = Inode::new(&superblock, 2, ROOT_INODE);
+        let inode = Inode::new(&superblock, InodeNumber(2), ROOT_INODE);
         let tree = ExtentTree::from_inode(&inode);
         let extents = tree.iter_nodes().collect_vec();
         assert_eq!(extents.len(), 1);

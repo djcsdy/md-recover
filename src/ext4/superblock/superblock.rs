@@ -7,7 +7,7 @@ use crate::ext::{SystemTimeExt, WideUnsigned};
 use crate::ext4::crc::EXT4_CRC32C;
 use crate::ext4::string::Ext4String;
 use crate::ext4::superblock::checksum::Checksum;
-use crate::ext4::units::{BlockCount, FsBlockNumber};
+use crate::ext4::units::{BlockCount, FsBlockNumber, InodeCount};
 use binary_layout::prelude::*;
 use crc::Crc;
 use itertools::Itertools;
@@ -16,17 +16,17 @@ use std::time::{Duration, SystemTime};
 use uuid::Uuid;
 
 binary_layout!(layout, LittleEndian, {
-    inodes_count: u32,
+    inodes_count: InodeCount as u32,
     blocks_count_low: u32,
     reserved_blocks_count_low: u32,
     free_blocks_count_low: u32,
-    free_inodes_count: u32,
+    free_inodes_count: InodeCount as u32,
     first_data_block: u32,
     log_block_size: u32,
     log_cluster_size: u32,
     blocks_per_group: u32,
     clusters_per_group: u32,
-    inodes_per_group: u32,
+    inodes_per_group: InodeCount as u32,
     mount_time_low: u32,
     write_time_low: u32,
     mount_count: u16,
@@ -175,7 +175,7 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         }
     }
 
-    pub fn inodes_count(&self) -> u32 {
+    pub fn inodes_count(&self) -> InodeCount {
         self.view().into_inodes_count().read()
     }
 
@@ -203,7 +203,7 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         ))
     }
 
-    pub fn free_inodes_count(&self) -> u32 {
+    pub fn free_inodes_count(&self) -> InodeCount {
         self.view().into_free_inodes_count().read()
     }
 
@@ -227,7 +227,7 @@ impl<S: AsRef<[u8]>> Superblock<S> {
         self.view().clusters_per_group().read()
     }
 
-    pub fn inodes_per_group(&self) -> u32 {
+    pub fn inodes_per_group(&self) -> InodeCount {
         self.view().into_inodes_per_group().read()
     }
 
