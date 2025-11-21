@@ -1,3 +1,4 @@
+use crate::block_device::BlockDevice;
 use crate::ext::MultiMap;
 use crate::md::algorithm::MdAlgorithm;
 use crate::md::device::{MdDeviceId, MdDeviceSuperblock};
@@ -7,12 +8,12 @@ use crate::md::MdDevice;
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsString;
 
-pub struct MdArray {
-    devices: Vec<MdDevice>,
+pub struct MdArray<D: BlockDevice> {
+    devices: Vec<MdDevice<D>>,
 }
 
-impl MdArray {
-    pub fn new(devices: Vec<MdDevice>) -> Self {
+impl<D: BlockDevice> MdArray<D> {
+    pub fn new(devices: Vec<MdDevice<D>>) -> Self {
         Self { devices }
     }
 

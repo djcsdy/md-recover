@@ -6,27 +6,27 @@ use std::ffi::OsStr;
 use std::io::{Result, SeekFrom};
 use std::path::Path;
 
-pub struct MdDevice {
+pub struct MdDevice<D: BlockDevice> {
     pub id: MdDeviceId,
     pub superblock: MdDeviceSuperblock,
-    device: Box<dyn BlockDevice>,
+    device: D,
 }
 
-impl MdDevice {
+impl<D: BlockDevice> MdDevice<D> {
     const MIN_DEVICE_SIZE: u64 = 12288;
     const MIN_SUPERBLOCK_0_DEVICE_SIZE: u64 = 65536;
 }
 
-impl MdDevice {
+impl MdDevice<NativeBlockDevice> {
     pub fn open_path<P: AsRef<Path>>(path: P) -> Result<Self> {
         let device = NativeBlockDevice::open_path(path.as_ref())?;
-        Self::from_block_device(Box::new(device), Some(path.as_ref().as_os_str()))
+        Self::from_block_device(device, Some(path.as_ref().as_os_str()))
     }
 }
 
-impl MdDevice {
+impl<D: BlockDevice> MdDevice<D> {
     pub fn from_block_device<S: AsRef<OsStr>>(
-        mut device: Box<dyn BlockDevice>,
+        mut device: D,
         user_reference: Option<S>,
     ) -> Result<Self> {
         let size = device.size()?;
