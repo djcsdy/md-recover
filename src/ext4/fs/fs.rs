@@ -6,11 +6,12 @@ use crate::ext4::superblock::{CreatorOs, IncompatibleFeatures, Superblock};
 use crate::ext4::units::{InodeCount, InodeNumber};
 use bitflags::Flags;
 use std::io::{Error, ErrorKind, Result, SeekFrom};
+use std::rc::Rc;
 
 pub struct Ext4Fs<D: BlockDevice> {
     device: D,
-    pub(super) superblock: Superblock<Vec<u8>>,
-    pub(super) group_descriptors: Vec<BlockGroupDescriptor>,
+    pub(super) superblock: Rc<Superblock<Vec<u8>>>,
+    pub(super) group_descriptors: Rc<Vec<BlockGroupDescriptor>>,
 }
 
 impl<D: BlockDevice> Ext4Fs<D> {
@@ -49,8 +50,8 @@ impl<D: BlockDevice> Ext4Fs<D> {
 
         Ok(Self {
             device,
-            superblock,
-            group_descriptors,
+            superblock: Rc::new(superblock),
+            group_descriptors: Rc::new(group_descriptors),
         })
     }
 
