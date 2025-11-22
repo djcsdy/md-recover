@@ -105,7 +105,7 @@ impl<D: BlockDevice> Ext4Fs<D> {
         Ok(buf)
     }
 
-    fn open_file(&mut self, inode_number: InodeNumber) -> Result<Ext4File<D>> {
+    pub fn open_file(&mut self, inode_number: InodeNumber) -> Result<Ext4File<D>> {
         Ext4File::new(self.try_clone()?, self.read_inode(inode_number)?)
             .ok_or_else(|| Error::from(ErrorKind::Unsupported))
     }
