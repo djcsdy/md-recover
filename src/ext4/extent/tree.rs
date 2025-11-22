@@ -65,10 +65,14 @@ impl<S: AsRef<[u8]>> ExtentBranch<S> {
         self.0.max_entries()
     }
 
-    pub fn iter_subtrees(&'_ self) -> ExtentBranchIter<'_, S> {
-        ExtentBranchIter {
-            branch: self,
-            pos: 0,
+    pub fn subtree_index_at(&self, pos: usize) -> Option<ExtentIndex<&[u8]>> {
+        if pos < self.subtree_count() {
+            Some(ExtentIndex::new(
+                &self.subtrees_storage()[pos * index::layout::SIZE.unwrap()..]
+                    [..index::layout::SIZE.unwrap()],
+            ))
+        } else {
+            None
         }
     }
 
@@ -86,31 +90,6 @@ impl<S: AsRef<[u8]>> ExtentBranch<S> {
 }
 
 #[derive(PartialEq, Clone, Hash)]
-pub struct ExtentBranchIter<'branch, S: AsRef<[u8]>> {
-    branch: &'branch ExtentBranch<S>,
-    pos: usize,
-}
-
-impl<'branch, S: AsRef<[u8]>> Iterator for ExtentBranchIter<'branch, S> {
-    type Item = ExtentIndex<&'branch [u8]>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.pos < self.branch.subtree_count() {
-            let index = ExtentIndex::new(
-                &self.branch.subtrees_storage()[self.pos * index::layout::SIZE.unwrap()..]
-                    [..index::layout::SIZE.unwrap()],
-            );
-            self.pos += 1;
-            Some(index)
-        } else {
-            None
-        }
-    }
-}
-
-impl<'branch, S: AsRef<[u8]>> FusedIterator for ExtentBranchIter<'branch, S> {}
-
-#[derive(PartialEq, Clone, Hash)]
 pub struct ExtentLeaf<S: AsRef<[u8]>>(ExtentTreeInternal<S>);
 
 impl<S: AsRef<[u8]>> ExtentLeaf<S> {
@@ -126,8 +105,15 @@ impl<S: AsRef<[u8]>> ExtentLeaf<S> {
         self.0.max_entries()
     }
 
-    pub fn iter_extents(&'_ self) -> ExtentLeafIter<'_, S> {
-        ExtentLeafIter { leaf: self, pos: 0 }
+    pub fn extent_at(&self, pos: usize) -> Option<Extent<&[u8]>> {
+        if pos < self.extent_count() {
+            Some(Extent::new(
+                &self.extents_storage()[pos * extent::layout::SIZE.unwrap()..]
+                    [..extent::layout::SIZE.unwrap()],
+            ))
+        } else {
+            None
+        }
     }
 
     fn extents_storage(&self) -> &[u8] {
@@ -281,7 +267,6 @@ mod test {
     use crate::ext4::inode::Inode;
     use crate::ext4::superblock::Superblock;
     use crate::ext4::units::{BlockCount, FileBlockNumber, FsBlockNumber, InodeNumber};
-    use itertools::Itertools;
 
     const SUPERBLOCK: &[u8] = include_bytes!("test_data/superblock");
     const ROOT_INODE: &[u8] = include_bytes!("test_data/root_inode");
@@ -313,12 +298,12 @@ mod test {
         match ExtentTree::from_inode(&inode) {
             ExtentTree::Branch(_) => panic!("Expected ExtentTree::Leaf"),
             ExtentTree::Leaf(leaf) => {
-                let extents = leaf.iter_extents().collect_vec();
-                assert_eq!(extents.len(), 1);
-                assert!(extents[0].initialized());
-                assert_eq!(extents[0].first_file_block_number(), FileBlockNumber(0));
-                assert_eq!(extents[0].length(), BlockCount(1));
-                assert_eq!(extents[0].first_fs_block_number(), FsBlockNumber(15));
+                assert_eq!(leaf.extent_count(), 1);
+                let extent = leaf.extent_at(0).unwrap();
+                assert!(extent.initialized());
+                assert_eq!(extent.first_file_block_number(), FileBlockNumber(0));
+                assert_eq!(extent.length(), BlockCount(1));
+                assert_eq!(extent.first_fs_block_number(), FsBlockNumber(15));
             }
         }
     }
