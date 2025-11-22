@@ -34,4 +34,8 @@ impl<S: AsRef<[u8]>> Extent<S> {
             u32::from(self.0.first_fs_block_number_high().read()),
         ))
     }
+
+    pub fn into_owned(self) -> Extent<Vec<u8>> {
+        Extent::new(self.0.into_storage().as_ref().to_owned())
+    }
 }
