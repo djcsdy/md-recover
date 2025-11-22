@@ -9,7 +9,8 @@ pub struct Ext4File<D: BlockDevice> {
     fs: Ext4Fs<D>,
     inode: Inode,
     read_stack: Vec<ReadStackEntry>,
-    pos: FileBlockNumber,
+    block_pos: FileBlockNumber,
+    byte_pos: u64,
 }
 
 enum ReadStackEntry {
@@ -31,20 +32,27 @@ impl<D: BlockDevice> Ext4File<D> {
             fs,
             inode,
             read_stack: vec![ReadStackEntry::Tree { tree, pos: 0 }],
-            pos: FileBlockNumber(0),
+            block_pos: FileBlockNumber(0),
+            byte_pos: 0,
         }
     }
 
     pub fn read_next_block(&mut self) -> io::Result<Option<Vec<u8>>> {
         loop {
             match self.read_stack.pop() {
-                None => return Ok(None),
+                None => {
+                    return if self.byte_pos == self.inode.file_size_bytes() {
+                        Ok(None)
+                    } else {
+                        Err(io::Error::from(io::ErrorKind::UnexpectedEof))
+                    }
+                }
                 Some(ReadStackEntry::Tree { tree, pos }) => {
                     if pos < tree.entry_count() {
                         match tree {
                             ExtentTree::Branch(branch) => {
                                 let index = branch.subtree_index_at(pos).unwrap();
-                                if index.block() != self.pos {
+                                if index.block() != self.block_pos {
                                     return Err(io::Error::from(io::ErrorKind::InvalidData));
                                 }
                                 let subtree_block = self.fs.read_block(index.leaf())?;
@@ -60,7 +68,7 @@ impl<D: BlockDevice> Ext4File<D> {
                             }
                             ExtentTree::Leaf(leaf) => {
                                 let extent = leaf.extent_at(pos).unwrap().into_owned();
-                                if extent.first_file_block_number() != self.pos {
+                                if extent.first_file_block_number() != self.block_pos {
                                     return Err(io::Error::from(io::ErrorKind::InvalidData));
                                 }
                                 self.read_stack.push(ReadStackEntry::Tree {
@@ -77,12 +85,27 @@ impl<D: BlockDevice> Ext4File<D> {
                 }
                 Some(ReadStackEntry::Extent { extent, pos }) => {
                     if pos < extent.length() {
-                        let block = self.fs.read_block(extent.first_fs_block_number() + pos)?;
+                        if self.byte_pos >= self.inode.file_size_bytes() {
+                            return Err(io::Error::from(io::ErrorKind::InvalidData));
+                        }
+
+                        let mut block = self.fs.read_block(extent.first_fs_block_number() + pos)?;
+                        block.truncate(
+                            block.len().clamp(
+                                0,
+                                usize::try_from(self.inode.file_size_bytes() - self.byte_pos)
+                                    .unwrap_or(usize::MAX),
+                            ),
+                        );
+
                         self.read_stack.push(ReadStackEntry::Extent {
                             extent,
                             pos: pos + BlockCount(1),
                         });
-                        self.pos += BlockCount(1);
+
+                        self.byte_pos += u64::try_from(block.len()).unwrap();
+                        self.block_pos += BlockCount(1);
+
                         return Ok(Some(block));
                     }
                 }
