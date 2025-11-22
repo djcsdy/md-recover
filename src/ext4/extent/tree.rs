@@ -9,6 +9,7 @@ use binary_layout::{binary_layout, Field};
 use crc::Crc;
 use std::iter::FusedIterator;
 
+#[derive(PartialEq, Clone, Hash)]
 pub enum ExtentTree<S: AsRef<[u8]>> {
     Branch(ExtentBranch<S>),
     Leaf(ExtentLeaf<S>),
@@ -41,6 +42,7 @@ impl<S: AsRef<[u8]>> ExtentTree<S> {
     }
 }
 
+#[derive(PartialEq, Clone, Hash)]
 pub struct ExtentBranch<S: AsRef<[u8]>>(ExtentTreeInternal<S>);
 
 impl<S: AsRef<[u8]>> ExtentBranch<S> {
@@ -72,6 +74,7 @@ impl<S: AsRef<[u8]>> ExtentBranch<S> {
     }
 }
 
+#[derive(PartialEq, Clone, Hash)]
 pub struct ExtentBranchIter<'branch, S: AsRef<[u8]>> {
     branch: &'branch ExtentBranch<S>,
     pos: usize,
@@ -96,6 +99,7 @@ impl<'branch, S: AsRef<[u8]>> Iterator for ExtentBranchIter<'branch, S> {
 
 impl<'branch, S: AsRef<[u8]>> FusedIterator for ExtentBranchIter<'branch, S> {}
 
+#[derive(PartialEq, Clone, Hash)]
 pub struct ExtentLeaf<S: AsRef<[u8]>>(ExtentTreeInternal<S>);
 
 impl<S: AsRef<[u8]>> ExtentLeaf<S> {
@@ -124,6 +128,7 @@ impl<S: AsRef<[u8]>> ExtentLeaf<S> {
     }
 }
 
+#[derive(PartialEq, Clone, Hash)]
 pub struct ExtentLeafIter<'leaf, S: AsRef<[u8]>> {
     leaf: &'leaf ExtentLeaf<S>,
     pos: usize,
@@ -153,6 +158,7 @@ binary_layout!(layout, LittleEndian, {
     entries_and_tail: [u8]
 });
 
+#[derive(PartialEq, Clone, Hash)]
 struct ExtentTreeInternal<S: AsRef<[u8]>> {
     storage: S,
     checksum_seed: Option<u32>,
