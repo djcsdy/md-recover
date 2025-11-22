@@ -40,6 +40,13 @@ impl<S: AsRef<[u8]>> ExtentTree<S> {
             ExtentTree::Leaf(leaf) => leaf.valid(),
         }
     }
+
+    pub fn to_owned(&self) -> ExtentTree<Vec<u8>> {
+        match self {
+            ExtentTree::Branch(branch) => ExtentTree::Branch(branch.to_owned()),
+            ExtentTree::Leaf(leaf) => ExtentTree::Leaf(leaf.to_owned()),
+        }
+    }
 }
 
 #[derive(PartialEq, Clone, Hash)]
@@ -71,6 +78,10 @@ impl<S: AsRef<[u8]>> ExtentBranch<S> {
 
     pub fn generation(&self) -> u32 {
         self.0.generation()
+    }
+
+    pub fn to_owned(&self) -> ExtentBranch<Vec<u8>> {
+        ExtentBranch(self.0.to_owned())
     }
 }
 
@@ -125,6 +136,10 @@ impl<S: AsRef<[u8]>> ExtentLeaf<S> {
 
     pub fn generation(&self) -> u32 {
         self.0.generation()
+    }
+
+    pub fn to_owned(&self) -> ExtentLeaf<Vec<u8>> {
+        ExtentLeaf(self.0.to_owned())
     }
 }
 
@@ -241,6 +256,13 @@ impl<S: AsRef<[u8]>> ExtentTreeInternal<S> {
 
     pub fn entries_storage(&self) -> &[u8] {
         &self.view().into_entries_and_tail().into_slice()[..self.entries_size()]
+    }
+
+    pub fn to_owned(&self) -> ExtentTreeInternal<Vec<u8>> {
+        ExtentTreeInternal {
+            storage: self.storage.as_ref().to_owned(),
+            checksum_seed: self.checksum_seed,
+        }
     }
 
     fn view(&self) -> layout::View<&[u8]> {
