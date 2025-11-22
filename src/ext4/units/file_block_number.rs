@@ -3,6 +3,7 @@ use binary_layout::LayoutAs;
 use derive_more::{Deref, DerefMut, Display, From, Into};
 use std::cmp::Ordering;
 use std::convert::Infallible;
+use std::ops::{Add, AddAssign};
 
 #[derive(
     Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug, From, Into, Display, Deref, DerefMut,
@@ -32,5 +33,19 @@ impl PartialEq<BlockCount<u32>> for FileBlockNumber {
 impl PartialOrd<BlockCount<u32>> for FileBlockNumber {
     fn partial_cmp(&self, other: &BlockCount<u32>) -> Option<Ordering> {
         self.0.partial_cmp(&other.0)
+    }
+}
+
+impl Add<BlockCount<u32>> for FileBlockNumber {
+    type Output = FileBlockNumber;
+
+    fn add(self, rhs: BlockCount<u32>) -> Self::Output {
+        Self(self.0 + rhs.0)
+    }
+}
+
+impl AddAssign<BlockCount<u32>> for FileBlockNumber {
+    fn add_assign(&mut self, rhs: BlockCount<u32>) {
+        self.0 += rhs.0;
     }
 }
