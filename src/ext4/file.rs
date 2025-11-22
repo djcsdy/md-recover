@@ -1,11 +1,39 @@
 use crate::block_device::BlockDevice;
 use crate::ext4::extent::{Extent, ExtentTree};
 use crate::ext4::fs::Ext4Fs;
-use crate::ext4::inode::Inode;
+use crate::ext4::inode::{FileType, Inode};
 use crate::ext4::units::{BlockCount, FileBlockNumber};
 use std::io;
 
-pub struct Ext4File<D: BlockDevice> {
+pub enum Ext4File<D: BlockDevice> {
+    Directory(Ext4Directory<D>),
+    RegularFile(Ext4RegularFile<D>),
+    Unsupported(FileType),
+}
+
+impl<D: BlockDevice> Ext4File<D> {
+    pub(super) fn new(fs: Ext4Fs<D>, inode: Inode) -> Option<Self> {
+        let file_type = inode.file_type();
+        let internal = Ext4FileInternal::new(fs, inode)?;
+        Some(match file_type {
+            FileType::RegularFile => Self::RegularFile(Ext4RegularFile(internal)),
+            FileType::Directory => Self::Directory(Ext4Directory(internal)),
+            file_type => Self::Unsupported(file_type),
+        })
+    }
+}
+
+pub struct Ext4Directory<D: BlockDevice>(Ext4FileInternal<D>);
+
+pub struct Ext4RegularFile<D: BlockDevice>(Ext4FileInternal<D>);
+
+impl<D: BlockDevice> Ext4RegularFile<D> {
+    pub fn read_next_block(&mut self) -> io::Result<Option<Vec<u8>>> {
+        self.0.read_next_block()
+    }
+}
+
+struct Ext4FileInternal<D: BlockDevice> {
     fs: Ext4Fs<D>,
     inode: Inode,
     read_stack: Vec<ReadStackEntry>,
@@ -24,7 +52,7 @@ enum ReadStackEntry {
     },
 }
 
-impl<D: BlockDevice> Ext4File<D> {
+impl<D: BlockDevice> Ext4FileInternal<D> {
     pub(super) fn new(fs: Ext4Fs<D>, inode: Inode) -> Option<Self> {
         let tree = ExtentTree::from_inode(&inode)?.to_owned();
 
@@ -118,14 +146,18 @@ impl<D: BlockDevice> Ext4File<D> {
 mod test {
     use crate::ext4::fs::test::ext4_100mb_empty_device;
     use crate::ext4::units::InodeNumber;
-    use crate::ext4::Ext4Fs;
+    use crate::ext4::{Ext4File, Ext4Fs};
 
     #[test]
-    fn open_root_file() -> anyhow::Result<()> {
+    fn root_directory_read_raw_blocks() -> anyhow::Result<()> {
         let mut fs = Ext4Fs::open(ext4_100mb_empty_device()?)?;
-        let mut file = fs.open_file(InodeNumber(2))?;
+        let file = fs.open_file(InodeNumber(2))?;
+        let Ext4File::Directory(directory) = file else {
+            panic!("Expected Ext4File::Directory")
+        };
+        let mut internal = directory.0;
         assert_eq!(
-            file.read_next_block()?,
+            internal.read_next_block()?,
             Some(vec![
                 2, 0, 0, 0, 12, 0, 1, 2, 46, 0, 0, 0, 2, 0, 0, 0, 12, 0, 2, 2, 46, 46, 0, 0, 11, 0,
                 0, 0, 220, 15, 10, 2, 108, 111, 115, 116, 43, 102, 111, 117, 110, 100, 0, 0, 0, 0,
@@ -276,7 +308,7 @@ mod test {
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 222, 120, 55, 56, 255
             ])
         );
-        assert_eq!(file.read_next_block()?, None);
+        assert_eq!(internal.read_next_block()?, None);
         Ok(())
     }
 }
