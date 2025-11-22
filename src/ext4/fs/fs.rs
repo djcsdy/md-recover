@@ -1,6 +1,7 @@
 use crate::block_device::BlockDevice;
 use crate::ext::LongMul;
 use crate::ext4::block_group::BlockGroupDescriptor;
+use crate::ext4::fs::file::Ext4File;
 use crate::ext4::inode::Inode;
 use crate::ext4::superblock::{CreatorOs, IncompatibleFeatures, Superblock};
 use crate::ext4::units::{FsBlockNumber, InodeCount, InodeNumber};
@@ -102,5 +103,12 @@ impl<D: BlockDevice> Ext4Fs<D> {
         let mut buf = vec![0; usize::try_from(self.superblock.block_size_bytes()).unwrap()];
         self.device.read_exact(&mut buf)?;
         Ok(buf)
+    }
+
+    fn open_file(&mut self, inode_number: InodeNumber) -> Result<Ext4File<D>> {
+        Ok(Ext4File::new(
+            self.try_clone()?,
+            self.read_inode(inode_number)?,
+        ))
     }
 }

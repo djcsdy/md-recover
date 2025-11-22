@@ -1,3 +1,4 @@
+mod file;
 mod fs;
 #[cfg(test)]
 mod test;
