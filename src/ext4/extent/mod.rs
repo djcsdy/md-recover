@@ -5,4 +5,7 @@ mod tail;
 mod tree;
 
 #[allow(unused_imports)]
-pub use tree::ExtentTree;
+pub use self::{
+    tree::ExtentBranch, tree::ExtentBranchIter, tree::ExtentLeaf, tree::ExtentLeafIter,
+    tree::ExtentTree,
+};
