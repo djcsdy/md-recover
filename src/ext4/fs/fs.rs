@@ -3,7 +3,7 @@ use crate::ext::LongMul;
 use crate::ext4::block_group::BlockGroupDescriptor;
 use crate::ext4::inode::Inode;
 use crate::ext4::superblock::{CreatorOs, IncompatibleFeatures, Superblock};
-use crate::ext4::units::{InodeCount, InodeNumber};
+use crate::ext4::units::{FsBlockNumber, InodeCount, InodeNumber};
 use bitflags::Flags;
 use std::io::{Error, ErrorKind, Result, SeekFrom};
 use std::rc::Rc;
@@ -92,5 +92,14 @@ impl<D: BlockDevice> Ext4Fs<D> {
         let mut buffer = vec![0; usize::from(self.superblock.inode_size())];
         self.device.read_exact(&mut buffer)?;
         Ok(Inode::new(&self.superblock, inode_number, buffer))
+    }
+
+    pub(super) fn read_block(&mut self, block_number: FsBlockNumber) -> Result<Vec<u8>> {
+        self.device.seek(SeekFrom::Start(
+            *block_number * self.superblock.block_size_bytes(),
+        ))?;
+        let mut buf = vec![0; usize::try_from(self.superblock.block_size_bytes()).unwrap()];
+        self.device.read_exact(&mut buf)?;
+        Ok(buf)
     }
 }
