@@ -41,6 +41,13 @@ impl<S: AsRef<[u8]>> ExtentTree<S> {
         }
     }
 
+    pub fn entry_count(&self) -> usize {
+        match self {
+            ExtentTree::Branch(branch) => branch.subtree_count(),
+            ExtentTree::Leaf(leaf) => leaf.extent_count(),
+        }
+    }
+
     pub fn to_owned(&self) -> ExtentTree<Vec<u8>> {
         match self {
             ExtentTree::Branch(branch) => ExtentTree::Branch(branch.to_owned()),
