@@ -4,6 +4,7 @@ use crate::ext4::extent::header::NestedExtentHeader;
 use crate::ext4::extent::index::ExtentIndex;
 use crate::ext4::extent::{extent, tail};
 use crate::ext4::extent::{header, index};
+use crate::ext4::inode;
 use crate::ext4::inode::Inode;
 use binary_layout::{binary_layout, Field};
 use crc::Crc;
@@ -16,8 +17,14 @@ pub enum ExtentTree<S: AsRef<[u8]>> {
 }
 
 impl<'inode> ExtentTree<&'inode [u8]> {
-    pub fn from_inode(inode: &'inode Inode) -> Self {
-        Self::from_internal(ExtentTreeInternal::from_inode(inode))
+    pub fn from_inode(inode: &'inode Inode) -> Option<Self> {
+        if inode.flags().contains(inode::Flags::HAS_EXTENTS)
+            && !inode.flags().contains(inode::Flags::HAS_INLINE_DATA)
+        {
+            Some(Self::from_internal(ExtentTreeInternal::from_inode(inode)))
+        } else {
+            None
+        }
     }
 }
 
@@ -287,7 +294,7 @@ mod test {
     fn root_fields() {
         let superblock = Superblock::new(SUPERBLOCK);
         let inode = Inode::new(&superblock, InodeNumber(2), ROOT_INODE);
-        let tree = ExtentTree::from_inode(&inode);
+        let tree = ExtentTree::from_inode(&inode).unwrap();
         assert!(tree.valid());
         match tree {
             ExtentTree::Branch(_) => panic!("Expected ExtentTree::Leaf"),
@@ -302,7 +309,7 @@ mod test {
     pub fn root_iter() {
         let superblock = Superblock::new(SUPERBLOCK);
         let inode = Inode::new(&superblock, InodeNumber(2), ROOT_INODE);
-        match ExtentTree::from_inode(&inode) {
+        match ExtentTree::from_inode(&inode).unwrap() {
             ExtentTree::Branch(_) => panic!("Expected ExtentTree::Leaf"),
             ExtentTree::Leaf(leaf) => {
                 assert_eq!(leaf.extent_count(), 1);

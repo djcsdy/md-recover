@@ -25,16 +25,16 @@ enum ReadStackEntry {
 }
 
 impl<D: BlockDevice> Ext4File<D> {
-    pub(super) fn new(fs: Ext4Fs<D>, inode: Inode) -> Self {
-        let tree = ExtentTree::from_inode(&inode).to_owned();
+    pub(super) fn new(fs: Ext4Fs<D>, inode: Inode) -> Option<Self> {
+        let tree = ExtentTree::from_inode(&inode)?.to_owned();
 
-        Self {
+        Some(Self {
             fs,
             inode,
             read_stack: vec![ReadStackEntry::Tree { tree, pos: 0 }],
             block_pos: FileBlockNumber(0),
             byte_pos: 0,
-        }
+        })
     }
 
     pub fn read_next_block(&mut self) -> io::Result<Option<Vec<u8>>> {
