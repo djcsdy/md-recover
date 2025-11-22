@@ -8,6 +8,7 @@ use bitflags::Flags;
 use std::io::{Error, ErrorKind, Result, SeekFrom};
 use std::rc::Rc;
 
+#[derive(Clone)]
 pub struct Ext4Fs<D: BlockDevice> {
     device: D,
     pub(super) superblock: Rc<Superblock<Vec<u8>>>,
