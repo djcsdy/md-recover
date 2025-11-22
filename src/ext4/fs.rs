@@ -1,7 +1,7 @@
 use crate::block_device::BlockDevice;
 use crate::ext::LongMul;
 use crate::ext4::block_group::BlockGroupDescriptor;
-use crate::ext4::fs::file::Ext4File;
+use crate::ext4::file::Ext4File;
 use crate::ext4::inode::Inode;
 use crate::ext4::superblock::{CreatorOs, IncompatibleFeatures, Superblock};
 use crate::ext4::units::{FsBlockNumber, InodeCount, InodeNumber};
@@ -129,21 +129,21 @@ mod test {
     use std::io;
 
     fn zero_32mb_device() -> io::Result<InMemoryBlockDevice> {
-        static GZIPPED: &[u8] = include_bytes!("../test_data/zero-32MB.gz");
+        static GZIPPED: &[u8] = include_bytes!("test_data/zero-32MB.gz");
         Ok(InMemoryBlockDevice::new(
             GzDecoder::new(GZIPPED).read_all()?,
         ))
     }
 
     fn random_2mb_zero_30mb_device() -> io::Result<InMemoryBlockDevice> {
-        static GZIPPED: &[u8] = include_bytes!("../test_data/random-2MB-zero-30MB.gz");
+        static GZIPPED: &[u8] = include_bytes!("test_data/random-2MB-zero-30MB.gz");
         Ok(InMemoryBlockDevice::new(
             GzDecoder::new(GZIPPED).read_all()?,
         ))
     }
 
     fn ext4_100mb_empty_device() -> io::Result<InMemoryBlockDevice> {
-        static GZIPPED: &[u8] = include_bytes!("../test_data/ext4-100MB-empty.gz");
+        static GZIPPED: &[u8] = include_bytes!("test_data/ext4-100MB-empty.gz");
         Ok(InMemoryBlockDevice::new(
             GzDecoder::new(GZIPPED).read_all()?,
         ))
