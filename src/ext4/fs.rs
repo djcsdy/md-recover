@@ -57,6 +57,10 @@ impl<D: BlockDevice> Ext4Fs<D> {
         })
     }
 
+    pub fn block_size(&self) -> usize {
+        usize::try_from(self.superblock.block_size_bytes()).unwrap()
+    }
+
     pub fn read_root_inode(&mut self) -> Result<Inode> {
         self.read_inode(InodeNumber(2))
     }
@@ -100,7 +104,7 @@ impl<D: BlockDevice> Ext4Fs<D> {
         self.device.seek(SeekFrom::Start(
             *block_number * self.superblock.block_size_bytes(),
         ))?;
-        let mut buf = vec![0; usize::try_from(self.superblock.block_size_bytes()).unwrap()];
+        let mut buf = vec![0; self.block_size()];
         self.device.read_exact(&mut buf)?;
         Ok(buf)
     }
