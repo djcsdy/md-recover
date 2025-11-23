@@ -100,13 +100,16 @@ impl<D: BlockDevice> Ext4Fs<D> {
         Ok(Inode::new(&self.superblock, inode_number, buffer))
     }
 
-    pub(super) fn read_block(&mut self, block_number: FsBlockNumber) -> Result<Vec<u8>> {
-        self.device.seek(SeekFrom::Start(
-            *block_number * self.superblock.block_size_bytes(),
-        ))?;
-        let mut buf = vec![0; self.block_size()];
-        self.device.read_exact(&mut buf)?;
-        Ok(buf)
+    pub(super) fn read_block(&mut self, block_number: FsBlockNumber, buf: &mut [u8]) -> Result<()> {
+        if buf.len() < self.block_size() {
+            Err(Error::from(ErrorKind::InvalidInput))
+        } else {
+            self.device.seek(SeekFrom::Start(
+                *block_number * self.superblock.block_size_bytes(),
+            ))?;
+            self.device.read_exact(buf)?;
+            Ok(())
+        }
     }
 
     pub fn open_file(&mut self, inode_number: InodeNumber) -> Result<Ext4File<D>> {

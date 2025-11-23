@@ -28,8 +28,8 @@ pub struct Ext4Directory<D: BlockDevice>(Ext4FileInternal<D>);
 pub struct Ext4RegularFile<D: BlockDevice>(Ext4FileInternal<D>);
 
 impl<D: BlockDevice> Ext4RegularFile<D> {
-    pub fn read_next_block(&mut self) -> io::Result<Option<Vec<u8>>> {
-        self.0.read_next_block()
+    pub fn read_next_block(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        self.0.read_next_block(buf)
     }
 }
 
@@ -65,12 +65,20 @@ impl<D: BlockDevice> Ext4FileInternal<D> {
         })
     }
 
-    pub fn read_next_block(&mut self) -> io::Result<Option<Vec<u8>>> {
+    pub fn block_size(&mut self) -> usize {
+        self.fs.block_size()
+    }
+
+    pub fn read_next_block(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        if buf.len() < self.fs.block_size() {
+            return Err(io::Error::from(io::ErrorKind::InvalidInput));
+        }
+
         loop {
             match self.read_stack.pop() {
                 None => {
                     return if self.byte_pos == self.inode.file_size_bytes() {
-                        Ok(None)
+                        Ok(0)
                     } else {
                         Err(io::Error::from(io::ErrorKind::UnexpectedEof))
                     }
@@ -83,7 +91,8 @@ impl<D: BlockDevice> Ext4FileInternal<D> {
                                 if index.block() != self.block_pos {
                                     return Err(io::Error::from(io::ErrorKind::InvalidData));
                                 }
-                                let subtree_block = self.fs.read_block(index.leaf())?;
+                                let mut subtree_block = vec![0; self.fs.block_size()];
+                                self.fs.read_block(index.leaf(), &mut subtree_block)?;
                                 let subtree = ExtentTree::from_block(&self.inode, subtree_block);
                                 self.read_stack.push(ReadStackEntry::Tree {
                                     tree: ExtentTree::Branch(branch),
@@ -117,24 +126,22 @@ impl<D: BlockDevice> Ext4FileInternal<D> {
                             return Err(io::Error::from(io::ErrorKind::InvalidData));
                         }
 
-                        let mut block = self.fs.read_block(extent.first_fs_block_number() + pos)?;
-                        block.truncate(
-                            block.len().clamp(
-                                0,
-                                usize::try_from(self.inode.file_size_bytes() - self.byte_pos)
-                                    .unwrap_or(usize::MAX),
-                            ),
-                        );
+                        self.fs
+                            .read_block(extent.first_fs_block_number() + pos, buf)?;
+                        let bytes_read =
+                            usize::try_from(self.inode.file_size_bytes() - self.byte_pos)
+                                .unwrap_or(usize::MAX)
+                                .clamp(0, self.fs.block_size());
 
                         self.read_stack.push(ReadStackEntry::Extent {
                             extent,
                             pos: pos + BlockCount(1),
                         });
 
-                        self.byte_pos += u64::try_from(block.len()).unwrap();
+                        self.byte_pos += u64::try_from(bytes_read).unwrap();
                         self.block_pos += BlockCount(1);
 
-                        return Ok(Some(block));
+                        return Ok(bytes_read);
                     }
                 }
             }
@@ -156,9 +163,11 @@ mod test {
             panic!("Expected Ext4File::Directory")
         };
         let mut internal = directory.0;
+        let mut buf = vec![0; fs.block_size()];
+        assert_eq!(internal.read_next_block(&mut buf)?, fs.block_size());
         assert_eq!(
-            internal.read_next_block()?,
-            Some(vec![
+            buf,
+            vec![
                 2, 0, 0, 0, 12, 0, 1, 2, 46, 0, 0, 0, 2, 0, 0, 0, 12, 0, 2, 2, 46, 46, 0, 0, 11, 0,
                 0, 0, 220, 15, 10, 2, 108, 111, 115, 116, 43, 102, 111, 117, 110, 100, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -306,9 +315,9 @@ mod test {
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 222, 120, 55, 56, 255
-            ])
+            ]
         );
-        assert_eq!(internal.read_next_block()?, None);
+        assert_eq!(internal.read_next_block(&mut buf)?, 0);
         Ok(())
     }
 }
