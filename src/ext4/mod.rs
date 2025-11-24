@@ -1,6 +1,6 @@
 mod block_group;
 mod crc;
-mod dir_entry;
+mod directory;
 mod extent;
 mod file;
 mod fs;
