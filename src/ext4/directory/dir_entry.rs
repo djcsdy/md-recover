@@ -10,4 +10,4 @@ binary_layout!(layout, LittleEndian, {
     name: [u8; NAME_LENGTH]
 });
 
-pub struct DirEntry2<S: AsRef<[u8]>>(layout::View<S>);
+pub struct DirEntry<S: AsRef<[u8]>>(layout::View<S>);
