@@ -60,6 +60,10 @@ impl<D: BlockDevice> Ext4FileInternal<D> {
         self.fs.block_size()
     }
 
+    pub fn file_size_bytes(&self) -> u64 {
+        self.inode.file_size_bytes()
+    }
+
     pub fn read_next_block(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         if buf.len() < self.fs.block_size() {
             return Err(io::Error::from(io::ErrorKind::InvalidInput));
@@ -68,7 +72,7 @@ impl<D: BlockDevice> Ext4FileInternal<D> {
         loop {
             match self.read_stack.pop() {
                 None => {
-                    return if self.byte_pos == self.inode.file_size_bytes() {
+                    return if self.byte_pos == self.file_size_bytes() {
                         Ok(0)
                     } else {
                         Err(io::Error::from(io::ErrorKind::UnexpectedEof))
@@ -113,16 +117,15 @@ impl<D: BlockDevice> Ext4FileInternal<D> {
                 }
                 Some(ReadStackEntry::Extent { extent, pos }) => {
                     if pos < extent.length() {
-                        if self.byte_pos >= self.inode.file_size_bytes() {
+                        if self.byte_pos >= self.file_size_bytes() {
                             return Err(io::Error::from(io::ErrorKind::InvalidData));
                         }
 
                         self.fs
                             .read_block(extent.first_fs_block_number() + pos, buf)?;
-                        let bytes_read =
-                            usize::try_from(self.inode.file_size_bytes() - self.byte_pos)
-                                .unwrap_or(usize::MAX)
-                                .clamp(0, self.fs.block_size());
+                        let bytes_read = usize::try_from(self.file_size_bytes() - self.byte_pos)
+                            .unwrap_or(usize::MAX)
+                            .clamp(0, self.fs.block_size());
 
                         self.read_stack.push(ReadStackEntry::Extent {
                             extent,
