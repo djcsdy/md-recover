@@ -11,6 +11,10 @@ impl<D: BlockDevice> Ext4RegularFile<D> {
         Some(Self(Ext4FileInternal::from_inode(fs, inode)?))
     }
 
+    pub fn file_size_bytes(&self) -> u64 {
+        self.0.file_size_bytes()
+    }
+
     pub fn read_next_block(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         self.0.read_next_block(buf)
     }
