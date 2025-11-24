@@ -1,7 +1,9 @@
 use crate::block_device::BlockDevice;
+use crate::ext4::directory::leaf_block::Ext4DirectoryLeafBlock;
 use crate::ext4::file::Ext4FileInternal;
 use crate::ext4::inode::Inode;
 use crate::ext4::{inode, Ext4Fs};
+use std::io;
 
 pub struct Ext4Directory<D: BlockDevice>(Ext4FileInternal<D>);
 
@@ -11,6 +13,18 @@ impl<D: BlockDevice> Ext4Directory<D> {
             None
         } else {
             Some(Self(Ext4FileInternal::from_inode(fs, inode)?))
+        }
+    }
+
+    fn read_next_leaf_block(&mut self) -> io::Result<Option<Ext4DirectoryLeafBlock<Vec<u8>>>> {
+        let mut storage = vec![0; self.0.block_size()];
+        let bytes_read = self.0.read_next_block(&mut storage)?;
+        if bytes_read == 0 {
+            Ok(None)
+        } else if bytes_read == self.0.block_size() {
+            Ok(Some(Ext4DirectoryLeafBlock::new(storage)))
+        } else {
+            Err(io::Error::from(io::ErrorKind::InvalidData))
         }
     }
 }
