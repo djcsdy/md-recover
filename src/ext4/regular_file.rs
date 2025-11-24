@@ -1,0 +1,17 @@
+use crate::block_device::BlockDevice;
+use crate::ext4::file::Ext4FileInternal;
+use crate::ext4::inode::Inode;
+use crate::ext4::Ext4Fs;
+use std::io;
+
+pub struct Ext4RegularFile<D: BlockDevice>(Ext4FileInternal<D>);
+
+impl<D: BlockDevice> Ext4RegularFile<D> {
+    pub(in crate::ext4) fn from_inode(fs: Ext4Fs<D>, inode: Inode) -> Option<Self> {
+        Some(Self(Ext4FileInternal::from_inode(fs, inode)?))
+    }
+
+    pub fn read_next_block(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        self.0.read_next_block(buf)
+    }
+}
