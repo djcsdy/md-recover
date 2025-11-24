@@ -141,4 +141,8 @@ impl<D: BlockDevice> Ext4FileInternal<D> {
             }
         }
     }
+
+    pub(in crate::ext4) fn metadata_checksum_seed(&self) -> Option<u32> {
+        self.inode.metadata_checksum_seed()
+    }
 }
