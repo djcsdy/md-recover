@@ -1,13 +1,17 @@
 use crate::block_device::BlockDevice;
 use crate::ext4::file::Ext4FileInternal;
 use crate::ext4::inode::Inode;
-use crate::ext4::Ext4Fs;
+use crate::ext4::{inode, Ext4Fs};
 
 pub struct Ext4Directory<D: BlockDevice>(Ext4FileInternal<D>);
 
 impl<D: BlockDevice> Ext4Directory<D> {
     pub(in crate::ext4) fn from_inode(fs: Ext4Fs<D>, inode: Inode) -> Option<Self> {
-        Some(Self(Ext4FileInternal::from_inode(fs, inode)?))
+        if inode.flags().contains(inode::Flags::HASH_INDEXED_DIRECTORY) {
+            None
+        } else {
+            Some(Self(Ext4FileInternal::from_inode(fs, inode)?))
+        }
     }
 }
 
