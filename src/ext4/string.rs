@@ -51,6 +51,12 @@ impl<'s> From<&'s String> for Ext4String<&'s [u8]> {
     }
 }
 
+impl<'s> From<&'s str> for Ext4String<&'s [u8]> {
+    fn from(value: &'s str) -> Self {
+        Self(value.as_bytes())
+    }
+}
+
 impl<S: AsRef<[u8]>> PartialEq<Self> for Ext4String<S> {
     fn eq(&self, other: &Self) -> bool {
         self.0.as_ref() == other.0.as_ref()
