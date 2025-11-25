@@ -7,5 +7,3 @@ binary_layout!(layout, LittleEndian, {
     reserved_file_type: u8,
     checksum: u32
 });
-
-pub struct DirEntryTail<S: AsRef<[u8]>>(layout::View<S>);

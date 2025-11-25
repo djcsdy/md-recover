@@ -22,7 +22,14 @@ impl<D: BlockDevice> Ext4Directory<D> {
         if bytes_read == 0 {
             Ok(None)
         } else if bytes_read == self.0.block_size() {
-            Ok(Some(Ext4DirectoryLeafBlock::new(storage)))
+            if let Some(leaf) = Ext4DirectoryLeafBlock::from_block_and_checksum_seed(
+                storage,
+                self.0.metadata_checksum_seed(),
+            ) {
+                Ok(Some(leaf))
+            } else {
+                Err(io::Error::from(io::ErrorKind::InvalidData))
+            }
         } else {
             Err(io::Error::from(io::ErrorKind::InvalidData))
         }
