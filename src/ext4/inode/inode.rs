@@ -1,5 +1,5 @@
 use crate::ext::WideUnsigned;
-use crate::ext4::crc::EXT4_CRC32C;
+use crate::ext4::crc::ext4_crc32c;
 use crate::ext4::inode::flags::Flags;
 use crate::ext4::inode::linux_1::NestedLinuxSpecific1;
 use crate::ext4::inode::linux_2::NestedLinuxSpecific2;
@@ -74,13 +74,10 @@ impl Inode {
             .read_only_compatible_features()
             .contains(ReadOnlyCompatibleFeatures::METADATA_CHECKSUMS)
         {
-            let mut digest =
-                EXT4_CRC32C.digest_with_initial(superblock.checksum_seed().reverse_bits());
-            digest.update(&inode_number.to_le_bytes());
-            digest.update(
+            Some(ext4_crc32c(
+                ext4_crc32c(superblock.checksum_seed(), &inode_number.to_le_bytes()),
                 &buffer.as_ref()[layout::generation::OFFSET..][..layout::generation::SIZE.unwrap()],
-            );
-            Some(digest.finalize())
+            ))
         } else {
             None
         };

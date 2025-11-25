@@ -1,4 +1,4 @@
-use crate::ext4::crc::EXT4_CRC32C;
+use crate::ext4::crc::ext4_crc32c;
 use crate::ext4::extent::extent::Extent;
 use crate::ext4::extent::header::NestedExtentHeader;
 use crate::ext4::extent::index::ExtentIndex;
@@ -220,13 +220,10 @@ impl<S: AsRef<[u8]>> ExtentTreeInternal<S> {
         match self.checksum_seed {
             None => true,
             Some(checksum_seed) => {
-                let expected_checksum = {
-                    let tail_offset = layout::entries_and_tail::OFFSET + entries_size;
-
-                    let mut digest = EXT4_CRC32C.digest_with_initial(checksum_seed.reverse_bits());
-                    digest.update(&self.storage.as_ref()[..tail_offset]);
-                    digest.finalize()
-                };
+                let expected_checksum = ext4_crc32c(
+                    checksum_seed,
+                    &self.storage.as_ref()[..layout::entries_and_tail::OFFSET + entries_size],
+                );
 
                 tail::layout::View::new(&self.view().entries_and_tail()[entries_size..])
                     .checksum()

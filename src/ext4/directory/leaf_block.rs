@@ -1,4 +1,4 @@
-use crate::ext4::crc::EXT4_CRC32C;
+use crate::ext4::crc::ext4_crc32c;
 use crate::ext4::directory::dir_entry::DirEntry;
 use crate::ext4::directory::dir_entry_tail;
 
@@ -27,11 +27,7 @@ impl<S: AsRef<[u8]>> Ext4DirectoryLeafBlock<S> {
                 return None;
             }
 
-            let expected_checksum = {
-                let mut digest = EXT4_CRC32C.digest_with_initial(checksum_seed.reverse_bits());
-                digest.update(&block[..tail_offset]);
-                digest.finalize()
-            };
+            let expected_checksum = ext4_crc32c(checksum_seed, &block[..tail_offset]);
 
             if tail.checksum().read() != expected_checksum {
                 return None;

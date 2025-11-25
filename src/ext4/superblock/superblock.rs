@@ -4,7 +4,7 @@ use super::{
     IncompatibleFeatures, MountOptions, ReadOnlyCompatibleFeatures, State,
 };
 use crate::ext::{SystemTimeExt, WideUnsigned};
-use crate::ext4::crc::EXT4_CRC32C;
+use crate::ext4::crc::{ext4_crc32c, EXT4_CRC32C_INITIAL};
 use crate::ext4::string::Ext4String;
 use crate::ext4::superblock::checksum::Checksum;
 use crate::ext4::units::{BlockCount, FsBlockNumber, InodeCount};
@@ -622,9 +622,7 @@ impl<S: AsRef<[u8]>> Superblock<S> {
             .read_only_compatible_features()
             .contains(ReadOnlyCompatibleFeatures::METADATA_CHECKSUMS)
         {
-            let mut digest = EXT4_CRC32C.digest();
-            digest.update(self.view().into_uuid().as_ref());
-            digest.finalize()
+            ext4_crc32c(EXT4_CRC32C_INITIAL, self.view().into_uuid().as_ref())
         } else {
             0
         }
@@ -656,9 +654,10 @@ impl<S: AsRef<[u8]>> Superblock<S> {
     }
 
     pub fn expected_checksum(&self) -> u32 {
-        let mut digest = EXT4_CRC32C.digest();
-        digest.update(&self.0.as_ref()[0..layout::checksum::OFFSET]);
-        digest.finalize()
+        ext4_crc32c(
+            EXT4_CRC32C_INITIAL,
+            &self.0.as_ref()[0..layout::checksum::OFFSET],
+        )
     }
 }
 
