@@ -9,7 +9,6 @@ use crate::ext4::superblock::{ReadOnlyCompatibleFeatures, Superblock};
 use crate::ext4::units::{BlockCount, InodeNumber};
 use binary_layout::{binary_layout, Field};
 use chrono::{DateTime, Duration, Utc};
-use crc::Crc;
 use std::mem::size_of;
 
 const BLOCKS_SIZE: usize = size_of::<u32>() * 15;
@@ -75,8 +74,7 @@ impl Inode {
             .read_only_compatible_features()
             .contains(ReadOnlyCompatibleFeatures::METADATA_CHECKSUMS)
         {
-            let crc = Crc::<u32>::new(&EXT4_CRC32C);
-            let mut digest = crc.digest_with_initial(superblock.checksum_seed());
+            let mut digest = EXT4_CRC32C.digest_with_initial(superblock.checksum_seed());
             digest.update(&inode_number.to_le_bytes());
             digest.update(
                 &buffer.as_ref()[layout::generation::OFFSET..][..layout::generation::SIZE.unwrap()],

@@ -9,7 +9,6 @@ use crate::ext4::string::Ext4String;
 use crate::ext4::superblock::checksum::Checksum;
 use crate::ext4::units::{BlockCount, FsBlockNumber, InodeCount};
 use binary_layout::prelude::*;
-use crc::Crc;
 use itertools::Itertools;
 use std::io::{Error, ErrorKind, Read, Result};
 use std::time::{Duration, SystemTime};
@@ -623,8 +622,7 @@ impl<S: AsRef<[u8]>> Superblock<S> {
             .read_only_compatible_features()
             .contains(ReadOnlyCompatibleFeatures::METADATA_CHECKSUMS)
         {
-            let crc = Crc::<u32>::new(&EXT4_CRC32C);
-            let mut digest = crc.digest();
+            let mut digest = EXT4_CRC32C.digest();
             digest.update(self.view().into_uuid().as_ref());
             digest.finalize()
         } else {
@@ -658,8 +656,7 @@ impl<S: AsRef<[u8]>> Superblock<S> {
     }
 
     pub fn expected_checksum(&self) -> u32 {
-        let crc = Crc::<u32>::new(&EXT4_CRC32C);
-        let mut digest = crc.digest();
+        let mut digest = EXT4_CRC32C.digest();
         digest.update(&self.0.as_ref()[0..layout::checksum::OFFSET]);
         digest.finalize()
     }

@@ -7,7 +7,6 @@ use crate::ext4::extent::{header, index};
 use crate::ext4::inode;
 use crate::ext4::inode::Inode;
 use binary_layout::{binary_layout, Field};
-use crc::Crc;
 use std::iter::FusedIterator;
 
 #[derive(PartialEq, Clone, Hash)]
@@ -224,8 +223,7 @@ impl<S: AsRef<[u8]>> ExtentTreeInternal<S> {
                 let expected_checksum = {
                     let tail_offset = layout::entries_and_tail::OFFSET + entries_size;
 
-                    let crc = Crc::<u32>::new(&EXT4_CRC32C);
-                    let mut digest = crc.digest_with_initial(checksum_seed);
+                    let mut digest = EXT4_CRC32C.digest_with_initial(checksum_seed);
                     digest.update(&self.storage.as_ref()[..tail_offset]);
                     digest.finalize()
                 };
