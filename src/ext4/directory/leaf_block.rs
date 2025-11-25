@@ -1,6 +1,5 @@
 use crate::ext4::crc::EXT4_CRC32C;
 use crate::ext4::directory::dir_entry_tail;
-use binary_layout::Field;
 use crc::Crc;
 
 pub struct Ext4DirectoryLeafBlock<S: AsRef<[u8]>>(S);
@@ -14,7 +13,6 @@ impl<S: AsRef<[u8]>> Ext4DirectoryLeafBlock<S> {
             let block = block.as_ref();
             let tail_size = dir_entry_tail::layout::SIZE.unwrap();
             let tail_offset = block.len() - tail_size;
-            let checksum_offset = tail_offset + dir_entry_tail::layout::checksum::OFFSET;
 
             let tail = dir_entry_tail::layout::View::new(&block[tail_offset..]);
             if tail.reserved_zero_1().read() != 0
@@ -28,7 +26,7 @@ impl<S: AsRef<[u8]>> Ext4DirectoryLeafBlock<S> {
             let expected_checksum = {
                 let crc = Crc::<u32>::new(&EXT4_CRC32C);
                 let mut digest = crc.digest_with_initial(checksum_seed);
-                digest.update(&block[..checksum_offset]);
+                digest.update(&block[..tail_offset]);
                 digest.finalize()
             };
 
