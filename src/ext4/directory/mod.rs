@@ -1,6 +1,7 @@
 mod dir_entry;
 mod dir_entry_tail;
 mod directory;
+mod file_type;
 mod leaf_block;
 
 const NAME_LENGTH: usize = 255;
