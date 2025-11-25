@@ -23,7 +23,7 @@ impl<S: AsRef<[u8]>> Ext4DirectoryLeafBlock<S> {
             }
 
             let expected_checksum = {
-                let mut digest = EXT4_CRC32C.digest_with_initial(checksum_seed);
+                let mut digest = EXT4_CRC32C.digest_with_initial(checksum_seed.reverse_bits());
                 digest.update(&block[..tail_offset]);
                 digest.finalize()
             };

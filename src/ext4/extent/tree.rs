@@ -223,7 +223,7 @@ impl<S: AsRef<[u8]>> ExtentTreeInternal<S> {
                 let expected_checksum = {
                     let tail_offset = layout::entries_and_tail::OFFSET + entries_size;
 
-                    let mut digest = EXT4_CRC32C.digest_with_initial(checksum_seed);
+                    let mut digest = EXT4_CRC32C.digest_with_initial(checksum_seed.reverse_bits());
                     digest.update(&self.storage.as_ref()[..tail_offset]);
                     digest.finalize()
                 };

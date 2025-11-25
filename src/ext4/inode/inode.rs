@@ -74,7 +74,8 @@ impl Inode {
             .read_only_compatible_features()
             .contains(ReadOnlyCompatibleFeatures::METADATA_CHECKSUMS)
         {
-            let mut digest = EXT4_CRC32C.digest_with_initial(superblock.checksum_seed());
+            let mut digest =
+                EXT4_CRC32C.digest_with_initial(superblock.checksum_seed().reverse_bits());
             digest.update(&inode_number.to_le_bytes());
             digest.update(
                 &buffer.as_ref()[layout::generation::OFFSET..][..layout::generation::SIZE.unwrap()],
