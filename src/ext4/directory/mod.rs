@@ -4,7 +4,5 @@ mod directory;
 mod file_type;
 mod leaf_block;
 
-const NAME_LENGTH: usize = 255;
-
 #[allow(unused_imports)]
 pub use self::directory::Ext4Directory;
