@@ -13,7 +13,7 @@ bitflags = "=2.10.0"
 byteorder = "=1.5.0"
 chrono = "=0.4.42"
 clap = { version = "=4.5.53", features = ["derive"] }
-crc = "=3.3.0"
+crc = "=3.4.0"
 derive_more = { version = "=2.0.1", features = ["add", "add_assign", "deref", "deref_mut", "display", "from", "into"] }
 itertools = "=0.14.0"
 iocuddle = "=0.1.1"
