@@ -15,8 +15,7 @@ pub enum Ext4File<D: BlockDevice> {
 
 impl<D: BlockDevice> Ext4File<D> {
     pub(super) fn from_inode(fs: Ext4Fs<D>, inode: Inode) -> Option<Self> {
-        let file_type = inode.file_type();
-        Some(match file_type {
+        Some(match inode.file_type() {
             FileType::RegularFile => Self::RegularFile(Ext4RegularFile::from_inode(fs, inode)?),
             FileType::Directory => Self::Directory(Ext4Directory::from_inode(fs, inode)?),
             file_type => Self::Unsupported(file_type),
