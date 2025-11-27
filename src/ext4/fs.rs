@@ -6,7 +6,8 @@ use crate::ext4::inode::Inode;
 use crate::ext4::superblock::{CreatorOs, IncompatibleFeatures, Superblock};
 use crate::ext4::units::{FsBlockNumber, InodeCount, InodeNumber};
 use bitflags::Flags;
-use std::io::{ErrorKind, Result, SeekFrom};
+use std::io;
+use std::io::SeekFrom;
 use std::rc::Rc;
 
 #[derive(Clone)]
@@ -17,14 +18,14 @@ pub struct Ext4Fs<D: BlockDevice> {
 }
 
 impl<D: BlockDevice> Ext4Fs<D> {
-    pub fn open(mut device: D) -> Result<Self> {
+    pub fn open(mut device: D) -> io::Result<Self> {
         device.seek(SeekFrom::Start(1024))?;
         let superblock = Superblock::read(&mut device)?;
 
         let block_count = superblock.blocks_count();
         let blocks_per_group = u64::from(superblock.blocks_per_group());
         let group_count = usize::try_from(block_count.div_ceil(blocks_per_group))
-            .or(Err(ErrorKind::Unsupported))?;
+            .or(Err(io::ErrorKind::Unsupported))?;
         let group_size = usize::from(superblock.group_descriptor_size());
 
         if blocks_per_group == 0
@@ -36,7 +37,7 @@ impl<D: BlockDevice> Ext4Fs<D> {
                 .contains(IncompatibleFeatures::FILES_USE_EXTENTS)
             || superblock.incompatible_features().contains_unknown_bits()
         {
-            return Err(ErrorKind::Unsupported.into());
+            return Err(io::ErrorKind::Unsupported.into());
         }
 
         let group_descriptors_block_number = u64::from(superblock.first_data_block()) + 1;
@@ -61,11 +62,11 @@ impl<D: BlockDevice> Ext4Fs<D> {
         usize::try_from(self.superblock.block_size_bytes()).unwrap()
     }
 
-    pub fn read_root_inode(&mut self) -> Result<Inode> {
+    pub fn read_root_inode(&mut self) -> io::Result<Inode> {
         self.read_inode(InodeNumber(2))
     }
 
-    pub fn try_clone(&self) -> Result<Self> {
+    pub fn try_clone(&self) -> io::Result<Self> {
         Ok(Self {
             device: self.device.try_clone()?,
             superblock: self.superblock.clone(),
@@ -73,9 +74,9 @@ impl<D: BlockDevice> Ext4Fs<D> {
         })
     }
 
-    fn read_inode(&mut self, inode_number: InodeNumber) -> Result<Inode> {
+    fn read_inode(&mut self, inode_number: InodeNumber) -> io::Result<Inode> {
         if inode_number == InodeNumber(0) || inode_number > self.superblock.inodes_count() {
-            return Err(ErrorKind::InvalidInput.into());
+            return Err(io::ErrorKind::InvalidInput.into());
         }
 
         let group_index = (*inode_number - 1) / *self.superblock.inodes_per_group();
@@ -83,8 +84,8 @@ impl<D: BlockDevice> Ext4Fs<D> {
 
         let group = self
             .group_descriptors
-            .get(usize::try_from(group_index).or(Err(ErrorKind::InvalidInput))?)
-            .ok_or(ErrorKind::InvalidInput)?;
+            .get(usize::try_from(group_index).or(Err(io::ErrorKind::InvalidInput))?)
+            .ok_or(io::ErrorKind::InvalidInput)?;
 
         let inode_offset_within_table =
             index_in_group.long_mul(u32::from(self.superblock.inode_size()));
@@ -92,7 +93,7 @@ impl<D: BlockDevice> Ext4Fs<D> {
             .inode_table_block()
             .checked_mul(self.superblock.block_size_bytes())
             .and_then(|base| base.checked_add(inode_offset_within_table))
-            .ok_or(ErrorKind::InvalidData)?;
+            .ok_or(io::ErrorKind::InvalidData)?;
 
         self.device.seek(SeekFrom::Start(inode_byte_offset))?;
         let mut buffer = vec![0; usize::from(self.superblock.inode_size())];
@@ -100,9 +101,13 @@ impl<D: BlockDevice> Ext4Fs<D> {
         Ok(Inode::new(&self.superblock, inode_number, buffer))
     }
 
-    pub(super) fn read_block(&mut self, block_number: FsBlockNumber, buf: &mut [u8]) -> Result<()> {
+    pub(super) fn read_block(
+        &mut self,
+        block_number: FsBlockNumber,
+        buf: &mut [u8],
+    ) -> io::Result<()> {
         if buf.len() < self.block_size() {
-            Err(ErrorKind::InvalidInput.into())
+            Err(io::ErrorKind::InvalidInput.into())
         } else {
             self.device.seek(SeekFrom::Start(
                 *block_number * self.superblock.block_size_bytes(),
@@ -112,7 +117,7 @@ impl<D: BlockDevice> Ext4Fs<D> {
         }
     }
 
-    pub fn open_file(&mut self, inode_number: InodeNumber) -> Result<Ext4File<D>> {
+    pub fn open_file(&mut self, inode_number: InodeNumber) -> io::Result<Ext4File<D>> {
         Ext4File::from_inode(self.try_clone()?, self.read_inode(inode_number)?)
     }
 }

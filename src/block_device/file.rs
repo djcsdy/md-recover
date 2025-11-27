@@ -1,6 +1,7 @@
 use crate::block_device::BlockDevice;
 use std::fs::File;
-use std::io::{Read, Result, Seek, SeekFrom};
+use std::io;
+use std::io::{Read, Seek, SeekFrom};
 use std::os::unix::fs::MetadataExt;
 use std::path::Path;
 
@@ -10,7 +11,7 @@ pub struct FileBlockDevice {
 }
 
 impl FileBlockDevice {
-    pub fn open_path<P: AsRef<Path>>(path: P) -> Result<Self> {
+    pub fn open_path<P: AsRef<Path>>(path: P) -> io::Result<Self> {
         File::open(path).map(Self::from_file)
     }
 
@@ -18,7 +19,7 @@ impl FileBlockDevice {
         Self { file }
     }
 
-    pub fn try_clone(&self) -> Result<Self> {
+    pub fn try_clone(&self) -> io::Result<Self> {
         Ok(Self {
             file: self.file.try_clone()?,
         })
@@ -26,11 +27,11 @@ impl FileBlockDevice {
 }
 
 impl BlockDevice for FileBlockDevice {
-    fn size(&self) -> Result<u64> {
+    fn size(&self) -> io::Result<u64> {
         self.file.metadata().map(|metadata| metadata.size())
     }
 
-    fn try_clone(&self) -> Result<Self> {
+    fn try_clone(&self) -> io::Result<Self> {
         Ok(Self {
             file: self.file.try_clone()?,
         })
@@ -38,13 +39,13 @@ impl BlockDevice for FileBlockDevice {
 }
 
 impl Read for FileBlockDevice {
-    fn read(&mut self, buf: &mut [u8]) -> Result<usize> {
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         self.file.read(buf)
     }
 }
 
 impl Seek for FileBlockDevice {
-    fn seek(&mut self, pos: SeekFrom) -> Result<u64> {
+    fn seek(&mut self, pos: SeekFrom) -> io::Result<u64> {
         self.file.seek(pos)
     }
 }

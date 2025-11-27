@@ -1,6 +1,7 @@
-use std::io::{Read, Result, Seek};
+use std::io;
+use std::io::{Read, Seek};
 
 pub trait BlockDevice: Read + Seek + Sized {
-    fn size(&self) -> Result<u64>;
-    fn try_clone(&self) -> Result<Self>;
+    fn size(&self) -> io::Result<u64>;
+    fn try_clone(&self) -> io::Result<Self>;
 }

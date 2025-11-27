@@ -10,7 +10,8 @@ use crate::ext4::superblock::checksum::Checksum;
 use crate::ext4::units::{BlockCount, FsBlockNumber, InodeCount};
 use binary_layout::prelude::*;
 use itertools::Itertools;
-use std::io::{ErrorKind, Read, Result};
+use std::io;
+use std::io::{Read, Result};
 use std::time::{Duration, SystemTime};
 use uuid::Uuid;
 
@@ -669,7 +670,7 @@ impl Superblock<Vec<u8>> {
         if superblock.valid() {
             Ok(superblock)
         } else {
-            Err(ErrorKind::InvalidData.into())
+            Err(io::ErrorKind::InvalidData.into())
         }
     }
 }

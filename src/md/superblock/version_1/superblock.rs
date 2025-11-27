@@ -8,7 +8,8 @@ use crate::md::superblock::{ArrayUuid, MdDeviceRole, Superblock};
 use binary_layout::binary_layout;
 use byteorder::{ByteOrder, LittleEndian, ReadBytesExt};
 use std::ffi::OsStr;
-use std::io::{ErrorKind, Read};
+use std::io;
+use std::io::Read;
 use std::os::unix::ffi::OsStrExt;
 
 binary_layout!(layout, LittleEndian, {
@@ -61,7 +62,7 @@ impl SuperblockVersion1<Vec<u8>> {
         if superblock.valid() {
             Ok(superblock)
         } else {
-            Err(ErrorKind::InvalidData.into())
+            Err(io::ErrorKind::InvalidData.into())
         }
     }
 }
