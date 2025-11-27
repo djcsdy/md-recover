@@ -2,13 +2,13 @@ use crate::ext4::crc::ext4_crc32c;
 use crate::ext4::directory::dir_entry::DirEntry;
 use crate::ext4::directory::dir_entry_tail;
 
-pub struct Ext4DirectoryLeafBlock<S: AsRef<[u8]>> {
+pub struct Ext4DirectoryBlock<S: AsRef<[u8]>> {
     storage: S,
     pos: usize,
     len: usize,
 }
 
-impl<S: AsRef<[u8]>> Ext4DirectoryLeafBlock<S> {
+impl<S: AsRef<[u8]>> Ext4DirectoryBlock<S> {
     pub(super) fn from_block_and_checksum_seed(
         block: S,
         checksum_seed: Option<u32>,
@@ -55,34 +55,34 @@ impl<S: AsRef<[u8]>> Ext4DirectoryLeafBlock<S> {
 
 #[cfg(test)]
 mod test {
+    use crate::ext4::directory::block::Ext4DirectoryBlock;
     use crate::ext4::directory::file_type::Ext4DirectoryInlineFileType;
-    use crate::ext4::directory::leaf_block::Ext4DirectoryLeafBlock;
     use crate::ext4::string::Ext4String;
     use crate::ext4::units::InodeNumber;
 
-    static EMPTY_ROOT_DIR: &[u8] = include_bytes!("test_data/empty-root-dir-leaf");
+    static EMPTY_ROOT_DIR: &[u8] = include_bytes!("test_data/empty-root-dir-block");
 
     #[test]
     fn read_empty_root_dir() {
-        let mut leaf =
-            Ext4DirectoryLeafBlock::from_block_and_checksum_seed(EMPTY_ROOT_DIR, Some(1485601019))
+        let mut directory_block =
+            Ext4DirectoryBlock::from_block_and_checksum_seed(EMPTY_ROOT_DIR, Some(1485601019))
                 .unwrap();
 
-        let entry = leaf.read_next_entry().unwrap();
+        let entry = directory_block.read_next_entry().unwrap();
         assert_eq!(entry.name(), Ext4String::from("."));
         assert_eq!(entry.file_type(), Ext4DirectoryInlineFileType::Directory);
         assert_eq!(entry.inode(), InodeNumber(2));
 
-        let entry = leaf.read_next_entry().unwrap();
+        let entry = directory_block.read_next_entry().unwrap();
         assert_eq!(entry.name(), Ext4String::from(".."));
         assert_eq!(entry.file_type(), Ext4DirectoryInlineFileType::Directory);
         assert_eq!(entry.inode(), InodeNumber(2));
 
-        let entry = leaf.read_next_entry().unwrap();
+        let entry = directory_block.read_next_entry().unwrap();
         assert_eq!(entry.name(), Ext4String::from("lost+found"));
         assert_eq!(entry.file_type(), Ext4DirectoryInlineFileType::Directory);
         assert_eq!(entry.inode(), InodeNumber(11));
 
-        assert!(leaf.read_next_entry().is_none());
+        assert!(directory_block.read_next_entry().is_none());
     }
 }
