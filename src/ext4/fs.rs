@@ -24,7 +24,7 @@ impl<D: BlockDevice> Ext4Fs<D> {
         let block_count = superblock.blocks_count();
         let blocks_per_group = u64::from(superblock.blocks_per_group());
         let group_count = usize::try_from(block_count.div_ceil(blocks_per_group))
-            .map_err(|_| Error::from(ErrorKind::Unsupported))?;
+            .or(Err(ErrorKind::Unsupported))?;
         let group_size = usize::from(superblock.group_descriptor_size());
 
         if blocks_per_group == 0
@@ -83,8 +83,8 @@ impl<D: BlockDevice> Ext4Fs<D> {
 
         let group = self
             .group_descriptors
-            .get(usize::try_from(group_index).map_err(|_| Error::from(ErrorKind::InvalidInput))?)
-            .ok_or_else(|| Error::from(ErrorKind::InvalidInput))?;
+            .get(usize::try_from(group_index).or(Err(ErrorKind::InvalidInput))?)
+            .ok_or(ErrorKind::InvalidInput)?;
 
         let inode_offset_within_table =
             index_in_group.long_mul(u32::from(self.superblock.inode_size()));
@@ -92,7 +92,7 @@ impl<D: BlockDevice> Ext4Fs<D> {
             .inode_table_block()
             .checked_mul(self.superblock.block_size_bytes())
             .and_then(|base| base.checked_add(inode_offset_within_table))
-            .ok_or_else(|| Error::from(ErrorKind::InvalidData))?;
+            .ok_or(ErrorKind::InvalidData)?;
 
         self.device.seek(SeekFrom::Start(inode_byte_offset))?;
         let mut buffer = vec![0; usize::from(self.superblock.inode_size())];
