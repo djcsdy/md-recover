@@ -5,7 +5,7 @@ use crate::md::superblock::version_0::{big_endian, little_endian};
 use crate::md::superblock::{ArrayUuid, MdDeviceRole, Superblock};
 use std::ffi::OsStr;
 use std::io;
-use std::io::{Error, ErrorKind, Read};
+use std::io::{ErrorKind, Read};
 
 pub struct SuperblockVersion0 {
     pub(super) magic: u32,
@@ -67,7 +67,7 @@ impl SuperblockVersion0 {
         if superblock.valid() {
             Ok(superblock)
         } else {
-            Err(Error::from(ErrorKind::InvalidData))
+            Err(ErrorKind::InvalidData.into())
         }
     }
 

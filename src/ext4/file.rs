@@ -67,7 +67,7 @@ impl<D: BlockDevice> Ext4FileInternal<D> {
 
     pub fn read_next_block(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         if buf.len() < self.fs.block_size() {
-            return Err(io::Error::from(io::ErrorKind::InvalidInput));
+            return Err(io::ErrorKind::InvalidInput.into());
         }
 
         loop {
@@ -76,7 +76,7 @@ impl<D: BlockDevice> Ext4FileInternal<D> {
                     return if self.byte_pos == self.file_size_bytes() {
                         Ok(0)
                     } else {
-                        Err(io::Error::from(io::ErrorKind::UnexpectedEof))
+                        Err(io::ErrorKind::UnexpectedEof.into())
                     }
                 }
                 Some(ReadStackEntry::Tree { tree, pos }) => {
@@ -85,7 +85,7 @@ impl<D: BlockDevice> Ext4FileInternal<D> {
                             ExtentTree::Branch(branch) => {
                                 let index = branch.subtree_index_at(pos).unwrap();
                                 if index.block() != self.block_pos {
-                                    return Err(io::Error::from(io::ErrorKind::InvalidData));
+                                    return Err(io::ErrorKind::InvalidData.into());
                                 }
                                 let mut subtree_block = vec![0; self.fs.block_size()];
                                 self.fs.read_block(index.leaf(), &mut subtree_block)?;
@@ -102,7 +102,7 @@ impl<D: BlockDevice> Ext4FileInternal<D> {
                             ExtentTree::Leaf(leaf) => {
                                 let extent = leaf.extent_at(pos).unwrap().into_owned();
                                 if extent.first_file_block_number() != self.block_pos {
-                                    return Err(io::Error::from(io::ErrorKind::InvalidData));
+                                    return Err(io::ErrorKind::InvalidData.into());
                                 }
                                 self.read_stack.push(ReadStackEntry::Tree {
                                     tree: ExtentTree::Leaf(leaf),
@@ -119,7 +119,7 @@ impl<D: BlockDevice> Ext4FileInternal<D> {
                 Some(ReadStackEntry::Extent { extent, pos }) => {
                     if pos < extent.length() {
                         if self.byte_pos >= self.file_size_bytes() {
-                            return Err(io::Error::from(io::ErrorKind::InvalidData));
+                            return Err(io::ErrorKind::InvalidData.into());
                         }
 
                         self.fs

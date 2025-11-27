@@ -28,10 +28,10 @@ impl<D: BlockDevice> Ext4Directory<D> {
             ) {
                 Ok(Some(directory_block))
             } else {
-                Err(io::Error::from(io::ErrorKind::InvalidData))
+                Err(io::ErrorKind::InvalidData.into())
             }
         } else {
-            Err(io::Error::from(io::ErrorKind::InvalidData))
+            Err(io::ErrorKind::InvalidData.into())
         }
     }
 }

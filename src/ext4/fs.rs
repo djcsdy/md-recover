@@ -6,7 +6,7 @@ use crate::ext4::inode::Inode;
 use crate::ext4::superblock::{CreatorOs, IncompatibleFeatures, Superblock};
 use crate::ext4::units::{FsBlockNumber, InodeCount, InodeNumber};
 use bitflags::Flags;
-use std::io::{Error, ErrorKind, Result, SeekFrom};
+use std::io::{ErrorKind, Result, SeekFrom};
 use std::rc::Rc;
 
 #[derive(Clone)]
@@ -36,7 +36,7 @@ impl<D: BlockDevice> Ext4Fs<D> {
                 .contains(IncompatibleFeatures::FILES_USE_EXTENTS)
             || superblock.incompatible_features().contains_unknown_bits()
         {
-            return Err(Error::from(ErrorKind::Unsupported));
+            return Err(ErrorKind::Unsupported.into());
         }
 
         let group_descriptors_block_number = u64::from(superblock.first_data_block()) + 1;
@@ -75,7 +75,7 @@ impl<D: BlockDevice> Ext4Fs<D> {
 
     fn read_inode(&mut self, inode_number: InodeNumber) -> Result<Inode> {
         if inode_number == InodeNumber(0) || inode_number > self.superblock.inodes_count() {
-            return Err(Error::from(ErrorKind::InvalidInput));
+            return Err(ErrorKind::InvalidInput.into());
         }
 
         let group_index = (*inode_number - 1) / *self.superblock.inodes_per_group();
@@ -102,7 +102,7 @@ impl<D: BlockDevice> Ext4Fs<D> {
 
     pub(super) fn read_block(&mut self, block_number: FsBlockNumber, buf: &mut [u8]) -> Result<()> {
         if buf.len() < self.block_size() {
-            Err(Error::from(ErrorKind::InvalidInput))
+            Err(ErrorKind::InvalidInput.into())
         } else {
             self.device.seek(SeekFrom::Start(
                 *block_number * self.superblock.block_size_bytes(),
