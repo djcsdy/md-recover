@@ -7,8 +7,8 @@ use std::io;
 pub struct Ext4RegularFile<D: BlockDevice>(Ext4FileInternal<D>);
 
 impl<D: BlockDevice> Ext4RegularFile<D> {
-    pub(in crate::ext4) fn from_inode(fs: Ext4Fs<D>, inode: Inode) -> Option<Self> {
-        Some(Self(Ext4FileInternal::from_inode(fs, inode)?))
+    pub(in crate::ext4) fn from_inode(fs: Ext4Fs<D>, inode: Inode) -> io::Result<Self> {
+        Ok(Self(Ext4FileInternal::from_inode(fs, inode)?))
     }
 
     pub fn file_size_bytes(&self) -> u64 {

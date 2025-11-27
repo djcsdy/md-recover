@@ -14,8 +14,8 @@ pub enum Ext4File<D: BlockDevice> {
 }
 
 impl<D: BlockDevice> Ext4File<D> {
-    pub(super) fn from_inode(fs: Ext4Fs<D>, inode: Inode) -> Option<Self> {
-        Some(match inode.file_type() {
+    pub(super) fn from_inode(fs: Ext4Fs<D>, inode: Inode) -> io::Result<Self> {
+        Ok(match inode.file_type() {
             FileType::RegularFile => Self::RegularFile(Ext4RegularFile::from_inode(fs, inode)?),
             FileType::Directory => Self::Directory(Ext4Directory::from_inode(fs, inode)?),
             file_type => Self::Unsupported(file_type),
@@ -43,10 +43,12 @@ enum ReadStackEntry {
 }
 
 impl<D: BlockDevice> Ext4FileInternal<D> {
-    pub(super) fn from_inode(fs: Ext4Fs<D>, inode: Inode) -> Option<Self> {
-        let tree = ExtentTree::from_inode(&inode)?.to_owned();
+    pub(super) fn from_inode(fs: Ext4Fs<D>, inode: Inode) -> io::Result<Self> {
+        let tree = ExtentTree::from_inode(&inode)
+            .ok_or(io::ErrorKind::Unsupported)?
+            .to_owned();
 
-        Some(Self {
+        Ok(Self {
             fs,
             inode,
             read_stack: vec![ReadStackEntry::Tree { tree, pos: 0 }],

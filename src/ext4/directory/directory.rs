@@ -8,11 +8,11 @@ use std::io;
 pub struct Ext4Directory<D: BlockDevice>(Ext4FileInternal<D>);
 
 impl<D: BlockDevice> Ext4Directory<D> {
-    pub(in crate::ext4) fn from_inode(fs: Ext4Fs<D>, inode: Inode) -> Option<Self> {
+    pub(in crate::ext4) fn from_inode(fs: Ext4Fs<D>, inode: Inode) -> io::Result<Self> {
         if inode.flags().contains(inode::Flags::HASH_INDEXED_DIRECTORY) {
-            None
+            Err(io::ErrorKind::Unsupported.into())
         } else {
-            Some(Self(Ext4FileInternal::from_inode(fs, inode)?))
+            Ok(Self(Ext4FileInternal::from_inode(fs, inode)?))
         }
     }
 
