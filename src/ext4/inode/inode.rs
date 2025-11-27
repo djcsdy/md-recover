@@ -75,7 +75,7 @@ impl Inode {
             .contains(ReadOnlyCompatibleFeatures::METADATA_CHECKSUMS)
         {
             Some(ext4_crc32c(
-                ext4_crc32c(superblock.checksum_seed(), &inode_number.to_le_bytes()),
+                ext4_crc32c(superblock.checksum_seed(), inode_number.to_le_bytes()),
                 &buffer.as_ref()[layout::generation::OFFSET..][..layout::generation::SIZE.unwrap()],
             ))
         } else {
