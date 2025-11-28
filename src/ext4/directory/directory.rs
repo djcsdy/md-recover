@@ -1,30 +1,65 @@
 use crate::block_device::BlockDevice;
 use crate::ext4::directory::block::Ext4DirectoryBlock;
+use crate::ext4::directory::dir_entry::DirEntry;
 use crate::ext4::file::Ext4FileInternal;
 use crate::ext4::inode::Inode;
 use crate::ext4::{inode, Ext4Fs};
 use std::io;
 
-pub struct Ext4Directory<D: BlockDevice>(Ext4FileInternal<D>);
+pub struct Ext4Directory<D: BlockDevice> {
+    internal: Ext4FileInternal<D>,
+    current_block: CurrentBlock,
+}
+
+enum CurrentBlock {
+    Start,
+    Block(Ext4DirectoryBlock<Vec<u8>>),
+    End,
+}
 
 impl<D: BlockDevice> Ext4Directory<D> {
     pub(in crate::ext4) fn open(fs: Ext4Fs<D>, inode: Inode) -> io::Result<Self> {
         if inode.flags().contains(inode::Flags::HASH_INDEXED_DIRECTORY) {
             Err(io::ErrorKind::Unsupported.into())
         } else {
-            Ok(Self(Ext4FileInternal::open(fs, inode)?))
+            Ok(Self {
+                internal: Ext4FileInternal::open(fs, inode)?,
+                current_block: CurrentBlock::Start,
+            })
         }
     }
 
+    pub fn read_next_entry(&mut self) -> io::Result<Option<DirEntry<Vec<u8>>>> {
+        if let CurrentBlock::Start = self.current_block {
+            self.current_block = match self.read_next_block()? {
+                Some(block) => CurrentBlock::Block(block),
+                None => CurrentBlock::End,
+            }
+        }
+
+        while let CurrentBlock::Block(block) = &mut self.current_block {
+            if let Some(entry) = block.read_next_entry() {
+                return Ok(Some(entry.to_owned()));
+            } else {
+                self.current_block = match self.read_next_block()? {
+                    Some(block) => CurrentBlock::Block(block),
+                    None => CurrentBlock::End,
+                }
+            }
+        }
+
+        Ok(None)
+    }
+
     fn read_next_block(&mut self) -> io::Result<Option<Ext4DirectoryBlock<Vec<u8>>>> {
-        let mut storage = vec![0; self.0.block_size()];
-        let bytes_read = self.0.read_next_block(&mut storage)?;
+        let mut storage = vec![0; self.internal.block_size()];
+        let bytes_read = self.internal.read_next_block(&mut storage)?;
         if bytes_read == 0 {
             Ok(None)
-        } else if bytes_read == self.0.block_size() {
+        } else if bytes_read == self.internal.block_size() {
             if let Some(directory_block) = Ext4DirectoryBlock::from_block_and_checksum_seed(
                 storage,
-                self.0.metadata_checksum_seed(),
+                self.internal.metadata_checksum_seed(),
             ) {
                 Ok(Some(directory_block))
             } else {
@@ -49,7 +84,7 @@ mod test {
         let Ext4File::Directory(directory) = file else {
             panic!("Expected Ext4File::Directory")
         };
-        let mut internal = directory.0;
+        let mut internal = directory.internal;
         let mut buf = vec![0; fs.block_size()];
         assert_eq!(internal.read_next_block(&mut buf)?, fs.block_size());
         assert_eq!(
