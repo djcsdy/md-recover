@@ -1,4 +1,4 @@
-use crate::block_device::BlockDevice;
+use crate::block_device::{BlockDevice, BlockSize};
 use std::fs::File;
 use std::io;
 use std::io::{Read, Seek, SeekFrom};
@@ -27,8 +27,8 @@ impl FileBlockDevice {
 }
 
 impl BlockDevice for FileBlockDevice {
-    fn block_size(&self) -> io::Result<usize> {
-        Ok(4096)
+    fn block_size(&self) -> io::Result<BlockSize> {
+        Ok(BlockSize(4096))
     }
 
     fn size(&self) -> io::Result<u64> {
