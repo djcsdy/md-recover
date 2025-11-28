@@ -12,17 +12,13 @@ pub trait BlockDevice: Read + Seek + Sized {
     fn size(&self) -> io::Result<u64>;
 
     fn read_block(&mut self, block_number: BlockNumber, buf: &mut [u8]) -> io::Result<usize> {
-        let block_size = usize::from(self.block_size()?);
-        if buf.len() < block_size {
+        let block_size = self.block_size()?;
+        if buf.len() < usize::from(block_size) {
             Err(io::ErrorKind::InvalidInput.into())
         } else {
-            self.seek(SeekFrom::Start(
-                u64::from(block_number)
-                    * u64::try_from(block_size)
-                        .or(Err(io::Error::from(io::ErrorKind::InvalidData)))?,
-            ))?;
-            self.read_exact(&mut buf[..block_size])?;
-            Ok(block_size)
+            self.seek(SeekFrom::Start(block_number.byte_pos(block_size)))?;
+            self.read_exact(&mut buf[..usize::from(block_size)])?;
+            Ok(usize::from(block_size))
         }
     }
 
