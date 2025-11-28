@@ -55,7 +55,7 @@ pub struct SuperblockVersion1<S: AsRef<[u8]>> {
 impl SuperblockVersion1<Vec<u8>> {
     pub const MAX_SIZE: usize = 4096;
 
-    pub fn read<R: Read>(mut reader: R, minor_version: u32) -> std::io::Result<Self> {
+    pub fn read<R: Read>(mut reader: R, minor_version: u32) -> io::Result<Self> {
         let mut buf = vec![0u8; Self::MAX_SIZE];
         reader.read_exact(&mut buf)?;
         let superblock = Self::new(buf, minor_version);
