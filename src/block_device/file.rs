@@ -27,6 +27,10 @@ impl FileBlockDevice {
 }
 
 impl BlockDevice for FileBlockDevice {
+    fn block_size(&self) -> io::Result<usize> {
+        Ok(4096)
+    }
+
     fn size(&self) -> io::Result<u64> {
         self.file.metadata().map(|metadata| metadata.size())
     }

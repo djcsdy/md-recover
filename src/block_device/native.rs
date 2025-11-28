@@ -1,5 +1,5 @@
 use crate::block_device::BlockDevice;
-use crate::ioctl::blk::BLK_GETSIZE64;
+use crate::ioctl::blk::{BLK_GETSIZE64, BLK_PBSZGET};
 use std::fs::File;
 use std::io;
 use std::io::{Read, Seek, SeekFrom};
@@ -27,6 +27,12 @@ impl NativeBlockDevice {
 }
 
 impl BlockDevice for NativeBlockDevice {
+    fn block_size(&self) -> io::Result<usize> {
+        BLK_PBSZGET
+            .ioctl(&self.file)
+            .and_then(|(_, size)| usize::try_from(size).or(Err(io::ErrorKind::InvalidData.into())))
+    }
+
     fn size(&self) -> io::Result<u64> {
         BLK_GETSIZE64.ioctl(&self.file).map(|(_, size)| size)
     }

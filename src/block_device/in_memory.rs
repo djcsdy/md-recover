@@ -17,6 +17,10 @@ impl InMemoryBlockDevice {
 }
 
 impl BlockDevice for InMemoryBlockDevice {
+    fn block_size(&self) -> std::io::Result<usize> {
+        Ok(4096)
+    }
+
     fn size(&self) -> std::io::Result<u64> {
         Ok(self.mem.len().try_into().unwrap())
     }
