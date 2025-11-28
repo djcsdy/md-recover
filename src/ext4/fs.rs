@@ -118,7 +118,7 @@ impl<D: BlockDevice> Ext4Fs<D> {
     }
 
     pub fn open_file(&mut self, inode_number: InodeNumber) -> io::Result<Ext4File<D>> {
-        Ext4File::from_inode(self.try_clone()?, self.read_inode(inode_number)?)
+        Ext4File::open(self.try_clone()?, self.read_inode(inode_number)?)
     }
 }
 
