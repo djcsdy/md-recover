@@ -21,12 +21,6 @@ impl FileBlockDevice {
             file: InternalFile(file),
         }
     }
-
-    pub fn try_clone(&self) -> io::Result<Self> {
-        Ok(Self {
-            file: self.file.try_clone()?,
-        })
-    }
 }
 
 impl BlockDevice for FileBlockDevice {
