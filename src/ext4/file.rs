@@ -6,14 +6,21 @@ use crate::ext4::inode::{FileType, Inode};
 use crate::ext4::regular_file::Ext4RegularFile;
 use crate::ext4::units::{BlockCount, FileBlockNumber};
 use std::io;
+use std::io::{Read, Seek};
 
-pub enum Ext4File<D: BlockDevice> {
+pub enum Ext4File<D>
+where
+    D: BlockDevice + Read + Seek,
+{
     Directory(Ext4Directory<D>),
     RegularFile(Ext4RegularFile<D>),
     Unsupported(FileType),
 }
 
-impl<D: BlockDevice> Ext4File<D> {
+impl<D> Ext4File<D>
+where
+    D: BlockDevice + Read + Seek,
+{
     pub(super) fn open(fs: Ext4Fs<D>, inode: Inode) -> io::Result<Self> {
         Ok(match inode.file_type() {
             FileType::RegularFile => Self::RegularFile(Ext4RegularFile::open(fs, inode)?),
@@ -23,7 +30,10 @@ impl<D: BlockDevice> Ext4File<D> {
     }
 }
 
-pub(in crate::ext4) struct Ext4FileInternal<D: BlockDevice> {
+pub(in crate::ext4) struct Ext4FileInternal<D>
+where
+    D: BlockDevice + Read + Seek,
+{
     fs: Ext4Fs<D>,
     inode: Inode,
     read_stack: Vec<ReadStackEntry>,
@@ -42,7 +52,10 @@ enum ReadStackEntry {
     },
 }
 
-impl<D: BlockDevice> Ext4FileInternal<D> {
+impl<D> Ext4FileInternal<D>
+where
+    D: BlockDevice + Read + Seek,
+{
     pub(super) fn open(fs: Ext4Fs<D>, inode: Inode) -> io::Result<Self> {
         let tree = ExtentTree::from_inode(&inode)
             .ok_or(io::ErrorKind::Unsupported)?

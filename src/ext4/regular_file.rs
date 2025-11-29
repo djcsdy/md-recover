@@ -3,10 +3,16 @@ use crate::ext4::file::Ext4FileInternal;
 use crate::ext4::inode::Inode;
 use crate::ext4::Ext4Fs;
 use std::io;
+use std::io::{Read, Seek};
 
-pub struct Ext4RegularFile<D: BlockDevice>(Ext4FileInternal<D>);
+pub struct Ext4RegularFile<D>(Ext4FileInternal<D>)
+where
+    D: BlockDevice + Read + Seek;
 
-impl<D: BlockDevice> Ext4RegularFile<D> {
+impl<D> Ext4RegularFile<D>
+where
+    D: BlockDevice + Read + Seek,
+{
     pub(in crate::ext4) fn open(fs: Ext4Fs<D>, inode: Inode) -> io::Result<Self> {
         Ok(Self(Ext4FileInternal::open(fs, inode)?))
     }

@@ -1,8 +1,7 @@
 use crate::block_device::{BlockCount, BlockNumber, BlockSize};
 use std::io;
-use std::io::{Read, Seek};
 
-pub trait BlockDevice: Read + Seek + Sized {
+pub trait BlockDevice: Sized {
     fn block_size(&self) -> io::Result<BlockSize>;
 
     fn block_count(&self) -> io::Result<BlockCount>;

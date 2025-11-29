@@ -7,12 +7,19 @@ use crate::md::superblock::{ArrayUuid, MdDeviceRole, ReshapeStatus};
 use crate::md::MdDevice;
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsString;
+use std::io::{Read, Seek};
 
-pub struct MdArray<D: BlockDevice> {
+pub struct MdArray<D>
+where
+    D: BlockDevice + Read + Seek,
+{
     devices: Vec<MdDevice<D>>,
 }
 
-impl<D: BlockDevice> MdArray<D> {
+impl<D> MdArray<D>
+where
+    D: BlockDevice + Read + Seek,
+{
     pub fn new(devices: Vec<MdDevice<D>>) -> Self {
         Self { devices }
     }

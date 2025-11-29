@@ -4,16 +4,22 @@ use crate::md::device::superblock::MdDeviceSuperblock;
 use crate::md::superblock::{SuperblockVersion0, SuperblockVersion1};
 use std::ffi::OsStr;
 use std::io;
-use std::io::SeekFrom;
+use std::io::{Read, Seek, SeekFrom};
 use std::path::Path;
 
-pub struct MdDevice<D: BlockDevice> {
+pub struct MdDevice<D>
+where
+    D: BlockDevice + Read + Seek,
+{
     pub id: MdDeviceId,
     pub superblock: MdDeviceSuperblock,
     device: D,
 }
 
-impl<D: BlockDevice> MdDevice<D> {
+impl<D> MdDevice<D>
+where
+    D: BlockDevice + Read + Seek,
+{
     const MIN_DEVICE_SIZE: u64 = 12288;
     const MIN_SUPERBLOCK_0_DEVICE_SIZE: u64 = 65536;
 }
@@ -25,7 +31,10 @@ impl MdDevice<NativeBlockDevice> {
     }
 }
 
-impl<D: BlockDevice> MdDevice<D> {
+impl<D> MdDevice<D>
+where
+    D: BlockDevice + Read + Seek,
+{
     pub fn from_block_device<S: AsRef<OsStr>>(
         mut device: D,
         user_reference: Option<S>,

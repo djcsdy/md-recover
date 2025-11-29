@@ -7,17 +7,23 @@ use crate::ext4::superblock::{CreatorOs, IncompatibleFeatures, Superblock};
 use crate::ext4::units::{FsBlockNumber, InodeCount, InodeNumber};
 use bitflags::Flags;
 use std::io;
-use std::io::SeekFrom;
+use std::io::{Read, Seek, SeekFrom};
 use std::rc::Rc;
 
 #[derive(Clone)]
-pub struct Ext4Fs<D: BlockDevice> {
+pub struct Ext4Fs<D>
+where
+    D: BlockDevice + Read + Seek,
+{
     device: D,
     pub(super) superblock: Rc<Superblock<Vec<u8>>>,
     pub(super) group_descriptors: Rc<Vec<BlockGroupDescriptor>>,
 }
 
-impl<D: BlockDevice> Ext4Fs<D> {
+impl<D> Ext4Fs<D>
+where
+    D: BlockDevice + Read + Seek,
+{
     pub fn open(mut device: D) -> io::Result<Self> {
         device.seek(SeekFrom::Start(1024))?;
         let superblock = Superblock::read(&mut device)?;

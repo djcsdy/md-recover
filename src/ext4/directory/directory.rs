@@ -5,8 +5,12 @@ use crate::ext4::file::Ext4FileInternal;
 use crate::ext4::inode::Inode;
 use crate::ext4::{inode, Ext4Fs};
 use std::io;
+use std::io::{Read, Seek};
 
-pub struct Ext4Directory<D: BlockDevice> {
+pub struct Ext4Directory<D>
+where
+    D: BlockDevice + Read + Seek,
+{
     internal: Ext4FileInternal<D>,
     current_block: CurrentBlock,
 }
@@ -17,7 +21,10 @@ enum CurrentBlock {
     End,
 }
 
-impl<D: BlockDevice> Ext4Directory<D> {
+impl<D> Ext4Directory<D>
+where
+    D: BlockDevice + Read + Seek,
+{
     pub(in crate::ext4) fn open(fs: Ext4Fs<D>, inode: Inode) -> io::Result<Self> {
         if inode.flags().contains(inode::Flags::HASH_INDEXED_DIRECTORY) {
             Err(io::ErrorKind::Unsupported.into())
