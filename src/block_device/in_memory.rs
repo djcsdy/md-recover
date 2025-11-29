@@ -6,20 +6,22 @@ use std::io::{Read, Seek, SeekFrom};
 pub struct InMemoryBlockDevice {
     mem: Vec<u8>,
     pos: usize,
+    block_size: BlockSize,
 }
 
 impl InMemoryBlockDevice {
-    pub fn new(mem: impl Into<Vec<u8>>) -> Self {
+    pub fn new(mem: impl Into<Vec<u8>>, block_size: BlockSize) -> Self {
         Self {
             mem: mem.into(),
             pos: 0,
+            block_size,
         }
     }
 }
 
 impl BlockDevice for InMemoryBlockDevice {
     fn block_size(&self) -> io::Result<BlockSize> {
-        Ok(BlockSize(4096))
+        Ok(self.block_size)
     }
 
     fn size(&self) -> io::Result<u64> {
@@ -27,14 +29,13 @@ impl BlockDevice for InMemoryBlockDevice {
     }
 
     fn read_block(&mut self, block_number: BlockNumber, buf: &mut [u8]) -> io::Result<usize> {
-        let block_size = self.block_size()?;
-        if buf.len() < usize::from(block_size) {
+        if buf.len() < usize::from(self.block_size) {
             Err(io::ErrorKind::InvalidInput.into())
         } else {
-            let offset = usize::try_from(block_number.byte_pos(block_size))
+            let offset = usize::try_from(block_number.byte_pos(self.block_size))
                 .or(Err(io::Error::from(io::ErrorKind::InvalidInput)))?;
-            buf.copy_from_slice(&self.mem[offset..][..usize::from(block_size)]);
-            Ok(usize::from(block_size))
+            buf.copy_from_slice(&self.mem[offset..][..usize::from(self.block_size)]);
+            Ok(usize::from(self.block_size))
         }
     }
 

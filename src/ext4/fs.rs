@@ -124,7 +124,7 @@ impl<D: BlockDevice> Ext4Fs<D> {
 
 #[cfg(test)]
 pub(in crate::ext4) mod test {
-    use crate::block_device::InMemoryBlockDevice;
+    use crate::block_device::{BlockSize, InMemoryBlockDevice};
     use crate::ext::ReadAll;
     use crate::ext4::fs::Ext4Fs;
     use crate::ext4::inode::{FileMode, FileType, Permissions};
@@ -141,6 +141,7 @@ pub(in crate::ext4) mod test {
         static GZIPPED: &[u8] = include_bytes!("test_data/zero-32MB.gz");
         Ok(InMemoryBlockDevice::new(
             GzDecoder::new(GZIPPED).read_all()?,
+            BlockSize::default(),
         ))
     }
 
@@ -148,6 +149,7 @@ pub(in crate::ext4) mod test {
         static GZIPPED: &[u8] = include_bytes!("test_data/random-2MB-zero-30MB.gz");
         Ok(InMemoryBlockDevice::new(
             GzDecoder::new(GZIPPED).read_all()?,
+            BlockSize::default(),
         ))
     }
 
@@ -155,6 +157,7 @@ pub(in crate::ext4) mod test {
         static GZIPPED: &[u8] = include_bytes!("test_data/ext4-100MB-empty.gz");
         Ok(InMemoryBlockDevice::new(
             GzDecoder::new(GZIPPED).read_all()?,
+            BlockSize::default(),
         ))
     }
 

@@ -22,6 +22,12 @@ use derive_more::{Add, AddAssign, Deref, DerefMut, Display, From, Into, Sub, Sub
 #[display("{_0} bytes")]
 pub struct BlockSize(pub u32);
 
+impl Default for BlockSize {
+    fn default() -> Self {
+        Self(4096)
+    }
+}
+
 impl From<BlockSize> for u64 {
     fn from(value: BlockSize) -> Self {
         u64::from(u32::from(value))
