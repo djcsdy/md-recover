@@ -1,5 +1,5 @@
 use crate::block_device::internal::InternalFile;
-use crate::block_device::{BlockDevice, BlockSize};
+use crate::block_device::{BlockDevice, BlockNumber, BlockSize};
 use crate::ioctl::blk::{BLK_GETSIZE64, BLK_PBSZGET};
 use std::fs::File;
 use std::io;
@@ -40,6 +40,10 @@ impl BlockDevice for NativeBlockDevice {
         BLK_GETSIZE64
             .ioctl(self.file.as_ref())
             .map(|(_, size)| size)
+    }
+
+    fn read_block(&mut self, block_number: BlockNumber, buf: &mut [u8]) -> io::Result<usize> {
+        self.file.read_block(block_number, self.block_size()?, buf)
     }
 
     fn try_clone(&self) -> io::Result<Self> {

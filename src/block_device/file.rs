@@ -1,5 +1,5 @@
 use crate::block_device::internal::InternalFile;
-use crate::block_device::{BlockDevice, BlockSize};
+use crate::block_device::{BlockDevice, BlockNumber, BlockSize};
 use std::fs::File;
 use std::io;
 use std::io::{Read, Seek, SeekFrom};
@@ -39,6 +39,10 @@ impl BlockDevice for FileBlockDevice {
             .as_ref()
             .metadata()
             .map(|metadata| metadata.size())
+    }
+
+    fn read_block(&mut self, block_number: BlockNumber, buf: &mut [u8]) -> io::Result<usize> {
+        self.file.read_block(block_number, self.block_size()?, buf)
     }
 
     fn try_clone(&self) -> io::Result<Self> {
