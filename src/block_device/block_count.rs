@@ -1,3 +1,4 @@
+use crate::block_device::BlockSize;
 use derive_more::{Add, AddAssign, Deref, DerefMut, Display, From, Sub, SubAssign};
 
 #[derive(
@@ -20,3 +21,9 @@ use derive_more::{Add, AddAssign, Deref, DerefMut, Display, From, Sub, SubAssign
 )]
 #[display("{_0} blocks")]
 pub struct BlockCount(pub u64);
+
+impl BlockCount {
+    pub fn size_bytes(self, block_size: BlockSize) -> u64 {
+        self.0 * u64::from(block_size)
+    }
+}
