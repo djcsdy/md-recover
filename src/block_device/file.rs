@@ -1,5 +1,5 @@
 use crate::block_device::internal::InternalFile;
-use crate::block_device::{BlockDevice, BlockNumber, BlockSize};
+use crate::block_device::{BlockCount, BlockDevice, BlockNumber, BlockSize};
 use std::fs::File;
 use std::io;
 use std::io::{Read, Seek, SeekFrom};
@@ -30,11 +30,14 @@ impl BlockDevice for FileBlockDevice {
         Ok(self.block_size)
     }
 
-    fn size(&self) -> io::Result<u64> {
-        self.file
-            .as_ref()
-            .metadata()
-            .map(|metadata| metadata.size())
+    fn block_count(&self) -> io::Result<BlockCount> {
+        Ok(BlockCount(
+            self.file
+                .as_ref()
+                .metadata()
+                .map(|metadata| metadata.size())?
+                / u64::from(self.block_size()?),
+        ))
     }
 
     fn read_block(&mut self, block_number: BlockNumber, buf: &mut [u8]) -> io::Result<usize> {

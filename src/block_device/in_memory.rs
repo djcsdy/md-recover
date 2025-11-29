@@ -1,4 +1,4 @@
-use crate::block_device::{BlockDevice, BlockNumber, BlockSize};
+use crate::block_device::{BlockCount, BlockDevice, BlockNumber, BlockSize};
 use std::io;
 use std::io::{Read, Seek, SeekFrom};
 
@@ -24,8 +24,11 @@ impl BlockDevice for InMemoryBlockDevice {
         Ok(self.block_size)
     }
 
-    fn size(&self) -> io::Result<u64> {
-        Ok(self.mem.len().try_into().unwrap())
+    fn block_count(&self) -> io::Result<BlockCount> {
+        Ok(BlockCount(
+            u64::try_from(self.mem.len()).or(Err(io::Error::from(io::ErrorKind::InvalidData)))?
+                / u64::from(self.block_size),
+        ))
     }
 
     fn read_block(&mut self, block_number: BlockNumber, buf: &mut [u8]) -> io::Result<usize> {

@@ -30,7 +30,7 @@ impl<D: BlockDevice> MdDevice<D> {
         mut device: D,
         user_reference: Option<S>,
     ) -> io::Result<Self> {
-        let size = device.size()?;
+        let size = device.block_count()?.size_bytes(device.block_size()?);
 
         let id = MdDeviceId::new(user_reference);
 
