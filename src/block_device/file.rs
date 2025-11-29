@@ -9,23 +9,25 @@ use std::path::Path;
 #[derive(Debug)]
 pub struct FileBlockDevice {
     file: InternalFile,
+    block_size: BlockSize,
 }
 
 impl FileBlockDevice {
-    pub fn open_path<P: AsRef<Path>>(path: P) -> io::Result<Self> {
-        File::open(path).map(Self::from_file)
+    pub fn open_path<P: AsRef<Path>>(path: P, block_size: BlockSize) -> io::Result<Self> {
+        Ok(Self::from_file(File::open(path)?, block_size))
     }
 
-    pub fn from_file(file: File) -> Self {
+    pub fn from_file(file: File, block_size: BlockSize) -> Self {
         Self {
             file: InternalFile(file),
+            block_size,
         }
     }
 }
 
 impl BlockDevice for FileBlockDevice {
     fn block_size(&self) -> io::Result<BlockSize> {
-        Ok(BlockSize(4096))
+        Ok(self.block_size)
     }
 
     fn size(&self) -> io::Result<u64> {
@@ -42,6 +44,7 @@ impl BlockDevice for FileBlockDevice {
     fn try_clone(&self) -> io::Result<Self> {
         Ok(Self {
             file: self.file.try_clone()?,
+            block_size: self.block_size,
         })
     }
 }
