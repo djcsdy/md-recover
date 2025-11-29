@@ -1,3 +1,4 @@
+use crate::block_device::internal::InternalFile;
 use crate::block_device::{BlockDevice, BlockSize};
 use std::fs::File;
 use std::io;
@@ -7,7 +8,7 @@ use std::path::Path;
 
 #[derive(Debug)]
 pub struct FileBlockDevice {
-    file: File,
+    file: InternalFile,
 }
 
 impl FileBlockDevice {
@@ -16,7 +17,9 @@ impl FileBlockDevice {
     }
 
     pub fn from_file(file: File) -> Self {
-        Self { file }
+        Self {
+            file: InternalFile(file),
+        }
     }
 
     pub fn try_clone(&self) -> io::Result<Self> {
@@ -32,7 +35,10 @@ impl BlockDevice for FileBlockDevice {
     }
 
     fn size(&self) -> io::Result<u64> {
-        self.file.metadata().map(|metadata| metadata.size())
+        self.file
+            .as_ref()
+            .metadata()
+            .map(|metadata| metadata.size())
     }
 
     fn try_clone(&self) -> io::Result<Self> {
@@ -44,12 +50,12 @@ impl BlockDevice for FileBlockDevice {
 
 impl Read for FileBlockDevice {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        self.file.read(buf)
+        self.file.as_mut().read(buf)
     }
 }
 
 impl Seek for FileBlockDevice {
     fn seek(&mut self, pos: SeekFrom) -> io::Result<u64> {
-        self.file.seek(pos)
+        self.file.as_mut().seek(pos)
     }
 }

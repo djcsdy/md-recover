@@ -4,6 +4,7 @@ mod block_number;
 mod block_size;
 mod file;
 mod in_memory;
+mod internal;
 mod native;
 
 #[allow(unused_imports)]

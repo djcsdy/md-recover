@@ -1,3 +1,4 @@
+use crate::block_device::internal::InternalFile;
 use crate::block_device::{BlockDevice, BlockSize};
 use crate::ioctl::blk::{BLK_GETSIZE64, BLK_PBSZGET};
 use std::fs::File;
@@ -7,7 +8,7 @@ use std::path::Path;
 
 #[derive(Debug)]
 pub struct NativeBlockDevice {
-    file: File,
+    file: InternalFile,
 }
 
 impl NativeBlockDevice {
@@ -16,7 +17,9 @@ impl NativeBlockDevice {
     }
 
     pub fn from_file(file: File) -> Self {
-        Self { file }
+        Self {
+            file: InternalFile(file),
+        }
     }
 
     pub fn try_clone(&self) -> io::Result<Self> {
@@ -29,12 +32,14 @@ impl NativeBlockDevice {
 impl BlockDevice for NativeBlockDevice {
     fn block_size(&self) -> io::Result<BlockSize> {
         BLK_PBSZGET
-            .ioctl(&self.file)
+            .ioctl(self.file.as_ref())
             .map(|(_, size)| BlockSize(size))
     }
 
     fn size(&self) -> io::Result<u64> {
-        BLK_GETSIZE64.ioctl(&self.file).map(|(_, size)| size)
+        BLK_GETSIZE64
+            .ioctl(self.file.as_ref())
+            .map(|(_, size)| size)
     }
 
     fn try_clone(&self) -> io::Result<Self> {
@@ -46,12 +51,12 @@ impl BlockDevice for NativeBlockDevice {
 
 impl Read for NativeBlockDevice {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        self.file.read(buf)
+        self.file.as_mut().read(buf)
     }
 }
 
 impl Seek for NativeBlockDevice {
     fn seek(&mut self, pos: SeekFrom) -> io::Result<u64> {
-        self.file.seek(pos)
+        self.file.as_mut().seek(pos)
     }
 }
