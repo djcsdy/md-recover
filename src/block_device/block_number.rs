@@ -10,8 +10,8 @@ use std::ops::{Add, AddAssign};
 pub struct BlockNumber(pub u64);
 
 impl BlockNumber {
-    pub(in crate::block_device) fn byte_pos(self, block_size: BlockSize) -> u64 {
-        u64::from(self) * u64::from(block_size)
+    pub(in crate::block_device) fn byte_pos(self, block_size: BlockSize) -> Option<u64> {
+        u64::from(self).checked_mul(u64::from(block_size))
     }
 }
 

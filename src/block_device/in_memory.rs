@@ -35,8 +35,12 @@ impl BlockDevice for InMemoryBlockDevice {
         if buf.len() < usize::from(self.block_size) {
             Err(io::ErrorKind::InvalidInput.into())
         } else {
-            let offset = usize::try_from(block_number.byte_pos(self.block_size))
-                .or(Err(io::Error::from(io::ErrorKind::InvalidInput)))?;
+            let offset = usize::try_from(
+                block_number
+                    .byte_pos(self.block_size)
+                    .ok_or(io::ErrorKind::InvalidInput)?,
+            )
+            .or(Err(io::Error::from(io::ErrorKind::InvalidInput)))?;
             buf.copy_from_slice(&self.mem[offset..][..usize::from(self.block_size)]);
             Ok(usize::from(self.block_size))
         }

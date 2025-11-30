@@ -17,8 +17,11 @@ impl InternalFile {
         if buf.len() < usize::from(block_size) {
             Err(io::ErrorKind::InvalidInput.into())
         } else {
-            self.as_mut()
-                .seek(SeekFrom::Start(block_number.byte_pos(block_size)))?;
+            self.as_mut().seek(SeekFrom::Start(
+                block_number
+                    .byte_pos(block_size)
+                    .ok_or(io::ErrorKind::InvalidData)?,
+            ))?;
             self.as_mut()
                 .read_exact(&mut buf[..usize::from(block_size)])?;
             Ok(usize::from(block_size))
