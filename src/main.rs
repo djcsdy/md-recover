@@ -5,12 +5,11 @@ extern crate arrayref;
 #[macro_use]
 extern crate bitflags;
 
+use crate::md::{MdArray, MdDevice};
 use clap::Parser;
 use itertools::Itertools;
 use os_display::Quotable;
 use std::path::PathBuf;
-
-use crate::md::{MdArray, MdDevice};
 
 mod block_device;
 mod ext;
@@ -39,7 +38,7 @@ fn main() {
     if device_errors.is_empty() {
         let array = MdArray::open(devices);
         let diagnosis = array.diagnose();
-        println!("{diagnosis:?}");
+        println!("{diagnosis:#?}");
     } else {
         for (path, error) in device_errors {
             println!("{}: {}", path.maybe_quote(), error);
