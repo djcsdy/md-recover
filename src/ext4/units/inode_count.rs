@@ -1,5 +1,5 @@
 use binary_layout::LayoutAs;
-use derive_more::{Add, AddAssign, Deref, DerefMut, Display, From, Sub, SubAssign};
+use derive_more::{Add, AddAssign, Deref, DerefMut, Display, From, Into, Sub, SubAssign};
 use std::convert::Infallible;
 
 #[derive(
@@ -16,6 +16,7 @@ use std::convert::Infallible;
     Sub,
     SubAssign,
     From,
+    Into,
     Display,
     Deref,
     DerefMut,
