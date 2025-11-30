@@ -1,4 +1,4 @@
-use crate::block_device::{BlockDevice, NativeBlockDevice};
+use crate::block_device::{BlockCount, BlockDevice, BlockNumber, BlockSize, NativeBlockDevice};
 use crate::md::device::id::MdDeviceId;
 use crate::md::device::superblock::MdDeviceSuperblock;
 use crate::md::superblock::{SuperblockVersion0, SuperblockVersion1};
@@ -81,6 +81,31 @@ where
             id,
             superblock: Rc::new(MdDeviceSuperblock::Missing),
             device,
+        })
+    }
+}
+
+impl<D> BlockDevice for MdDevice<D>
+where
+    D: BlockDevice + Read + Seek,
+{
+    fn block_size(&self) -> io::Result<BlockSize> {
+        self.device.block_size()
+    }
+
+    fn block_count(&self) -> io::Result<BlockCount> {
+        self.device.block_count()
+    }
+
+    fn read_block(&mut self, block_number: BlockNumber, buf: &mut [u8]) -> io::Result<usize> {
+        self.device.read_block(block_number, buf)
+    }
+
+    fn try_clone(&self) -> io::Result<Self> {
+        Ok(Self {
+            id: self.id.clone(),
+            superblock: self.superblock.clone(),
+            device: self.device.try_clone()?,
         })
     }
 }
