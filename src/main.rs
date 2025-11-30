@@ -37,7 +37,7 @@ fn main() {
         .partition_result();
 
     if device_errors.is_empty() {
-        let array = MdArray::new(devices);
+        let array = MdArray::open(devices);
         let diagnosis = array.diagnose();
         println!("{diagnosis:?}");
     } else {

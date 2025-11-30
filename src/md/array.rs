@@ -22,7 +22,7 @@ impl<D> MdArray<D>
 where
     D: BlockDevice + Read + Seek,
 {
-    pub fn new(devices: impl IntoIterator<Item = impl Into<Rc<MdDevice<D>>>>) -> Self {
+    pub fn open(devices: impl IntoIterator<Item = impl Into<Rc<MdDevice<D>>>>) -> Self {
         Self {
             definition: Rc::new(MdArrayDefinition::new(devices)),
         }
