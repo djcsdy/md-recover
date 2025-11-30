@@ -14,14 +14,14 @@ pub struct MdArray<D>
 where
     D: BlockDevice + Read + Seek,
 {
-    devices: Vec<MdDevice<D>>,
+    devices: Vec<Rc<MdDevice<D>>>,
 }
 
 impl<D> MdArray<D>
 where
     D: BlockDevice + Read + Seek,
 {
-    pub fn new(devices: Vec<MdDevice<D>>) -> Self {
+    pub fn new(devices: Vec<Rc<MdDevice<D>>>) -> Self {
         Self { devices }
     }
 
