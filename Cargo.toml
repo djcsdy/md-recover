@@ -18,7 +18,7 @@ derive_more = { version = "=2.0.1", features = ["add", "add_assign", "as_ref", "
 itertools = "=0.14.0"
 iocuddle = "=0.1.1"
 num_enum = "=0.7.5"
-num-integer = "0.1.46"
+num-integer = "=0.1.46"
 os_display = "=0.1.4"
 uuid = "=1.18.1"
 
