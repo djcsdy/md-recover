@@ -6,13 +6,14 @@ use std::ffi::OsStr;
 use std::io;
 use std::io::{Read, Seek, SeekFrom};
 use std::path::Path;
+use std::rc::Rc;
 
 pub struct MdDevice<D>
 where
     D: BlockDevice + Read + Seek,
 {
-    pub id: MdDeviceId,
-    pub superblock: MdDeviceSuperblock,
+    pub id: Rc<MdDeviceId>,
+    pub superblock: Rc<MdDeviceSuperblock>,
     device: D,
 }
 
@@ -44,12 +45,12 @@ where
             .size_bytes(device.block_size()?)
             .ok_or(io::ErrorKind::InvalidInput)?;
 
-        let id = MdDeviceId::new(user_reference);
+        let id = Rc::new(MdDeviceId::new(user_reference));
 
         if size < Self::MIN_DEVICE_SIZE {
             return Ok(Self {
                 id,
-                superblock: MdDeviceSuperblock::TooSmall,
+                superblock: Rc::new(MdDeviceSuperblock::TooSmall),
                 device,
             });
         }
@@ -59,7 +60,7 @@ where
             if let Ok(superblock) = SuperblockVersion1::read(&mut device, minor_version) {
                 return Ok(Self {
                     id,
-                    superblock: MdDeviceSuperblock::Superblock(Box::new(superblock)),
+                    superblock: Rc::new(MdDeviceSuperblock::Superblock(Box::new(superblock))),
                     device,
                 });
             }
@@ -70,7 +71,7 @@ where
             if let Ok(superblock) = SuperblockVersion0::read(&mut device) {
                 return Ok(Self {
                     id,
-                    superblock: MdDeviceSuperblock::Superblock(Box::new(superblock)),
+                    superblock: Rc::new(MdDeviceSuperblock::Superblock(Box::new(superblock))),
                     device,
                 });
             }
@@ -78,7 +79,7 @@ where
 
         Ok(Self {
             id,
-            superblock: MdDeviceSuperblock::Missing,
+            superblock: Rc::new(MdDeviceSuperblock::Missing),
             device,
         })
     }
