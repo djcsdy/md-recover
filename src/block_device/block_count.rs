@@ -24,7 +24,7 @@ use derive_more::{Add, AddAssign, Deref, DerefMut, Display, From, Into, Sub, Sub
 pub struct BlockCount(pub u64);
 
 impl BlockCount {
-    pub fn size_bytes(self, block_size: BlockSize) -> u64 {
-        self.0 * u64::from(block_size)
+    pub fn size_bytes(self, block_size: BlockSize) -> Option<u64> {
+        self.0.checked_mul(u64::from(block_size))
     }
 }

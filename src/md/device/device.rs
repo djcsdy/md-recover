@@ -39,7 +39,10 @@ where
         mut device: D,
         user_reference: Option<S>,
     ) -> io::Result<Self> {
-        let size = device.block_count()?.size_bytes(device.block_size()?);
+        let size = device
+            .block_count()?
+            .size_bytes(device.block_size()?)
+            .ok_or(io::ErrorKind::InvalidInput)?;
 
         let id = MdDeviceId::new(user_reference);
 
