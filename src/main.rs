@@ -9,7 +9,6 @@ use clap::Parser;
 use itertools::Itertools;
 use os_display::Quotable;
 use std::path::PathBuf;
-use std::rc::Rc;
 
 use crate::md::{MdArray, MdDevice};
 
@@ -34,11 +33,7 @@ fn main() {
     let (devices, device_errors): (Vec<_>, Vec<_>) = options
         .devices
         .iter()
-        .map(|path| {
-            MdDevice::open_path(path)
-                .map(Rc::new)
-                .map_err(|err| (path, err))
-        })
+        .map(|path| MdDevice::open_path(path).map_err(|err| (path, err)))
         .partition_result();
 
     if device_errors.is_empty() {

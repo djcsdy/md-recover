@@ -1,5 +1,6 @@
 mod algorithm;
 mod array;
+mod definition;
 mod device;
 mod diagnosis;
 mod raid5;
