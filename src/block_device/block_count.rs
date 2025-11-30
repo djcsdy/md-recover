@@ -1,5 +1,5 @@
 use crate::block_device::BlockSize;
-use derive_more::{Add, AddAssign, Deref, DerefMut, Display, From, Sub, SubAssign};
+use derive_more::{Add, AddAssign, Deref, DerefMut, Display, From, Into, Sub, SubAssign};
 
 #[derive(
     Eq,
@@ -15,6 +15,7 @@ use derive_more::{Add, AddAssign, Deref, DerefMut, Display, From, Sub, SubAssign
     Sub,
     SubAssign,
     From,
+    Into,
     Display,
     Deref,
     DerefMut,
