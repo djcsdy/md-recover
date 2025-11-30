@@ -6,10 +6,11 @@ mod file;
 mod in_memory;
 mod internal;
 mod native;
+mod reader;
 
 #[allow(unused_imports)]
 pub use self::{
     block_count::BlockCount, block_device::BlockDevice, block_number::BlockNumber,
     block_size::BlockSize, file::FileBlockDevice, in_memory::InMemoryBlockDevice,
-    native::NativeBlockDevice,
+    native::NativeBlockDevice, reader::BlockDeviceReader,
 };
