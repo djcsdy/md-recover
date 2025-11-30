@@ -133,8 +133,8 @@ impl Superblock for SuperblockVersion0 {
         self.raid_disks
     }
 
-    fn reshape_status(&self) -> ReshapeStatus {
-        self.reshape_status.clone()
+    fn reshape_status(&self) -> Option<ReshapeStatus> {
+        Some(self.reshape_status.clone())
     }
 
     fn event_count(&self) -> u64 {

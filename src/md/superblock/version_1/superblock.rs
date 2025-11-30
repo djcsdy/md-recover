@@ -183,8 +183,12 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
         self.buffer.raid_disks().read()
     }
 
-    fn reshape_status(&self) -> ReshapeStatus {
-        self.buffer.reshape_status().into()
+    fn reshape_status(&self) -> Option<ReshapeStatus> {
+        if self.features().contains(Features::RESHAPE_ACTIVE) {
+            Some(self.buffer.reshape_status().into())
+        } else {
+            None
+        }
     }
 
     fn event_count(&self) -> u64 {

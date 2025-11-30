@@ -15,7 +15,7 @@ pub struct Diagnosis {
     pub size_problem: Option<HashMap<u64, Vec<Rc<MdDeviceId>>>>,
     pub chunk_size_problem: Option<HashMap<u32, Vec<Rc<MdDeviceId>>>>,
     pub disk_count_problem: Option<HashMap<u32, Vec<Rc<MdDeviceId>>>>,
-    pub reshape_problem: Option<HashMap<ReshapeStatus, Vec<Rc<MdDeviceId>>>>,
+    pub reshape_problem: Option<HashMap<Option<ReshapeStatus>, Vec<Rc<MdDeviceId>>>>,
     pub event_count_problem: Option<HashMap<u64, Vec<Rc<MdDeviceId>>>>,
     pub device_roles_problem: Option<HashMap<Vec<MdDeviceRole>, Vec<Rc<MdDeviceId>>>>,
 }

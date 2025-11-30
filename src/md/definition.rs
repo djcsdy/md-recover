@@ -163,7 +163,9 @@ where
         }
     }
 
-    fn diagnose_reshape_problem(&self) -> Option<HashMap<ReshapeStatus, Vec<Rc<MdDeviceId>>>> {
+    fn diagnose_reshape_problem(
+        &self,
+    ) -> Option<HashMap<Option<ReshapeStatus>, Vec<Rc<MdDeviceId>>>> {
         let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
             device
                 .superblock
