@@ -1,5 +1,6 @@
 use crate::block_device::{BlockCount, BlockSize};
 use derive_more::{Deref, DerefMut, Display, From, Into};
+use std::cmp::Ordering;
 use std::ops::{Add, AddAssign};
 
 #[derive(
@@ -25,5 +26,17 @@ impl Add<BlockCount> for BlockNumber {
 impl AddAssign<BlockCount> for BlockNumber {
     fn add_assign(&mut self, rhs: BlockCount) {
         self.0 += u64::from(rhs)
+    }
+}
+
+impl PartialEq<BlockCount> for BlockNumber {
+    fn eq(&self, other: &BlockCount) -> bool {
+        self.0 == u64::from(*other)
+    }
+}
+
+impl PartialOrd<BlockCount> for BlockNumber {
+    fn partial_cmp(&self, other: &BlockCount) -> Option<Ordering> {
+        self.0.partial_cmp(&u64::from(*other))
     }
 }
