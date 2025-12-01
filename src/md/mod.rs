@@ -6,6 +6,7 @@ mod diagnosis;
 mod raid5;
 mod raid6;
 pub mod superblock;
+mod units;
 
 #[allow(unused_imports)]
 pub use self::{
