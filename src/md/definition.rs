@@ -20,12 +20,6 @@ impl<D> MdArrayDefinition<D>
 where
     D: BlockDevice + Read + Seek,
 {
-    pub fn new(devices: impl IntoIterator<Item = impl Into<Rc<MdDevice<D>>>>) -> Self {
-        Self {
-            devices: devices.into_iter().map(Into::into).collect(),
-        }
-    }
-
     pub fn diagnose(&self) -> Diagnosis {
         Diagnosis {
             device_too_small_problem: self.diagnose_device_too_small_problem(),

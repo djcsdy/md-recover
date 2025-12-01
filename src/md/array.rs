@@ -18,7 +18,9 @@ where
 {
     pub fn open(devices: impl IntoIterator<Item = impl Into<Rc<MdDevice<D>>>>) -> Self {
         Self {
-            definition: Rc::new(MdArrayDefinition::new(devices)),
+            definition: Rc::new(MdArrayDefinition {
+                devices: devices.into_iter().map(Into::into).collect(),
+            }),
         }
     }
 
