@@ -1,5 +1,5 @@
 use binary_layout::LayoutAs;
-use derive_more::{Add, AddAssign, Deref, DerefMut, Display, From, Into, Sub, SubAssign};
+use derive_more::{Add, AddAssign, Display, From, Into, Sub, SubAssign};
 use std::convert::Infallible;
 
 #[derive(
@@ -18,8 +18,6 @@ use std::convert::Infallible;
     From,
     Into,
     Display,
-    Deref,
-    DerefMut,
 )]
 #[display("{_0} inodes")]
 pub struct InodeCount(pub u32);

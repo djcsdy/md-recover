@@ -1,12 +1,10 @@
 use crate::ext4::units::inode_count::InodeCount;
 use binary_layout::LayoutAs;
-use derive_more::{Deref, DerefMut, Display, From, Into};
+use derive_more::{Display, From, Into};
 use std::cmp::Ordering;
 use std::convert::Infallible;
 
-#[derive(
-    Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug, From, Into, Display, Deref, DerefMut,
-)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug, From, Into, Display)]
 #[display("inode #{_0}")]
 pub struct InodeNumber(pub u32);
 

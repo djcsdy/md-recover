@@ -1,4 +1,4 @@
-use derive_more::{Add, AddAssign, Deref, DerefMut, Display, From, Into, Sub, SubAssign};
+use derive_more::{Add, AddAssign, Display, From, Into, Sub, SubAssign};
 
 #[derive(
     Eq,
@@ -16,8 +16,6 @@ use derive_more::{Add, AddAssign, Deref, DerefMut, Display, From, Into, Sub, Sub
     From,
     Into,
     Display,
-    Deref,
-    DerefMut,
 )]
 #[display("{_0} bytes")]
 pub struct BlockSize(pub u32);

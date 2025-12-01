@@ -1,13 +1,11 @@
 use crate::ext4::units::BlockCount;
 use binary_layout::LayoutAs;
-use derive_more::{Deref, DerefMut, Display, From, Into};
+use derive_more::{Display, From, Into};
 use std::cmp::Ordering;
 use std::convert::Infallible;
 use std::ops::{Add, AddAssign};
 
-#[derive(
-    Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug, From, Into, Display, Deref, DerefMut,
-)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug, From, Into, Display)]
 #[display("file block #{_0}")]
 pub struct FileBlockNumber(pub u32);
 

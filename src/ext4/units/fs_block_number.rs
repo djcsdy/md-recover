@@ -1,11 +1,9 @@
 use crate::ext4::units::BlockCount;
-use derive_more::{Deref, DerefMut, Display, From, Into};
+use derive_more::{Display, From, Into};
 use std::cmp::Ordering;
 use std::ops::Add;
 
-#[derive(
-    Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug, From, Into, Display, Deref, DerefMut,
-)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug, From, Into, Display)]
 #[display("filesystem block #{_0}")]
 pub struct FsBlockNumber(pub u64);
 

@@ -30,7 +30,7 @@ where
 
         let block_count = superblock.blocks_count();
         let blocks_per_group = u64::from(superblock.blocks_per_group());
-        let group_count = usize::try_from(block_count.div_ceil(blocks_per_group))
+        let group_count = usize::try_from(u64::from(block_count).div_ceil(blocks_per_group))
             .or(Err(io::ErrorKind::Unsupported))?;
         let group_size = usize::from(superblock.group_descriptor_size());
 
@@ -85,8 +85,10 @@ where
             return Err(io::ErrorKind::InvalidInput.into());
         }
 
-        let group_index = (*inode_number - 1) / *self.superblock.inodes_per_group();
-        let index_in_group = (*inode_number - 1) % *self.superblock.inodes_per_group();
+        let group_index =
+            (u32::from(inode_number) - 1) / u32::from(self.superblock.inodes_per_group());
+        let index_in_group =
+            (u32::from(inode_number) - 1) % u32::from(self.superblock.inodes_per_group());
 
         let group = self
             .group_descriptors
@@ -95,8 +97,7 @@ where
 
         let inode_offset_within_table =
             index_in_group.long_mul(u32::from(self.superblock.inode_size()));
-        let inode_byte_offset = group
-            .inode_table_block()
+        let inode_byte_offset = u64::from(group.inode_table_block())
             .checked_mul(self.superblock.block_size_bytes())
             .and_then(|base| base.checked_add(inode_offset_within_table))
             .ok_or(io::ErrorKind::InvalidData)?;
@@ -116,7 +117,7 @@ where
             Err(io::ErrorKind::InvalidInput.into())
         } else {
             self.device.seek(SeekFrom::Start(
-                block_number
+                u64::from(block_number)
                     .checked_mul(self.superblock.block_size_bytes())
                     .ok_or(io::ErrorKind::InvalidInput)?,
             ))?;

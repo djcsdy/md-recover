@@ -1,11 +1,9 @@
 use crate::block_device::{BlockCount, BlockSize};
-use derive_more::{Deref, DerefMut, Display, From, Into};
+use derive_more::{Display, From, Into};
 use std::cmp::Ordering;
 use std::ops::{Add, AddAssign};
 
-#[derive(
-    Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug, From, Into, Display, Deref, DerefMut,
-)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug, From, Into, Display)]
 #[display("block #{_0}")]
 pub struct BlockNumber(pub u64);
 

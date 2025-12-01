@@ -1,4 +1,4 @@
-use derive_more::{Add, AddAssign, Deref, DerefMut, Display, From, Sub, SubAssign};
+use derive_more::{Add, AddAssign, Display, From, Sub, SubAssign};
 use std::ops::{Add, Sub};
 
 #[derive(
@@ -16,8 +16,6 @@ use std::ops::{Add, Sub};
     SubAssign,
     From,
     Display,
-    Deref,
-    DerefMut,
 )]
 #[display("{_0} blocks")]
 pub struct BlockCount<C: PartialOrd + Add + Sub>(pub C);
