@@ -34,6 +34,12 @@ impl From<BlockCount<u32>> for u32 {
     }
 }
 
+impl From<BlockCount<u64>> for u64 {
+    fn from(value: BlockCount<u64>) -> Self {
+        value.0
+    }
+}
+
 impl From<BlockCount<u16>> for BlockCount<u32> {
     fn from(value: BlockCount<u16>) -> Self {
         Self(value.0.into())
