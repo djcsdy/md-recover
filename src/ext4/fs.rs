@@ -116,7 +116,9 @@ where
             Err(io::ErrorKind::InvalidInput.into())
         } else {
             self.device.seek(SeekFrom::Start(
-                *block_number * self.superblock.block_size_bytes(),
+                block_number
+                    .checked_mul(self.superblock.block_size_bytes())
+                    .ok_or(io::ErrorKind::InvalidInput)?,
             ))?;
             self.device.read_exact(buf)?;
             Ok(())
