@@ -15,7 +15,7 @@ where
     C: Into<u64> + Copy + PartialOrd + Add + Sub,
 {
     pub fn as_block_count(&self) -> BlockCount {
-        BlockCount(self.0.clone().into())
+        BlockCount(self.0.into())
     }
 }
 

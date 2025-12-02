@@ -18,8 +18,8 @@ pub struct SuperblockVersion0 {
     pub(super) ctime: u32,
     pub(super) level: u32,
     pub(super) sectors_per_device: SectorCount<u32>,
-    pub(super) nr_disks: DeviceCount,
-    pub(super) raid_disks: DeviceCount,
+    pub(super) total_device_count: DeviceCount,
+    pub(super) raid_device_count: DeviceCount,
     pub(super) md_minor: u32,
     pub(super) not_persistent: u32,
     pub(super) array_uuid_1: u32,
@@ -27,10 +27,10 @@ pub struct SuperblockVersion0 {
     pub(super) array_uuid_3: u32,
     pub(super) utime: u32,
     pub(super) state: u32,
-    pub(super) active_disks: DeviceCount,
-    pub(super) working_disks: DeviceCount,
-    pub(super) failed_disks: DeviceCount,
-    pub(super) spare_disks: DeviceCount,
+    pub(super) active_device_count: DeviceCount,
+    pub(super) working_device_count: DeviceCount,
+    pub(super) failed_device_count: DeviceCount,
+    pub(super) spare_device_count: DeviceCount,
     pub(super) superblock_checksum: u32,
     pub(super) event_count: MetadataEventCount,
     pub(super) checkpoint_event_count: CheckpointEventCount,
@@ -40,7 +40,7 @@ pub struct SuperblockVersion0 {
     pub(super) chunk_size: SectorCount<u32>,
     pub(super) root_pv: u32,
     pub(super) root_block: u32,
-    pub(super) disks: Vec<DeviceDescriptor>,
+    pub(super) devices: Vec<DeviceDescriptor>,
 }
 
 impl SuperblockVersion0 {
@@ -81,9 +81,9 @@ impl SuperblockVersion0 {
     }
 
     fn valid_device_descriptors(&self) -> bool {
-        self.disks
+        self.devices
             .iter()
-            .take(usize::from(self.nr_disks))
+            .take(usize::from(self.total_device_count))
             .all(|descriptor| descriptor.is_valid())
     }
 }
@@ -130,8 +130,8 @@ impl Superblock for SuperblockVersion0 {
         self.chunk_size
     }
 
-    fn raid_disks(&self) -> DeviceCount {
-        self.raid_disks
+    fn raid_device_count(&self) -> DeviceCount {
+        self.raid_device_count
     }
 
     fn reshape_status(&self) -> Option<ReshapeStatus> {
@@ -143,7 +143,7 @@ impl Superblock for SuperblockVersion0 {
     }
 
     fn device_roles(&self) -> Vec<MdDeviceRole> {
-        self.disks
+        self.devices
             .iter()
             .map(|descriptor| descriptor.role)
             .collect()

@@ -30,7 +30,7 @@ where
             algorithm_problem: self.diagnose_algorithm_problem(),
             size_problem: self.diagnose_size_problem(),
             chunk_size_problem: self.diagnose_chunk_size_problem(),
-            disk_count_problem: self.diagnose_disk_count_problem(),
+            device_count_problem: self.diagnose_device_count_problem(),
             reshape_problem: self.diagnose_reshape_problem(),
             event_count_problem: self.diagnose_event_count_problem(),
             device_roles_problem: self.diagnose_device_roles_problem(),
@@ -145,12 +145,12 @@ where
         }
     }
 
-    fn diagnose_disk_count_problem(&self) -> Option<HashMap<DeviceCount, Vec<Rc<MdDeviceId>>>> {
+    fn diagnose_device_count_problem(&self) -> Option<HashMap<DeviceCount, Vec<Rc<MdDeviceId>>>> {
         let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
             device
                 .superblock
                 .as_option()
-                .map(|superblock| (superblock.raid_disks(), device.id.clone()))
+                .map(|superblock| (superblock.raid_device_count(), device.id.clone()))
         }));
 
         if map.len() > 1 {

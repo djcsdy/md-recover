@@ -25,7 +25,7 @@ binary_layout!(layout, LittleEndian, {
     layout: u32,
     sectors_per_device: SectorCount<u64> as u64,
     chunk_size: SectorCount<u32> as u32,
-    raid_disks: DeviceCount as u32,
+    raid_device_count: DeviceCount as u32,
     bitmap_offset_or_ppl_info: [u8; 4],
     reshape_status: NestedReshapeStatusVersion1,
     data_offset: u64,
@@ -180,8 +180,8 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
         self.buffer.chunk_size().read()
     }
 
-    fn raid_disks(&self) -> DeviceCount {
-        self.buffer.raid_disks().read()
+    fn raid_device_count(&self) -> DeviceCount {
+        self.buffer.raid_device_count().read()
     }
 
     fn reshape_status(&self) -> Option<ReshapeStatus> {

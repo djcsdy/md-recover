@@ -14,7 +14,7 @@ pub trait Superblock {
     fn algorithm(&self) -> MdAlgorithm;
     fn sectors_per_device(&self) -> SectorCount<u64>;
     fn chunk_size(&self) -> SectorCount<u32>;
-    fn raid_disks(&self) -> DeviceCount;
+    fn raid_device_count(&self) -> DeviceCount;
     fn reshape_status(&self) -> Option<ReshapeStatus>;
     fn event_count(&self) -> MetadataEventCount;
     fn device_roles(&self) -> Vec<MdDeviceRole>;
@@ -53,8 +53,8 @@ impl Superblock for Box<dyn Superblock> {
         (**self).chunk_size()
     }
 
-    fn raid_disks(&self) -> DeviceCount {
-        (**self).raid_disks()
+    fn raid_device_count(&self) -> DeviceCount {
+        (**self).raid_device_count()
     }
 
     fn reshape_status(&self) -> Option<ReshapeStatus> {

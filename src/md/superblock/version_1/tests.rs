@@ -321,7 +321,7 @@ fn view_of_superblock_version_1() {
         SectorCount(0xa8fff95a3beda8d6)
     );
     assert_eq!(view.chunk_size().read(), SectorCount(65536));
-    assert_eq!(view.raid_disks().read(), DeviceCount(4));
+    assert_eq!(view.raid_device_count().read(), DeviceCount(4));
     assert_eq!(view.bitmap_offset_or_ppl_info(), &[0x7b, 0x1d, 0x5a, 0x5a]);
     assert_eq!(view.reshape_status().new_level().read(), 6);
     assert_eq!(

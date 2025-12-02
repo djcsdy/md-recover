@@ -15,8 +15,8 @@ binary_layout!(layout, LittleEndian, {
     ctime: u32,
     level: u32,
     sectors_per_device: SectorCount<u32> as u32,
-    nr_disks: DeviceCount as u32,
-    raid_disks: DeviceCount as u32,
+    total_device_count: DeviceCount as u32,
+    raid_device_count: DeviceCount as u32,
     md_minor: u32,
     not_persistent: u32,
     array_uuid_1: u32,
@@ -25,10 +25,10 @@ binary_layout!(layout, LittleEndian, {
     reserved_0: [u8; 64],
     utime: u32,
     state: u32,
-    active_disks: DeviceCount as u32,
-    working_disks: DeviceCount as u32,
-    failed_disks: DeviceCount as u32,
-    spare_disks: DeviceCount as u32,
+    active_device_count: DeviceCount as u32,
+    working_device_count: DeviceCount as u32,
+    failed_device_count: DeviceCount as u32,
+    spare_device_count: DeviceCount as u32,
     superblock_checksum: u32,
     event_count: MetadataEventCount as u64,
     checkpoint_event_count: CheckpointEventCount as u64,
@@ -40,7 +40,7 @@ binary_layout!(layout, LittleEndian, {
     root_pv: u32,
     root_block: u32,
     reserved_2: [u8; 240],
-    disks: [u8; DeviceDescriptorLittleEndian::<&[u8]>::SIZE * SuperblockVersion0::MAX_DEVICES],
+    devices: [u8; DeviceDescriptorLittleEndian::<&[u8]>::SIZE * SuperblockVersion0::MAX_DEVICES],
     reserved_3: [u8; 128]
 });
 
@@ -48,8 +48,8 @@ pub const SIZE: usize = layout::SIZE.unwrap();
 
 impl<S: AsRef<[u8]>> From<View<S>> for SuperblockVersion0 {
     fn from(value: View<S>) -> Self {
-        let device_descriptor_buffer = value.disks().as_slice();
-        let disks = Vec::from_iter((0..SuperblockVersion0::MAX_DEVICES).map(|i| {
+        let device_descriptor_buffer = value.devices().as_slice();
+        let devices = Vec::from_iter((0..SuperblockVersion0::MAX_DEVICES).map(|i| {
             DeviceDescriptorLittleEndian::new(array_ref![
                 device_descriptor_buffer,
                 i * DeviceDescriptorLittleEndian::<&[u8]>::SIZE,
@@ -68,8 +68,8 @@ impl<S: AsRef<[u8]>> From<View<S>> for SuperblockVersion0 {
             ctime: value.ctime().read(),
             level: value.level().read(),
             sectors_per_device: value.sectors_per_device().read(),
-            nr_disks: value.nr_disks().read(),
-            raid_disks: value.raid_disks().read(),
+            total_device_count: value.total_device_count().read(),
+            raid_device_count: value.raid_device_count().read(),
             md_minor: value.md_minor().read(),
             not_persistent: value.not_persistent().read(),
             array_uuid_1: value.array_uuid_1().read(),
@@ -77,10 +77,10 @@ impl<S: AsRef<[u8]>> From<View<S>> for SuperblockVersion0 {
             array_uuid_3: value.array_uuid_3().read(),
             utime: value.utime().read(),
             state: value.state().read(),
-            active_disks: value.active_disks().read(),
-            working_disks: value.working_disks().read(),
-            failed_disks: value.failed_disks().read(),
-            spare_disks: value.spare_disks().read(),
+            active_device_count: value.active_device_count().read(),
+            working_device_count: value.working_device_count().read(),
+            failed_device_count: value.failed_device_count().read(),
+            spare_device_count: value.spare_device_count().read(),
             superblock_checksum: value.superblock_checksum().read(),
             event_count: value.event_count().read(),
             checkpoint_event_count: value.checkpoint_event_count().read(),
@@ -90,7 +90,7 @@ impl<S: AsRef<[u8]>> From<View<S>> for SuperblockVersion0 {
             chunk_size: value.chunk_size().read(),
             root_pv: value.root_pv().read(),
             root_block: value.root_block().read(),
-            disks,
+            devices,
         }
     }
 }

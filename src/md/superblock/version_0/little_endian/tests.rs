@@ -442,18 +442,18 @@ fn view_of_little_endian_superblock_version_0() {
     assert_eq!(view.ctime().read(), 0x59cd9a68);
     assert_eq!(view.level().read(), 5);
     assert_eq!(view.sectors_per_device().read(), SectorCount(0x4654579d));
-    assert_eq!(view.nr_disks().read(), DeviceCount(4));
-    assert_eq!(view.raid_disks().read(), DeviceCount(4));
+    assert_eq!(view.total_device_count().read(), DeviceCount(4));
+    assert_eq!(view.raid_device_count().read(), DeviceCount(4));
     assert_eq!(view.md_minor().read(), 7);
     assert_eq!(view.not_persistent().read(), 0);
     assert_eq!(view.array_uuid_1().read(), 0xcc253946);
     assert_eq!(view.array_uuid_2().read(), 0x1649afcc);
     assert_eq!(view.utime().read(), 0x40ea6820);
     assert_eq!(view.state().read(), 0);
-    assert_eq!(view.active_disks().read(), DeviceCount(4));
-    assert_eq!(view.working_disks().read(), DeviceCount(4));
-    assert_eq!(view.failed_disks().read(), DeviceCount(0));
-    assert_eq!(view.spare_disks().read(), DeviceCount(0));
+    assert_eq!(view.active_device_count().read(), DeviceCount(4));
+    assert_eq!(view.working_device_count().read(), DeviceCount(4));
+    assert_eq!(view.failed_device_count().read(), DeviceCount(0));
+    assert_eq!(view.spare_device_count().read(), DeviceCount(0));
     assert_eq!(view.superblock_checksum().read(), 0x4742e3fa);
     assert_eq!(
         view.event_count().read(),
@@ -484,7 +484,7 @@ fn size_of_little_endian_device_descriptor() {
 fn view_of_little_endian_superblock_version_0_device_1() {
     let superblock_view = little_endian::View::new(DATA);
     let view = DeviceDescriptorLittleEndian::new(array_ref![
-        superblock_view.disks(),
+        superblock_view.devices(),
         0,
         DeviceDescriptorLittleEndian::<&[u8]>::SIZE
     ]);
@@ -499,7 +499,7 @@ fn view_of_little_endian_superblock_version_0_device_1() {
 fn view_of_little_endian_superblock_version_0_device_2() {
     let superblock_view = little_endian::View::new(DATA);
     let descriptor = DeviceDescriptorLittleEndian::new(array_ref![
-        superblock_view.disks(),
+        superblock_view.devices(),
         DeviceDescriptorLittleEndian::<&[u8]>::SIZE,
         DeviceDescriptorLittleEndian::<&[u8]>::SIZE
     ]);
