@@ -1,11 +1,9 @@
+pub use self::layout::View;
 use super::device_descriptor::DeviceDescriptorLittleEndian;
 use super::reshape_status::NestedReshapeStatusVersion0;
 use crate::md::superblock::SuperblockVersion0;
-use binary_layout::binary_layout;
-
-#[allow(unused_imports)]
-pub use self::layout::View;
 use crate::md::units::SectorCount;
+use binary_layout::binary_layout;
 
 binary_layout!(layout, LittleEndian, {
     magic: u32,

@@ -3,8 +3,6 @@ use super::reshape_status::NestedReshapeStatusVersion0;
 use crate::md::superblock::SuperblockVersion0;
 use crate::md::units::SectorCount;
 use binary_layout::binary_layout;
-
-#[allow(unused_imports)]
 pub use layout::View;
 
 binary_layout!(layout, BigEndian, {
