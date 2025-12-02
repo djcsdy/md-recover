@@ -6,6 +6,7 @@ use std::ops::{Add, Sub};
 #[derive(
     Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug, Add, AddAssign, From, Display,
 )]
+#[display("{_0} sectors")]
 pub struct SectorCount<C: PartialOrd + Add + Sub>(pub C);
 
 impl From<SectorCount<u16>> for u16 {
