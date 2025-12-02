@@ -1,7 +1,7 @@
 use crate::md::superblock::version_1::device_flags::DeviceFlags;
 use crate::md::superblock::version_1::features::Features;
 use crate::md::superblock::version_1::superblock::layout;
-use crate::md::units::SectorCount;
+use crate::md::units::{DeviceCount, SectorCount};
 
 const DATA: [u8; 4096] = [
     0xfc, 0x4e, 0x2b, 0xa9, // magic
@@ -321,7 +321,7 @@ fn view_of_superblock_version_1() {
         SectorCount(0xa8fff95a3beda8d6)
     );
     assert_eq!(view.chunk_size().read(), SectorCount(65536));
-    assert_eq!(view.raid_disks().read(), 4);
+    assert_eq!(view.raid_disks().read(), DeviceCount(4));
     assert_eq!(view.bitmap_offset_or_ppl_info(), &[0x7b, 0x1d, 0x5a, 0x5a]);
     assert_eq!(view.reshape_status().new_level().read(), 6);
     assert_eq!(
@@ -356,7 +356,7 @@ fn view_of_superblock_version_1() {
     assert_eq!(view.event_count().read(), 0x71954b9d8fff836a);
     assert_eq!(view.resync_offset().read(), 0xc191af9aef59e8b5);
     assert_eq!(view.superblock_checksum().read(), 0x55dc4d55);
-    assert_eq!(view.max_devices().read(), 4);
+    assert_eq!(view.max_devices().read(), DeviceCount(4));
     assert_eq!(
         array_ref![view.dev_roles(), 0, 8],
         &[0x01, 0x00, 0x02, 0x00, 0x03, 0x00, 0x04, 0x00]

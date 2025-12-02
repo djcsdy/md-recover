@@ -3,7 +3,7 @@ use crate::md::superblock::reshape_status::ReshapeStatus;
 use crate::md::superblock::version_0::device_descriptor::DeviceDescriptor;
 use crate::md::superblock::version_0::{big_endian, little_endian};
 use crate::md::superblock::{ArrayUuid, MdDeviceRole, Superblock};
-use crate::md::units::SectorCount;
+use crate::md::units::{DeviceCount, SectorCount};
 use std::ffi::OsStr;
 use std::io;
 use std::io::Read;
@@ -18,8 +18,8 @@ pub struct SuperblockVersion0 {
     pub(super) ctime: u32,
     pub(super) level: u32,
     pub(super) sectors_per_device: SectorCount<u32>,
-    pub(super) nr_disks: u32,
-    pub(super) raid_disks: u32,
+    pub(super) nr_disks: DeviceCount,
+    pub(super) raid_disks: DeviceCount,
     pub(super) md_minor: u32,
     pub(super) not_persistent: u32,
     pub(super) array_uuid_1: u32,
@@ -27,10 +27,10 @@ pub struct SuperblockVersion0 {
     pub(super) array_uuid_3: u32,
     pub(super) utime: u32,
     pub(super) state: u32,
-    pub(super) active_disks: u32,
-    pub(super) working_disks: u32,
-    pub(super) failed_disks: u32,
-    pub(super) spare_disks: u32,
+    pub(super) active_disks: DeviceCount,
+    pub(super) working_disks: DeviceCount,
+    pub(super) failed_disks: DeviceCount,
+    pub(super) spare_disks: DeviceCount,
     pub(super) superblock_checksum: u32,
     pub(super) event_count: u64,
     pub(super) checkpoint_event_count: u64,
@@ -83,7 +83,7 @@ impl SuperblockVersion0 {
     fn valid_device_descriptors(&self) -> bool {
         self.disks
             .iter()
-            .take(self.nr_disks as usize)
+            .take(usize::from(self.nr_disks))
             .all(|descriptor| descriptor.is_valid())
     }
 }
@@ -130,7 +130,7 @@ impl Superblock for SuperblockVersion0 {
         self.chunk_size
     }
 
-    fn raid_disks(&self) -> u32 {
+    fn raid_disks(&self) -> DeviceCount {
         self.raid_disks
     }
 

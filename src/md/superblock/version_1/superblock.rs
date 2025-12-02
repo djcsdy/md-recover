@@ -5,7 +5,7 @@ use crate::md::superblock::version_1::features::Features;
 use crate::md::superblock::version_1::ppl_info::PplInfo;
 use crate::md::superblock::version_1::reshape_status::NestedReshapeStatusVersion1;
 use crate::md::superblock::{ArrayUuid, MdDeviceRole, Superblock};
-use crate::md::units::SectorCount;
+use crate::md::units::{DeviceCount, SectorCount};
 use binary_layout::binary_layout;
 use byteorder::{ByteOrder, LittleEndian, ReadBytesExt};
 use std::ffi::OsStr;
@@ -25,7 +25,7 @@ binary_layout!(layout, LittleEndian, {
     layout: u32,
     sectors_per_device: SectorCount<u64> as u64,
     chunk_size: SectorCount<u32> as u32,
-    raid_disks: u32,
+    raid_disks: DeviceCount as u32,
     bitmap_offset_or_ppl_info: [u8; 4],
     reshape_status: NestedReshapeStatusVersion1,
     data_offset: u64,
@@ -43,7 +43,7 @@ binary_layout!(layout, LittleEndian, {
     event_count: u64,
     resync_offset: u64,
     superblock_checksum: u32,
-    max_devices: u32,
+    max_devices: DeviceCount as u32,
     pad_3: [u8; 32],
     dev_roles: [u8]
 });
@@ -180,7 +180,7 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
         self.buffer.chunk_size().read()
     }
 
-    fn raid_disks(&self) -> u32 {
+    fn raid_disks(&self) -> DeviceCount {
         self.buffer.raid_disks().read()
     }
 
@@ -197,7 +197,7 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
     }
 
     fn device_roles(&self) -> Vec<MdDeviceRole> {
-        let count = self.buffer.max_devices().read() as usize;
+        let count = usize::from(self.buffer.max_devices().read());
         let mut buffer = vec![0u16; count];
         self.buffer
             .dev_roles()

@@ -1,6 +1,6 @@
 use crate::md::superblock::version_0::big_endian;
 use crate::md::superblock::version_0::big_endian::device_descriptor::DeviceDescriptorBigEndian;
-use crate::md::units::SectorCount;
+use crate::md::units::{DeviceCount, SectorCount};
 
 const DATA: [u8; 4096] = [
     0xa9, 0x2b, 0x4e, 0xfc, // magic
@@ -442,18 +442,18 @@ fn view_of_big_endian_superblock_version_0() {
     assert_eq!(view.ctime().read(), 0x59cd9a68);
     assert_eq!(view.level().read(), 5);
     assert_eq!(view.sectors_per_device().read(), SectorCount(0x4654579d));
-    assert_eq!(view.nr_disks().read(), 4);
-    assert_eq!(view.raid_disks().read(), 4);
+    assert_eq!(view.nr_disks().read(), DeviceCount(4));
+    assert_eq!(view.raid_disks().read(), DeviceCount(4));
     assert_eq!(view.md_minor().read(), 7);
     assert_eq!(view.not_persistent().read(), 0);
     assert_eq!(view.array_uuid_1().read(), 0xcc253946);
     assert_eq!(view.array_uuid_2().read(), 0x1649afcc);
     assert_eq!(view.utime().read(), 0x40ea6820);
     assert_eq!(view.state().read(), 0);
-    assert_eq!(view.active_disks().read(), 4);
-    assert_eq!(view.working_disks().read(), 4);
-    assert_eq!(view.failed_disks().read(), 0);
-    assert_eq!(view.spare_disks().read(), 0);
+    assert_eq!(view.active_disks().read(), DeviceCount(4));
+    assert_eq!(view.working_disks().read(), DeviceCount(4));
+    assert_eq!(view.failed_disks().read(), DeviceCount(0));
+    assert_eq!(view.spare_disks().read(), DeviceCount(0));
     assert_eq!(view.superblock_checksum().read(), 0x4742e3fa);
     assert_eq!(view.event_count().read(), 0x05ada75c5431f9cf);
     assert_eq!(view.checkpoint_event_count().read(), 0x7d613e63f79eea5b);

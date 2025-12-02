@@ -2,7 +2,7 @@ pub use self::layout::View;
 use super::device_descriptor::DeviceDescriptorLittleEndian;
 use super::reshape_status::NestedReshapeStatusVersion0;
 use crate::md::superblock::SuperblockVersion0;
-use crate::md::units::SectorCount;
+use crate::md::units::{DeviceCount, SectorCount};
 use binary_layout::binary_layout;
 
 binary_layout!(layout, LittleEndian, {
@@ -15,8 +15,8 @@ binary_layout!(layout, LittleEndian, {
     ctime: u32,
     level: u32,
     sectors_per_device: SectorCount<u32> as u32,
-    nr_disks: u32,
-    raid_disks: u32,
+    nr_disks: DeviceCount as u32,
+    raid_disks: DeviceCount as u32,
     md_minor: u32,
     not_persistent: u32,
     array_uuid_1: u32,
@@ -25,10 +25,10 @@ binary_layout!(layout, LittleEndian, {
     reserved_0: [u8; 64],
     utime: u32,
     state: u32,
-    active_disks: u32,
-    working_disks: u32,
-    failed_disks: u32,
-    spare_disks: u32,
+    active_disks: DeviceCount as u32,
+    working_disks: DeviceCount as u32,
+    failed_disks: DeviceCount as u32,
+    spare_disks: DeviceCount as u32,
     superblock_checksum: u32,
     event_count: u64,
     checkpoint_event_count: u64,

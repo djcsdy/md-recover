@@ -20,3 +20,9 @@ impl LayoutAs<u32> for DeviceCount {
         Ok(v.0)
     }
 }
+
+impl From<DeviceCount> for usize {
+    fn from(value: DeviceCount) -> Self {
+        usize::try_from(u32::from(value)).unwrap()
+    }
+}
