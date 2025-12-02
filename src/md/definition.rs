@@ -3,6 +3,7 @@ use crate::ext::MultiMap;
 use crate::md::algorithm::MdAlgorithm;
 use crate::md::diagnosis::Diagnosis;
 use crate::md::superblock::{ArrayUuid, MdDeviceRole, ReshapeStatus};
+use crate::md::units::SectorCount;
 use crate::md::{MdDevice, MdDeviceId, MdDeviceSuperblock};
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsString;
@@ -112,7 +113,7 @@ where
         }
     }
 
-    fn diagnose_size_problem(&self) -> Option<HashMap<u64, Vec<Rc<MdDeviceId>>>> {
+    fn diagnose_size_problem(&self) -> Option<HashMap<SectorCount<u64>, Vec<Rc<MdDeviceId>>>> {
         let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
             device
                 .superblock
@@ -127,7 +128,9 @@ where
         }
     }
 
-    fn diagnose_chunk_size_problem(&self) -> Option<HashMap<u32, Vec<Rc<MdDeviceId>>>> {
+    fn diagnose_chunk_size_problem(
+        &self,
+    ) -> Option<HashMap<SectorCount<u32>, Vec<Rc<MdDeviceId>>>> {
         let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
             device
                 .superblock

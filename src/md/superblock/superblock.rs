@@ -3,6 +3,7 @@ use std::ffi::OsStr;
 use super::{ArrayUuid, MdDeviceRole};
 use crate::md::algorithm::MdAlgorithm;
 use crate::md::superblock::reshape_status::ReshapeStatus;
+use crate::md::units::SectorCount;
 
 pub trait Superblock {
     fn valid(&self) -> bool;
@@ -11,8 +12,8 @@ pub trait Superblock {
     fn array_uuid(&self) -> ArrayUuid;
     fn array_name(&self) -> Option<&OsStr>;
     fn algorithm(&self) -> MdAlgorithm;
-    fn sectors_per_device(&self) -> u64;
-    fn chunk_size(&self) -> u32;
+    fn sectors_per_device(&self) -> SectorCount<u64>;
+    fn chunk_size(&self) -> SectorCount<u32>;
     fn raid_disks(&self) -> u32;
     fn reshape_status(&self) -> Option<ReshapeStatus>;
     fn event_count(&self) -> u64;
@@ -44,11 +45,11 @@ impl Superblock for Box<dyn Superblock> {
         (**self).algorithm()
     }
 
-    fn sectors_per_device(&self) -> u64 {
+    fn sectors_per_device(&self) -> SectorCount<u64> {
         (**self).sectors_per_device()
     }
 
-    fn chunk_size(&self) -> u32 {
+    fn chunk_size(&self) -> SectorCount<u32> {
         (**self).chunk_size()
     }
 

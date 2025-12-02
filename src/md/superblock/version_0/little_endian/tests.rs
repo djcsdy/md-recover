@@ -1,5 +1,6 @@
 use crate::md::superblock::version_0::little_endian;
 use crate::md::superblock::version_0::little_endian::device_descriptor::DeviceDescriptorLittleEndian;
+use crate::md::units::SectorCount;
 
 const DATA: [u8; 4096] = [
     0xfc, 0x4e, 0x2b, 0xa9, // magic
@@ -440,7 +441,7 @@ fn view_of_little_endian_superblock_version_0() {
     assert_eq!(view.array_uuid_0().read(), 0x12345678);
     assert_eq!(view.ctime().read(), 0x59cd9a68);
     assert_eq!(view.level().read(), 5);
-    assert_eq!(view.sectors_per_device().read(), 0x4654579d);
+    assert_eq!(view.sectors_per_device().read(), SectorCount(0x4654579d));
     assert_eq!(view.nr_disks().read(), 4);
     assert_eq!(view.raid_disks().read(), 4);
     assert_eq!(view.md_minor().read(), 7);
@@ -463,7 +464,7 @@ fn view_of_little_endian_superblock_version_0() {
     assert_eq!(view.reshape_status().new_layout().read(), 0);
     assert_eq!(view.reshape_status().new_chunk_size().read(), 0);
     assert_eq!(view.layout().read(), 0xc49704fc);
-    assert_eq!(view.chunk_size().read(), 65536);
+    assert_eq!(view.chunk_size().read(), SectorCount(65536));
     assert_eq!(view.root_pv().read(), 0xbdbdd227);
     assert_eq!(view.root_block().read(), 0xa7feefba);
 }

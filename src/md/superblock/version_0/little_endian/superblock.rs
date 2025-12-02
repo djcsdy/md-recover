@@ -5,6 +5,7 @@ use binary_layout::binary_layout;
 
 #[allow(unused_imports)]
 pub use self::layout::View;
+use crate::md::units::SectorCount;
 
 binary_layout!(layout, LittleEndian, {
     magic: u32,
@@ -15,7 +16,7 @@ binary_layout!(layout, LittleEndian, {
     array_uuid_0: u32,
     ctime: u32,
     level: u32,
-    sectors_per_device: u32,
+    sectors_per_device: SectorCount<u32> as u32,
     nr_disks: u32,
     raid_disks: u32,
     md_minor: u32,
@@ -37,7 +38,7 @@ binary_layout!(layout, LittleEndian, {
     reshape_status: NestedReshapeStatusVersion0,
     reserved_1: [u8; 56],
     layout: u32,
-    chunk_size: u32,
+    chunk_size: SectorCount<u32> as u32,
     root_pv: u32,
     root_block: u32,
     reserved_2: [u8; 240],

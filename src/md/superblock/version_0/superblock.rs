@@ -3,6 +3,7 @@ use crate::md::superblock::reshape_status::ReshapeStatus;
 use crate::md::superblock::version_0::device_descriptor::DeviceDescriptor;
 use crate::md::superblock::version_0::{big_endian, little_endian};
 use crate::md::superblock::{ArrayUuid, MdDeviceRole, Superblock};
+use crate::md::units::SectorCount;
 use std::ffi::OsStr;
 use std::io;
 use std::io::Read;
@@ -16,7 +17,7 @@ pub struct SuperblockVersion0 {
     pub(super) array_uuid_0: u32,
     pub(super) ctime: u32,
     pub(super) level: u32,
-    pub(super) sectors_per_device: u32,
+    pub(super) sectors_per_device: SectorCount<u32>,
     pub(super) nr_disks: u32,
     pub(super) raid_disks: u32,
     pub(super) md_minor: u32,
@@ -36,7 +37,7 @@ pub struct SuperblockVersion0 {
     pub(super) recovery_checkpoint: u32,
     pub(super) reshape_status: ReshapeStatus,
     pub(super) layout: u32,
-    pub(super) chunk_size: u32,
+    pub(super) chunk_size: SectorCount<u32>,
     pub(super) root_pv: u32,
     pub(super) root_block: u32,
     pub(super) disks: Vec<DeviceDescriptor>,
@@ -121,11 +122,11 @@ impl Superblock for SuperblockVersion0 {
         MdAlgorithm::from_level_and_layout(self.level, self.layout)
     }
 
-    fn sectors_per_device(&self) -> u64 {
+    fn sectors_per_device(&self) -> SectorCount<u64> {
         self.sectors_per_device.into()
     }
 
-    fn chunk_size(&self) -> u32 {
+    fn chunk_size(&self) -> SectorCount<u32> {
         self.chunk_size
     }
 

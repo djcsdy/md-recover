@@ -5,6 +5,7 @@ use crate::md::superblock::version_1::features::Features;
 use crate::md::superblock::version_1::ppl_info::PplInfo;
 use crate::md::superblock::version_1::reshape_status::NestedReshapeStatusVersion1;
 use crate::md::superblock::{ArrayUuid, MdDeviceRole, Superblock};
+use crate::md::units::SectorCount;
 use binary_layout::binary_layout;
 use byteorder::{ByteOrder, LittleEndian, ReadBytesExt};
 use std::ffi::OsStr;
@@ -22,8 +23,8 @@ binary_layout!(layout, LittleEndian, {
     ctime: u64,
     level: u32,
     layout: u32,
-    sectors_per_device: u64,
-    chunk_size: u32,
+    sectors_per_device: SectorCount<u64> as u64,
+    chunk_size: SectorCount<u32> as u32,
     raid_disks: u32,
     bitmap_offset_or_ppl_info: [u8; 4],
     reshape_status: NestedReshapeStatusVersion1,
@@ -171,11 +172,11 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
         MdAlgorithm::from_level_and_layout(self.level(), self.layout())
     }
 
-    fn sectors_per_device(&self) -> u64 {
+    fn sectors_per_device(&self) -> SectorCount<u64> {
         self.buffer.sectors_per_device().read()
     }
 
-    fn chunk_size(&self) -> u32 {
+    fn chunk_size(&self) -> SectorCount<u32> {
         self.buffer.chunk_size().read()
     }
 

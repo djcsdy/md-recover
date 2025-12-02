@@ -1,6 +1,7 @@
 use crate::md::superblock::version_1::device_flags::DeviceFlags;
 use crate::md::superblock::version_1::features::Features;
 use crate::md::superblock::version_1::superblock::layout;
+use crate::md::units::SectorCount;
 
 const DATA: [u8; 4096] = [
     0xfc, 0x4e, 0x2b, 0xa9, // magic
@@ -315,8 +316,11 @@ fn view_of_superblock_version_1() {
     assert_eq!(view.ctime().read(), 0x1149dcd1f9bd2423);
     assert_eq!(view.level().read(), 5);
     assert_eq!(view.layout().read(), 0xa64a04b3);
-    assert_eq!(view.sectors_per_device().read(), 0xa8fff95a3beda8d6);
-    assert_eq!(view.chunk_size().read(), 65536);
+    assert_eq!(
+        view.sectors_per_device().read(),
+        SectorCount(0xa8fff95a3beda8d6)
+    );
+    assert_eq!(view.chunk_size().read(), SectorCount(65536));
     assert_eq!(view.raid_disks().read(), 4);
     assert_eq!(view.bitmap_offset_or_ppl_info(), &[0x7b, 0x1d, 0x5a, 0x5a]);
     assert_eq!(view.reshape_status().new_level().read(), 6);
