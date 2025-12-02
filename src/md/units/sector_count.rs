@@ -1,3 +1,4 @@
+use crate::block_device::BlockCount;
 use binary_layout::LayoutAs;
 use derive_more::{Add, AddAssign, Display, From};
 use std::convert::Infallible;
@@ -8,6 +9,15 @@ use std::ops::{Add, Sub};
 )]
 #[display("{_0} sectors")]
 pub struct SectorCount<C: PartialOrd + Add + Sub>(pub C);
+
+impl<C> SectorCount<C>
+where
+    C: Into<u64> + Copy + PartialOrd + Add + Sub,
+{
+    pub fn as_block_count(&self) -> BlockCount {
+        BlockCount(self.0.clone().into())
+    }
+}
 
 impl From<SectorCount<u16>> for u16 {
     fn from(value: SectorCount<u16>) -> Self {
