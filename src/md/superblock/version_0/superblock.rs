@@ -16,7 +16,7 @@ pub struct SuperblockVersion0 {
     pub(super) array_uuid_0: u32,
     pub(super) ctime: u32,
     pub(super) level: u32,
-    pub(super) size: u32,
+    pub(super) sectors_per_device: u32,
     pub(super) nr_disks: u32,
     pub(super) raid_disks: u32,
     pub(super) md_minor: u32,
@@ -121,8 +121,8 @@ impl Superblock for SuperblockVersion0 {
         MdAlgorithm::from_level_and_layout(self.level, self.layout)
     }
 
-    fn size(&self) -> u64 {
-        self.size.into()
+    fn sectors_per_device(&self) -> u64 {
+        self.sectors_per_device.into()
     }
 
     fn chunk_size(&self) -> u32 {

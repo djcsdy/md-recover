@@ -11,7 +11,7 @@ pub trait Superblock {
     fn array_uuid(&self) -> ArrayUuid;
     fn array_name(&self) -> Option<&OsStr>;
     fn algorithm(&self) -> MdAlgorithm;
-    fn size(&self) -> u64;
+    fn sectors_per_device(&self) -> u64;
     fn chunk_size(&self) -> u32;
     fn raid_disks(&self) -> u32;
     fn reshape_status(&self) -> Option<ReshapeStatus>;
@@ -44,8 +44,8 @@ impl Superblock for Box<dyn Superblock> {
         (**self).algorithm()
     }
 
-    fn size(&self) -> u64 {
-        (**self).size()
+    fn sectors_per_device(&self) -> u64 {
+        (**self).sectors_per_device()
     }
 
     fn chunk_size(&self) -> u32 {

@@ -117,7 +117,7 @@ where
             device
                 .superblock
                 .as_option()
-                .map(|superblock| (superblock.size(), device.id.clone()))
+                .map(|superblock| (superblock.sectors_per_device(), device.id.clone()))
         }));
 
         if map.len() > 1 {

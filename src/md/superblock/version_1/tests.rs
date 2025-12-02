@@ -315,7 +315,7 @@ fn view_of_superblock_version_1() {
     assert_eq!(view.ctime().read(), 0x1149dcd1f9bd2423);
     assert_eq!(view.level().read(), 5);
     assert_eq!(view.layout().read(), 0xa64a04b3);
-    assert_eq!(view.size().read(), 0xa8fff95a3beda8d6);
+    assert_eq!(view.sectors_per_device().read(), 0xa8fff95a3beda8d6);
     assert_eq!(view.chunk_size().read(), 65536);
     assert_eq!(view.raid_disks().read(), 4);
     assert_eq!(view.bitmap_offset_or_ppl_info(), &[0x7b, 0x1d, 0x5a, 0x5a]);

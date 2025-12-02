@@ -440,7 +440,7 @@ fn view_of_big_endian_superblock_version_0() {
     assert_eq!(view.array_uuid_0().read(), 0x12345678);
     assert_eq!(view.ctime().read(), 0x59cd9a68);
     assert_eq!(view.level().read(), 5);
-    assert_eq!(view.size().read(), 0x4654579d);
+    assert_eq!(view.sectors_per_device().read(), 0x4654579d);
     assert_eq!(view.nr_disks().read(), 4);
     assert_eq!(view.raid_disks().read(), 4);
     assert_eq!(view.md_minor().read(), 7);

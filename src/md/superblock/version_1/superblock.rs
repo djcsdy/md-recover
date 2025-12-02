@@ -22,7 +22,7 @@ binary_layout!(layout, LittleEndian, {
     ctime: u64,
     level: u32,
     layout: u32,
-    size: u64,
+    sectors_per_device: u64,
     chunk_size: u32,
     raid_disks: u32,
     bitmap_offset_or_ppl_info: [u8; 4],
@@ -171,8 +171,8 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
         MdAlgorithm::from_level_and_layout(self.level(), self.layout())
     }
 
-    fn size(&self) -> u64 {
-        self.buffer.size().read()
+    fn sectors_per_device(&self) -> u64 {
+        self.buffer.sectors_per_device().read()
     }
 
     fn chunk_size(&self) -> u32 {
