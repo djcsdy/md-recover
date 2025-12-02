@@ -20,7 +20,7 @@ iocuddle = "=0.1.1"
 num_enum = "=0.7.5"
 num-integer = "=0.1.46"
 os_display = "=0.1.4"
-uuid = "=1.18.1"
+uuid = "=1.19.0"
 
 [dev-dependencies]
 anyhow = "=1.0.100"
