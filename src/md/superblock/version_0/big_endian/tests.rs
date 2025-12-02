@@ -1,6 +1,6 @@
 use crate::md::superblock::version_0::big_endian;
 use crate::md::superblock::version_0::big_endian::device_descriptor::DeviceDescriptorBigEndian;
-use crate::md::units::{DeviceCount, SectorCount};
+use crate::md::units::{CheckpointEventCount, DeviceCount, MetadataEventCount, SectorCount};
 
 const DATA: [u8; 4096] = [
     0xa9, 0x2b, 0x4e, 0xfc, // magic
@@ -455,8 +455,14 @@ fn view_of_big_endian_superblock_version_0() {
     assert_eq!(view.failed_disks().read(), DeviceCount(0));
     assert_eq!(view.spare_disks().read(), DeviceCount(0));
     assert_eq!(view.superblock_checksum().read(), 0x4742e3fa);
-    assert_eq!(view.event_count().read(), 0x05ada75c5431f9cf);
-    assert_eq!(view.checkpoint_event_count().read(), 0x7d613e63f79eea5b);
+    assert_eq!(
+        view.event_count().read(),
+        MetadataEventCount(0x05ada75c5431f9cf)
+    );
+    assert_eq!(
+        view.checkpoint_event_count().read(),
+        CheckpointEventCount(0x7d613e63f79eea5b)
+    );
     assert_eq!(view.recovery_checkpoint().read(), 0x46e39b46);
     assert_eq!(view.reshape_status().reshape_position().read(), 0);
     assert_eq!(view.reshape_status().new_level().read(), 0);

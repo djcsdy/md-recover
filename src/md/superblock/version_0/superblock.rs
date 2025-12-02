@@ -3,7 +3,7 @@ use crate::md::superblock::reshape_status::ReshapeStatus;
 use crate::md::superblock::version_0::device_descriptor::DeviceDescriptor;
 use crate::md::superblock::version_0::{big_endian, little_endian};
 use crate::md::superblock::{ArrayUuid, MdDeviceRole, Superblock};
-use crate::md::units::{DeviceCount, SectorCount};
+use crate::md::units::{CheckpointEventCount, DeviceCount, MetadataEventCount, SectorCount};
 use std::ffi::OsStr;
 use std::io;
 use std::io::Read;
@@ -32,8 +32,8 @@ pub struct SuperblockVersion0 {
     pub(super) failed_disks: DeviceCount,
     pub(super) spare_disks: DeviceCount,
     pub(super) superblock_checksum: u32,
-    pub(super) event_count: u64,
-    pub(super) checkpoint_event_count: u64,
+    pub(super) event_count: MetadataEventCount,
+    pub(super) checkpoint_event_count: CheckpointEventCount,
     pub(super) recovery_checkpoint: u32,
     pub(super) reshape_status: ReshapeStatus,
     pub(super) layout: u32,
@@ -138,7 +138,7 @@ impl Superblock for SuperblockVersion0 {
         Some(self.reshape_status.clone())
     }
 
-    fn event_count(&self) -> u64 {
+    fn event_count(&self) -> MetadataEventCount {
         self.event_count
     }
 

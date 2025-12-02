@@ -1,7 +1,7 @@
 use crate::md::superblock::version_1::device_flags::DeviceFlags;
 use crate::md::superblock::version_1::features::Features;
 use crate::md::superblock::version_1::superblock::layout;
-use crate::md::units::{DeviceCount, SectorCount};
+use crate::md::units::{DeviceCount, MetadataEventCount, SectorCount};
 
 const DATA: [u8; 4096] = [
     0xfc, 0x4e, 0x2b, 0xa9, // magic
@@ -353,7 +353,10 @@ fn view_of_superblock_version_1() {
     assert_eq!(view.bad_block_log_size().read(), 0xcca0);
     assert_eq!(view.bad_block_log_offset().read(), 0xad79cc21);
     assert_eq!(view.utime().read(), 0x5ce35f80ed788341);
-    assert_eq!(view.event_count().read(), 0x71954b9d8fff836a);
+    assert_eq!(
+        view.event_count().read(),
+        MetadataEventCount(0x71954b9d8fff836a)
+    );
     assert_eq!(view.resync_offset().read(), 0xc191af9aef59e8b5);
     assert_eq!(view.superblock_checksum().read(), 0x55dc4d55);
     assert_eq!(view.max_devices().read(), DeviceCount(4));

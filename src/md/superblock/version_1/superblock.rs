@@ -5,7 +5,7 @@ use crate::md::superblock::version_1::features::Features;
 use crate::md::superblock::version_1::ppl_info::PplInfo;
 use crate::md::superblock::version_1::reshape_status::NestedReshapeStatusVersion1;
 use crate::md::superblock::{ArrayUuid, MdDeviceRole, Superblock};
-use crate::md::units::{DeviceCount, SectorCount};
+use crate::md::units::{DeviceCount, MetadataEventCount, SectorCount};
 use binary_layout::binary_layout;
 use byteorder::{ByteOrder, LittleEndian, ReadBytesExt};
 use std::ffi::OsStr;
@@ -40,7 +40,7 @@ binary_layout!(layout, LittleEndian, {
     bad_block_log_size: u16,
     bad_block_log_offset: u32,
     utime: u64,
-    event_count: u64,
+    event_count: MetadataEventCount as u64,
     resync_offset: u64,
     superblock_checksum: u32,
     max_devices: DeviceCount as u32,
@@ -192,7 +192,7 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
         }
     }
 
-    fn event_count(&self) -> u64 {
+    fn event_count(&self) -> MetadataEventCount {
         self.buffer.event_count().read()
     }
 

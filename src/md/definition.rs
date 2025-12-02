@@ -3,7 +3,7 @@ use crate::ext::MultiMap;
 use crate::md::algorithm::MdAlgorithm;
 use crate::md::diagnosis::Diagnosis;
 use crate::md::superblock::{ArrayUuid, MdDeviceRole, ReshapeStatus};
-use crate::md::units::{DeviceCount, SectorCount};
+use crate::md::units::{DeviceCount, MetadataEventCount, SectorCount};
 use crate::md::{MdDevice, MdDeviceId, MdDeviceSuperblock};
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsString;
@@ -177,7 +177,9 @@ where
         }
     }
 
-    fn diagnose_event_count_problem(&self) -> Option<HashMap<u64, Vec<Rc<MdDeviceId>>>> {
+    fn diagnose_event_count_problem(
+        &self,
+    ) -> Option<HashMap<MetadataEventCount, Vec<Rc<MdDeviceId>>>> {
         let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
             device
                 .superblock
