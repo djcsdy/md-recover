@@ -26,3 +26,9 @@ impl From<DeviceCount> for usize {
         usize::try_from(u32::from(value)).unwrap()
     }
 }
+
+impl From<DeviceCount> for u64 {
+    fn from(value: DeviceCount) -> Self {
+        u64::from(u32::from(value))
+    }
+}

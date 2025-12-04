@@ -32,6 +32,12 @@ impl MdConfig {
             .map(DeviceCount)
     }
 
+    pub fn data_sector_count(&self) -> Option<SectorCount<u64>> {
+        u64::from(self.sectors_per_device)
+            .checked_mul(u64::from(self.data_device_count()?))
+            .map(SectorCount)
+    }
+
     fn from_superblock(superblock: &MdDeviceSuperblock) -> Option<Self> {
         superblock.as_option().map(|superblock| Self {
             algorithm: superblock.algorithm(),
