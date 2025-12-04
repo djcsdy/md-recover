@@ -26,6 +26,12 @@ impl MdConfig {
         self.algorithm.parity_device_count()
     }
 
+    pub fn data_device_count(&self) -> Option<DeviceCount> {
+        u32::from(self.device_count)
+            .checked_sub(u32::from(self.parity_device_count()?))
+            .map(DeviceCount)
+    }
+
     fn from_superblock(superblock: &MdDeviceSuperblock) -> Option<Self> {
         superblock.as_option().map(|superblock| Self {
             algorithm: superblock.algorithm(),
