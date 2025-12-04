@@ -10,7 +10,7 @@ pub struct MdConfig {
 }
 
 impl MdConfig {
-    pub(crate) fn from_superblocks<I, S>(superblocks: I) -> Option<Self>
+    pub fn from_superblocks<I, S>(superblocks: I) -> Option<Self>
     where
         I: IntoIterator<Item = S>,
         S: AsRef<MdDeviceSuperblock>,
