@@ -1,5 +1,6 @@
 use crate::md::raid5::Raid5Algorithm;
 use crate::md::raid6::Raid6Algorithm;
+use crate::md::units::DeviceCount;
 
 #[derive(Eq, PartialEq, Clone, Hash, Debug)]
 pub enum MdAlgorithm {
@@ -16,5 +17,13 @@ impl MdAlgorithm {
             _ => None,
         }
         .unwrap_or(Self::Unsupported { level, layout })
+    }
+
+    pub fn parity_device_count(&self) -> Option<DeviceCount> {
+        match self {
+            MdAlgorithm::Unsupported { .. } => None,
+            MdAlgorithm::Raid5(_) => Some(DeviceCount(1)),
+            MdAlgorithm::Raid6(_) => Some(DeviceCount(2)),
+        }
     }
 }
