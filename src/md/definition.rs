@@ -1,6 +1,7 @@
 use crate::block_device::BlockDevice;
 use crate::ext::MultiMap;
 use crate::md::algorithm::MdAlgorithm;
+use crate::md::config::MdConfig;
 use crate::md::diagnosis::Diagnosis;
 use crate::md::superblock::{ArrayUuid, MdDeviceRole, ReshapeStatus};
 use crate::md::units::{DeviceCount, MetadataEventCount, SectorCount};
@@ -15,6 +16,7 @@ where
     D: BlockDevice + Read + Seek,
 {
     pub devices: Vec<Rc<MdDevice<D>>>,
+    pub config: Option<MdConfig>,
 }
 
 impl<D> MdArrayDefinition<D>

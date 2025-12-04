@@ -1,5 +1,6 @@
 mod algorithm;
 mod array;
+mod config;
 mod definition;
 mod device;
 mod diagnosis;
