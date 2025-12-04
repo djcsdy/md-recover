@@ -22,6 +22,10 @@ impl MdConfig {
             .flatten()
     }
 
+    pub fn parity_device_count(&self) -> Option<DeviceCount> {
+        self.algorithm.parity_device_count()
+    }
+
     fn from_superblock(superblock: &MdDeviceSuperblock) -> Option<Self> {
         superblock.as_option().map(|superblock| Self {
             algorithm: superblock.algorithm(),
