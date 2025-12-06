@@ -176,7 +176,7 @@ impl Raid6Algorithm {
         );
 
         let sector_in_device = SectorNumber(
-            u64::from(chunk_number)
+            u64::from(stripe_number)
                 .checked_mul(u64::from(sectors_per_chunk))?
                 .checked_add(u64::from(sector_in_chunk))?,
         );
