@@ -1,3 +1,4 @@
+use crate::block_device::BlockNumber;
 use crate::md::units::{ChunkNumber, SectorCount};
 use derive_more::{Display, From, Into};
 use std::cmp::Ordering;
@@ -19,6 +20,10 @@ impl SectorNumber {
             ChunkNumber(self.0.checked_div(sectors_per_chunk.0.into())?),
             SectorNumber(self.0.checked_rem(sectors_per_chunk.0.into())?),
         ))
+    }
+
+    pub fn from_block_number(block_number: BlockNumber) -> Self {
+        Self(u64::from(block_number))
     }
 }
 
