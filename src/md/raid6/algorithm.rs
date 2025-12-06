@@ -1,3 +1,5 @@
+use crate::md::units::{DeviceCount, DeviceNumber, SectorCount, SectorNumber};
+
 #[derive(Eq, PartialEq, Clone, Hash, Debug)]
 pub enum Raid6Algorithm {
     /// Rotating Parity N with Data Restart
@@ -53,83 +55,137 @@ impl Raid6Algorithm {
 
     pub fn compute_sector(
         &self,
-        sector: u64,
-        sectors_per_chunk: u32,
-        raid_disks: u32,
-    ) -> (u64, u32, u32, u32) {
-        let sector_in_chunk = sector % u64::from(sectors_per_chunk);
-        let chunk_index = sector / u64::from(sectors_per_chunk);
-        let data_disks = raid_disks - 2;
-        let data_disk_index = (chunk_index % u64::from(data_disks)) as u32;
-        let stripe = (chunk_index / u64::from(data_disks)) as u32;
+        sector_number: SectorNumber,
+        sectors_per_chunk: SectorCount<u32>,
+        raid_device_count: DeviceCount,
+    ) -> Option<(SectorNumber, DeviceNumber, DeviceNumber, DeviceNumber)> {
+        let (chunk_number, sector_in_chunk) = sector_number.in_chunk(sectors_per_chunk)?;
+        let data_device_count = DeviceCount(u32::from(raid_device_count).checked_sub(2)?);
+        let (data_device_number, stripe_number) =
+            chunk_number.as_data_device_and_stripe_number(data_device_count)?;
 
-        let p_disk = match self {
-            Raid6Algorithm::LeftAsymmetric
-            | Raid6Algorithm::LeftSymmetric
-            | Raid6Algorithm::RotatingNContinue => raid_disks - 1 - stripe % raid_disks,
-            Raid6Algorithm::RightAsymmetric
-            | Raid6Algorithm::RightSymmetric
-            | Raid6Algorithm::Rotating0Restart => stripe % raid_disks,
-            Raid6Algorithm::Parity0 => 0,
-            Raid6Algorithm::ParityN => data_disks,
-            Raid6Algorithm::RotatingNRestart => raid_disks - 1 - (stripe + 1) % raid_disks,
-            Raid6Algorithm::LeftAsymmetric6 | Raid6Algorithm::LeftSymmetric6 => {
-                data_disks - stripe % (raid_disks - 1)
+        let p_device_number = DeviceNumber(
+            match self {
+                Raid6Algorithm::LeftAsymmetric
+                | Raid6Algorithm::LeftSymmetric
+                | Raid6Algorithm::RotatingNContinue => {
+                    u64::from(raid_device_count).checked_sub(1)?.checked_sub(
+                        u64::from(stripe_number).checked_rem(u64::from(raid_device_count))?,
+                    )?
+                }
+                Raid6Algorithm::RightAsymmetric
+                | Raid6Algorithm::RightSymmetric
+                | Raid6Algorithm::Rotating0Restart => {
+                    u64::from(stripe_number).checked_rem(u64::from(raid_device_count))?
+                }
+                Raid6Algorithm::Parity0 => 0,
+                Raid6Algorithm::ParityN => u64::from(data_device_count),
+                Raid6Algorithm::RotatingNRestart => {
+                    u64::from(raid_device_count).checked_sub(1)?.checked_sub(
+                        u64::from(stripe_number)
+                            .checked_add(1)?
+                            .checked_rem(u64::from(raid_device_count))?,
+                    )?
+                }
+                Raid6Algorithm::LeftAsymmetric6 | Raid6Algorithm::LeftSymmetric6 => {
+                    u64::from(data_device_count).checked_sub(
+                        u64::from(stripe_number)
+                            .checked_rem(u64::from(raid_device_count).checked_sub(1)?)?,
+                    )?
+                }
+                Raid6Algorithm::RightAsymmetric6 | Raid6Algorithm::RightSymmetric6 => {
+                    u64::from(stripe_number)
+                        .checked_rem(u64::from(raid_device_count).checked_sub(1)?)?
+                }
+                Raid6Algorithm::Parity06 => 0,
             }
-            Raid6Algorithm::RightAsymmetric6 | Raid6Algorithm::RightSymmetric6 => {
-                stripe % (raid_disks - 1)
+            .try_into()
+            .ok()?,
+        );
+
+        let q_device_number = DeviceNumber(
+            match self {
+                Raid6Algorithm::LeftAsymmetric
+                | Raid6Algorithm::RightAsymmetric
+                | Raid6Algorithm::LeftSymmetric
+                | Raid6Algorithm::RightSymmetric
+                | Raid6Algorithm::Rotating0Restart
+                | Raid6Algorithm::RotatingNRestart => u64::from(p_device_number)
+                    .checked_add(1)?
+                    .checked_rem(u64::from(raid_device_count))?,
+                Raid6Algorithm::Parity0 => 1,
+                Raid6Algorithm::ParityN => u64::from(data_device_count).checked_add(1)?,
+                Raid6Algorithm::RotatingNContinue => u64::from(p_device_number)
+                    .checked_add(u64::from(raid_device_count))?
+                    .checked_sub(1)?
+                    .checked_rem(u64::from(raid_device_count))?,
+                Raid6Algorithm::LeftAsymmetric6
+                | Raid6Algorithm::RightAsymmetric6
+                | Raid6Algorithm::LeftSymmetric6
+                | Raid6Algorithm::RightSymmetric6
+                | Raid6Algorithm::Parity06 => u64::from(raid_device_count).checked_sub(1)?,
             }
-            Raid6Algorithm::Parity06 => 0,
-        };
+            .try_into()
+            .ok()?,
+        );
 
-        let q_disk = match self {
-            Raid6Algorithm::LeftAsymmetric
-            | Raid6Algorithm::RightAsymmetric
-            | Raid6Algorithm::LeftSymmetric
-            | Raid6Algorithm::RightSymmetric
-            | Raid6Algorithm::Rotating0Restart
-            | Raid6Algorithm::RotatingNRestart => (p_disk + 1) % raid_disks,
-            Raid6Algorithm::Parity0 => 1,
-            Raid6Algorithm::ParityN => data_disks + 1,
-            Raid6Algorithm::RotatingNContinue => (p_disk + raid_disks - 1) % raid_disks,
-            Raid6Algorithm::LeftAsymmetric6
-            | Raid6Algorithm::RightAsymmetric6
-            | Raid6Algorithm::LeftSymmetric6
-            | Raid6Algorithm::RightSymmetric6
-            | Raid6Algorithm::Parity06 => raid_disks - 1,
-        };
-
-        let data_disk = match self {
-            Raid6Algorithm::LeftAsymmetric
-            | Raid6Algorithm::RightAsymmetric
-            | Raid6Algorithm::Rotating0Restart
-            | Raid6Algorithm::RotatingNRestart => {
-                data_disk_index
-                    + if q_disk == 0 {
+        let data_device_number = DeviceNumber(
+            match self {
+                Raid6Algorithm::LeftAsymmetric
+                | Raid6Algorithm::RightAsymmetric
+                | Raid6Algorithm::Rotating0Restart
+                | Raid6Algorithm::RotatingNRestart => u64::from(data_device_number).checked_add(
+                    if q_device_number == DeviceNumber(0) {
                         1
-                    } else if data_disk_index >= p_disk {
+                    } else if data_device_number >= p_device_number {
                         2
                     } else {
                         0
-                    }
+                    },
+                )?,
+                Raid6Algorithm::LeftSymmetric | Raid6Algorithm::RightSymmetric => {
+                    u64::from(p_device_number)
+                        .checked_add(2)?
+                        .checked_add(u64::from(data_device_number))?
+                        .checked_rem(u64::from(raid_device_count))?
+                }
+                Raid6Algorithm::Parity0 => u64::from(data_device_number).checked_add(2)?,
+                Raid6Algorithm::ParityN => u64::from(data_device_number),
+                Raid6Algorithm::RotatingNContinue => u64::from(p_device_number)
+                    .checked_add(1)?
+                    .checked_add(u64::from(data_device_number))?
+                    .checked_rem(u64::from(raid_device_count))?,
+                Raid6Algorithm::LeftAsymmetric6 | Raid6Algorithm::RightAsymmetric6 => u64::from(
+                    data_device_number,
+                )
+                .checked_add(if data_device_number >= p_device_number {
+                    1
+                } else {
+                    0
+                })?,
+                Raid6Algorithm::LeftSymmetric6 | Raid6Algorithm::RightSymmetric6 => {
+                    u64::from(p_device_number)
+                        .checked_add(1)?
+                        .checked_add(u64::from(data_device_number))?
+                        .checked_rem(u64::from(raid_device_count).checked_sub(1)?)?
+                }
+                Raid6Algorithm::Parity06 => u64::from(data_device_number).checked_add(1)?,
             }
-            Raid6Algorithm::LeftSymmetric | Raid6Algorithm::RightSymmetric => {
-                (p_disk + 2 + data_disk_index) % raid_disks
-            }
-            Raid6Algorithm::Parity0 => data_disk_index + 2,
-            Raid6Algorithm::ParityN => data_disk_index,
-            Raid6Algorithm::RotatingNContinue => (p_disk + 1 + data_disk_index) % raid_disks,
-            Raid6Algorithm::LeftAsymmetric6 | Raid6Algorithm::RightAsymmetric6 => {
-                data_disk_index + if data_disk_index >= p_disk { 1 } else { 0 }
-            }
-            Raid6Algorithm::LeftSymmetric6 | Raid6Algorithm::RightSymmetric6 => {
-                (p_disk + 1 + data_disk_index) % (raid_disks - 1)
-            }
-            Raid6Algorithm::Parity06 => data_disk_index + 1,
-        };
+            .try_into()
+            .ok()?,
+        );
 
-        let new_sector = chunk_index * u64::from(sectors_per_chunk) + sector_in_chunk;
+        let sector_in_device = SectorNumber(
+            u64::from(chunk_number)
+                .checked_mul(u64::from(sectors_per_chunk))?
+                .checked_add(u64::from(sector_in_chunk))?,
+        );
 
-        (new_sector, p_disk, q_disk, data_disk)
+        Some((
+            sector_in_device,
+            p_device_number,
+            q_device_number,
+            data_device_number,
+        ))
     }
 }
