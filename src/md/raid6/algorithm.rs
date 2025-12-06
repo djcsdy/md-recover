@@ -1,4 +1,6 @@
 use crate::md::units::{DeviceCount, DeviceNumber, SectorCount, SectorNumber};
+use itertools::Itertools;
+use std::io;
 
 #[derive(Eq, PartialEq, Clone, Hash, Debug)]
 pub enum Raid6Algorithm {
@@ -187,5 +189,61 @@ impl Raid6Algorithm {
             q_device_number,
             data_device_number,
         ))
+    }
+
+    pub(in crate::md) fn read_sector<F>(
+        &self,
+        sector_number: SectorNumber,
+        sectors_per_chunk: SectorCount<u32>,
+        raid_device_count: DeviceCount,
+        mut read_sector_of_device: F,
+    ) -> io::Result<Vec<u8>>
+    where
+        F: FnMut(DeviceNumber, SectorNumber, &mut [u8]) -> io::Result<usize>,
+    {
+        let (sector_in_device, p_device_number, q_device_number, data_device_number) = self
+            .compute_sector(sector_number, sectors_per_chunk, raid_device_count)
+            .ok_or(io::ErrorKind::InvalidInput)?;
+        // FIXME: Recover from read errors
+        let buffers = (0..u32::from(raid_device_count))
+            .into_iter()
+            .map(DeviceNumber)
+            .map(|device_number| {
+                let mut buf = vec![0; 512];
+                if read_sector_of_device(device_number, sector_in_device, &mut buf)? != buf.len() {
+                    Err(io::Error::from(io::ErrorKind::InvalidData))
+                } else {
+                    Ok(buf)
+                }
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        let p_buffer = buffers
+            .get(usize::from(p_device_number))
+            .ok_or(io::ErrorKind::InvalidData)?;
+        let q_buffer = buffers
+            .get(usize::from(q_device_number))
+            .ok_or(io::ErrorKind::InvalidData)?;
+        let data_buffers = buffers
+            .iter()
+            .zip(0u32..)
+            .filter_map(|(buffer, i)| {
+                if DeviceNumber(i) == p_device_number || DeviceNumber(i) == q_device_number {
+                    None
+                } else {
+                    Some(buffer)
+                }
+            })
+            .collect_vec();
+        // FIXME: Recover data using q buffer
+        for i in 0..512 {
+            let xor = data_buffers
+                .iter()
+                .map(|buffer| buffer[i])
+                .fold(0, |acc, byte| acc ^ byte);
+            if xor != p_buffer[i] {
+                return Err(io::Error::from(io::ErrorKind::InvalidData));
+            }
+        }
+        Ok(buffers[usize::from(data_device_number)].clone())
     }
 }
