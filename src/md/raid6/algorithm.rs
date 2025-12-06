@@ -204,9 +204,8 @@ impl Raid6Algorithm {
         let (sector_in_device, p_device_number, q_device_number, data_device_number) = self
             .compute_sector(sector_number, sectors_per_chunk, raid_device_count)
             .ok_or(io::ErrorKind::InvalidInput)?;
-        // FIXME: Recover from read errors
+        // TODO: Recover from read errors
         let buffers = (0..u32::from(raid_device_count))
-            .into_iter()
             .map(DeviceNumber)
             .map(|device_number| {
                 let mut buf = vec![0; 512];
@@ -220,9 +219,10 @@ impl Raid6Algorithm {
         let p_buffer = buffers
             .get(usize::from(p_device_number))
             .ok_or(io::ErrorKind::InvalidData)?;
-        let q_buffer = buffers
-            .get(usize::from(q_device_number))
-            .ok_or(io::ErrorKind::InvalidData)?;
+        // TODO: Recover data using q buffer
+        // let q_buffer = buffers
+        //     .get(usize::from(q_device_number))
+        //     .ok_or(io::ErrorKind::InvalidData)?;
         let data_buffers = buffers
             .iter()
             .zip(0u32..)
@@ -234,7 +234,6 @@ impl Raid6Algorithm {
                 }
             })
             .collect_vec();
-        // FIXME: Recover data using q buffer
         for i in 0..512 {
             let xor = data_buffers
                 .iter()
