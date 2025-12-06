@@ -23,3 +23,9 @@ impl From<DeviceNumber> for u64 {
         value.0.into()
     }
 }
+
+impl From<DeviceNumber> for usize {
+    fn from(value: DeviceNumber) -> Self {
+        usize::try_from(value.0).unwrap()
+    }
+}
