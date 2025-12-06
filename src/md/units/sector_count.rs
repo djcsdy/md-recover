@@ -25,9 +25,27 @@ impl From<SectorCount<u16>> for u16 {
     }
 }
 
+impl From<SectorCount<u16>> for u32 {
+    fn from(value: SectorCount<u16>) -> Self {
+        value.0.into()
+    }
+}
+
+impl From<SectorCount<u16>> for u64 {
+    fn from(value: SectorCount<u16>) -> Self {
+        value.0.into()
+    }
+}
+
 impl From<SectorCount<u32>> for u32 {
     fn from(value: SectorCount<u32>) -> Self {
         value.0
+    }
+}
+
+impl From<SectorCount<u32>> for u64 {
+    fn from(value: SectorCount<u32>) -> Self {
+        value.0.into()
     }
 }
 
