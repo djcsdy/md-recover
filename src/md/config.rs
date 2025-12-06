@@ -7,6 +7,7 @@ pub struct MdConfig {
     pub algorithm: MdAlgorithm,
     pub device_count: DeviceCount,
     pub sectors_per_device: SectorCount<u64>,
+    pub chunk_size: SectorCount<u32>,
 }
 
 impl MdConfig {
@@ -43,6 +44,7 @@ impl MdConfig {
             algorithm: superblock.algorithm(),
             device_count: superblock.raid_device_count(),
             sectors_per_device: superblock.sectors_per_device(),
+            chunk_size: superblock.chunk_size(),
         })
     }
 }
