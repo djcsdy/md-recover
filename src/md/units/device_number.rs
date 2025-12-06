@@ -17,3 +17,9 @@ impl PartialOrd<DeviceCount> for DeviceNumber {
         self.0.partial_cmp(&other.0)
     }
 }
+
+impl From<DeviceNumber> for u64 {
+    fn from(value: DeviceNumber) -> Self {
+        value.0.into()
+    }
+}
