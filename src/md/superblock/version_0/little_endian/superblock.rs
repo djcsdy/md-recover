@@ -1,5 +1,5 @@
 pub use self::layout::View;
-use super::device_descriptor::DeviceDescriptorLittleEndian;
+use super::device_descriptor::{DeviceDescriptorLittleEndian, NestedDeviceDescriptorLittleEndian};
 use super::reshape_status::NestedReshapeStatusVersion0;
 use crate::md::superblock::SuperblockVersion0;
 use crate::md::units::{CheckpointEventCount, DeviceCount, MetadataEventCount, SectorCount};
@@ -41,7 +41,7 @@ binary_layout!(layout, LittleEndian, {
     root_block: u32,
     reserved_2: [u8; 240],
     devices: [u8; DeviceDescriptorLittleEndian::<&[u8]>::SIZE * SuperblockVersion0::MAX_DEVICES],
-    reserved_3: [u8; 128]
+    this_device: NestedDeviceDescriptorLittleEndian
 });
 
 pub const SIZE: usize = layout::SIZE.unwrap();
@@ -91,6 +91,7 @@ impl<S: AsRef<[u8]>> From<View<S>> for SuperblockVersion0 {
             root_pv: value.root_pv().read(),
             root_block: value.root_block().read(),
             devices,
+            this_device: value.this_device().into(),
         }
     }
 }

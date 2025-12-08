@@ -2,8 +2,9 @@ use crate::md::superblock::version_0::device_descriptor::DeviceDescriptor;
 use crate::md::superblock::MdDeviceRole;
 use binary_layout::prelude::*;
 
-#[allow(unused_imports)]
 pub use layout::View as DeviceDescriptorBigEndian;
+
+pub use layout::NestedView as NestedDeviceDescriptorBigEndian;
 
 binary_layout!(layout, BigEndian, {
     number: u32,

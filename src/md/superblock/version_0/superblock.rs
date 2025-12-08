@@ -41,6 +41,7 @@ pub struct SuperblockVersion0 {
     pub(super) root_pv: u32,
     pub(super) root_block: u32,
     pub(super) devices: Vec<DeviceDescriptor>,
+    pub(super) this_device: DeviceDescriptor,
 }
 
 impl SuperblockVersion0 {

@@ -1,4 +1,4 @@
-use super::device_descriptor::DeviceDescriptorBigEndian;
+use super::device_descriptor::{DeviceDescriptorBigEndian, NestedDeviceDescriptorBigEndian};
 use super::reshape_status::NestedReshapeStatusVersion0;
 use crate::md::superblock::SuperblockVersion0;
 use crate::md::units::{CheckpointEventCount, DeviceCount, MetadataEventCount, SectorCount};
@@ -41,7 +41,7 @@ binary_layout!(layout, BigEndian, {
     root_block: u32,
     reserved_2: [u8; 240],
     devices: [u8; DeviceDescriptorBigEndian::<&[u8]>::SIZE * SuperblockVersion0::MAX_DEVICES],
-    reserved_3: [u8; 128]
+    this_device: NestedDeviceDescriptorBigEndian
 });
 
 pub const SIZE: usize = layout::SIZE.unwrap();
@@ -91,6 +91,7 @@ impl<S: AsRef<[u8]>> From<View<S>> for SuperblockVersion0 {
             root_pv: value.root_pv().read(),
             root_block: value.root_block().read(),
             devices,
+            this_device: value.this_device().into(),
         }
     }
 }
