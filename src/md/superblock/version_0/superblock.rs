@@ -139,6 +139,10 @@ impl Superblock for SuperblockVersion0 {
         Some(self.reshape_status.clone())
     }
 
+    fn device_role_index(&self) -> usize {
+        self.this_device.index.try_into().unwrap()
+    }
+
     fn event_count(&self) -> MetadataEventCount {
         self.event_count
     }

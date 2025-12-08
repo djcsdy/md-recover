@@ -193,6 +193,10 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
         }
     }
 
+    fn device_role_index(&self) -> usize {
+        self.buffer.device_role_index().read().try_into().unwrap()
+    }
+
     fn event_count(&self) -> MetadataEventCount {
         self.buffer.event_count().read()
     }
