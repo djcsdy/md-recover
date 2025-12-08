@@ -7,7 +7,7 @@ pub use layout::View as DeviceDescriptorLittleEndian;
 pub use layout::NestedView as NestedDeviceDescriptorLittleEndian;
 
 binary_layout!(layout, LittleEndian, {
-    number: u32,
+    index: u32,
     major: u32,
     minor: u32,
     role: MdDeviceRole as u32,
@@ -22,7 +22,7 @@ impl<S: AsRef<[u8]>> DeviceDescriptorLittleEndian<S> {
 impl<S: AsRef<[u8]>> From<DeviceDescriptorLittleEndian<S>> for DeviceDescriptor {
     fn from(value: DeviceDescriptorLittleEndian<S>) -> Self {
         Self {
-            number: value.number().read(),
+            index: value.index().read(),
             major: value.major().read(),
             minor: value.minor().read(),
             role: value.role().read(),

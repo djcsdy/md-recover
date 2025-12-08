@@ -7,7 +7,7 @@ pub use layout::View as DeviceDescriptorBigEndian;
 pub use layout::NestedView as NestedDeviceDescriptorBigEndian;
 
 binary_layout!(layout, BigEndian, {
-    number: u32,
+    index: u32,
     major: u32,
     minor: u32,
     role: MdDeviceRole as u32,
@@ -22,7 +22,7 @@ impl<S: AsRef<[u8]>> DeviceDescriptorBigEndian<S> {
 impl<S: AsRef<[u8]>> From<DeviceDescriptorBigEndian<S>> for DeviceDescriptor {
     fn from(value: DeviceDescriptorBigEndian<S>) -> Self {
         Self {
-            number: value.number().read(),
+            index: value.index().read(),
             major: value.major().read(),
             minor: value.minor().read(),
             role: value.role().read(),

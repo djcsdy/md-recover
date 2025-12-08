@@ -1,7 +1,7 @@
 use crate::md::superblock::MdDeviceRole;
 
 pub struct DeviceDescriptor {
-    pub number: u32,
+    pub index: u32,
     pub major: u32,
     pub minor: u32,
     pub role: MdDeviceRole,
