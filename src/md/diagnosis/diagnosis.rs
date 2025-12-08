@@ -18,5 +18,6 @@ pub struct Diagnosis {
     pub device_count_problem: Option<HashMap<DeviceCount, Vec<Rc<MdDeviceId>>>>,
     pub reshape_problem: Option<HashMap<Option<ReshapeStatus>, Vec<Rc<MdDeviceId>>>>,
     pub event_count_problem: Option<HashMap<MetadataEventCount, Vec<Rc<MdDeviceId>>>>,
+    pub device_role_index_problem: Option<HashMap<usize, Vec<Rc<MdDeviceId>>>>,
     pub device_roles_problem: Option<HashMap<Vec<MdDeviceRole>, Vec<Rc<MdDeviceId>>>>,
 }

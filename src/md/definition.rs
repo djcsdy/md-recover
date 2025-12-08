@@ -35,6 +35,7 @@ where
             device_count_problem: self.diagnose_device_count_problem(),
             reshape_problem: self.diagnose_reshape_problem(),
             event_count_problem: self.diagnose_event_count_problem(),
+            device_role_index_problem: self.diagnose_device_role_index_problem(),
             device_roles_problem: self.diagnose_device_roles_problem(),
         }
     }
@@ -193,6 +194,25 @@ where
             Some(map)
         } else {
             None
+        }
+    }
+
+    fn diagnose_device_role_index_problem(&self) -> Option<HashMap<usize, Vec<Rc<MdDeviceId>>>> {
+        let map: HashMap<_, _> =
+            HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+                device
+                    .superblock
+                    .as_option()
+                    .map(|superblock| (superblock.device_role_index(), device.id.clone()))
+            }))
+            .into_iter()
+            .filter(|(_, ids)| ids.len() > 1)
+            .collect();
+
+        if map.is_empty() {
+            None
+        } else {
+            Some(map)
         }
     }
 
