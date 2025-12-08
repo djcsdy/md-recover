@@ -1,3 +1,4 @@
+use crate::md::units::DeviceNumber;
 use binary_layout::LayoutAs;
 use std::convert::Infallible;
 
@@ -18,9 +19,9 @@ impl MdDeviceRole {
         !(Self::MAX_POSITION..Self::JOURNAL).contains(&self.0)
     }
 
-    pub fn position(&self) -> Option<u16> {
+    pub fn device_number(&self) -> Option<DeviceNumber> {
         if self.0 <= Self::MAX_POSITION {
-            Some(self.0 as u16)
+            Some(DeviceNumber(self.0))
         } else {
             None
         }

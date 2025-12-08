@@ -1,6 +1,8 @@
 use crate::md::superblock::version_0::little_endian;
 use crate::md::superblock::version_0::little_endian::device_descriptor::DeviceDescriptorLittleEndian;
-use crate::md::units::{CheckpointEventCount, DeviceCount, MetadataEventCount, SectorCount};
+use crate::md::units::{
+    CheckpointEventCount, DeviceCount, DeviceNumber, MetadataEventCount, SectorCount,
+};
 
 const DATA: [u8; 4096] = [
     0xfc, 0x4e, 0x2b, 0xa9, // magic
@@ -491,7 +493,7 @@ fn view_of_little_endian_superblock_version_0_device_1() {
     assert_eq!(view.index().read(), 1);
     assert_eq!(view.major().read(), 0xe9b52f41);
     assert_eq!(view.minor().read(), 0x08783284);
-    assert_eq!(view.role().read().position(), Some(1));
+    assert_eq!(view.role().read().device_number(), Some(DeviceNumber(1)));
     assert_eq!(view.state().read(), 0);
 }
 
@@ -506,6 +508,9 @@ fn view_of_little_endian_superblock_version_0_device_2() {
     assert_eq!(descriptor.index().read(), 2);
     assert_eq!(descriptor.major().read(), 0x9632a95b);
     assert_eq!(descriptor.minor().read(), 0x4df28944);
-    assert_eq!(descriptor.role().read().position(), Some(2));
+    assert_eq!(
+        descriptor.role().read().device_number(),
+        Some(DeviceNumber(2))
+    );
     assert_eq!(descriptor.state().read(), 0);
 }
