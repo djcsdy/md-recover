@@ -339,7 +339,7 @@ fn view_of_superblock_version_1() {
         view.recovery_offset_or_journal_tail().read(),
         0x943efeb94d6afd2d
     );
-    assert_eq!(view.device_number().read(), 0xc2b6dd5b);
+    assert_eq!(view.device_role_index().read(), 0xc2b6dd5b);
     assert_eq!(view.count_corrected_read().read(), 0x944a80e7);
     assert_eq!(
         view.device_uuid(),

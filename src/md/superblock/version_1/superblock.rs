@@ -33,7 +33,7 @@ binary_layout!(layout, LittleEndian, {
     data_size: u64,
     super_offset: u64,
     recovery_offset_or_journal_tail: u64,
-    device_number: u32,
+    device_role_index: u32,
     count_corrected_read: u32,
     device_uuid: [u8; 16],
     device_flags: DeviceFlags as u8,
