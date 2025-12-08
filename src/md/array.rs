@@ -24,33 +24,43 @@ where
 {
     pub fn open(devices: impl IntoIterator<Item = impl Into<Rc<MdDevice<D>>>>) -> Self {
         let devices = devices.into_iter().map(Into::into).collect_vec();
-        let config =
-            MdConfig::from_superblocks(devices.iter().map(|device| device.superblock.clone()));
-        let (devices, conflicting_devices): (HashMap<_, _>, Vec<_>) =
+        let config = devices
+            .iter()
+            .map(|device| MdConfig::from_superblock(device.superblock.as_ref()))
+            .reduce(|a, b| if a == b { a } else { None })
+            .flatten();
+        let (devices, inactive_devices): (HashMap<_, _>, Vec<_>) =
             HashMap::from_multi_iter(devices.into_iter().map(|device| {
                 (
                     device
                         .superblock
                         .as_option()
-                        .map(|superblock| superblock.device_role_index()),
+                        .map(|superblock| superblock.device_role_index())
+                        .and_then(|index| {
+                            config.as_ref().and_then(|config| {
+                                config
+                                    .device_roles
+                                    .get(index)
+                                    .and_then(|role| role.device_number())
+                            })
+                        }),
                     device,
                 )
             }))
             .into_iter()
-            .partition_map(|(device_role_index, devices)| match device_role_index {
-                None => Either::Right(devices),
-                Some(device_role_index) => match devices.len() {
-                    1 => Either::Left((device_role_index, devices[0].clone())),
+            .partition_map(|(device_number, devices)| {
+                match (device_number, devices.len()) {
+                    (Some(device_number), 1) => Either::Left((device_number, devices[0].clone())),
                     _ => Either::Right(devices),
-                },
+                }
             });
-        let conflicting_devices = conflicting_devices.into_iter().flatten().collect_vec();
+        let inactive_devices = inactive_devices.into_iter().flatten().collect_vec();
 
         Self {
             definition: Rc::new(MdArrayDefinition {
                 config,
                 devices,
-                conflicting_devices,
+                inactive_devices,
             }),
         }
     }
@@ -102,7 +112,7 @@ where
                 let device = self
                     .definition
                     .devices
-                    .get(&usize::from(device_number))
+                    .get(&device_number)
                     .ok_or(io::ErrorKind::InvalidInput)?
                     .as_ref()
                     .try_clone()?;

@@ -4,7 +4,7 @@ use crate::md::algorithm::MdAlgorithm;
 use crate::md::config::MdConfig;
 use crate::md::diagnosis::Diagnosis;
 use crate::md::superblock::{ArrayUuid, MdDeviceRole, ReshapeStatus};
-use crate::md::units::{DeviceCount, MetadataEventCount, SectorCount};
+use crate::md::units::{DeviceCount, DeviceNumber, MetadataEventCount, SectorCount};
 use crate::md::{MdDevice, MdDeviceId, MdDeviceSuperblock};
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsString;
@@ -16,8 +16,8 @@ where
     D: BlockDevice + Read + Seek,
 {
     pub config: Option<MdConfig>,
-    pub devices: HashMap<usize, Rc<MdDevice<D>>>,
-    pub conflicting_devices: Vec<Rc<MdDevice<D>>>,
+    pub devices: HashMap<DeviceNumber, Rc<MdDevice<D>>>,
+    pub inactive_devices: Vec<Rc<MdDevice<D>>>,
 }
 
 impl<D> MdArrayDefinition<D>
@@ -42,7 +42,7 @@ where
     }
 
     fn all_devices(&self) -> impl Iterator<Item = &Rc<MdDevice<D>>> {
-        self.devices.values().chain(self.conflicting_devices.iter())
+        self.devices.values().chain(self.inactive_devices.iter())
     }
 
     fn diagnose_device_too_small_problem(&self) -> Option<HashSet<Rc<MdDeviceId>>> {
