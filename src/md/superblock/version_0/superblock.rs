@@ -146,6 +146,7 @@ impl Superblock for SuperblockVersion0 {
     fn device_roles(&self) -> Vec<MdDeviceRole> {
         self.devices
             .iter()
+            .take(self.total_device_count.into())
             .map(|descriptor| descriptor.role)
             .collect()
     }
