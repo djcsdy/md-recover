@@ -8,6 +8,7 @@ use crate::md::superblock::{ArrayUuid, MdDeviceRole, Superblock};
 use crate::md::units::{DeviceCount, MetadataEventCount, SectorCount};
 use binary_layout::binary_layout;
 use byteorder::{ByteOrder, LittleEndian, ReadBytesExt};
+use std::cmp::min;
 use std::ffi::OsStr;
 use std::io;
 use std::io::Read;
@@ -197,7 +198,10 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
     }
 
     fn device_roles(&self) -> Vec<MdDeviceRole> {
-        let count = usize::from(self.buffer.max_devices().read());
+        let count = min(
+            self.buffer.max_devices().read().into(),
+            self.buffer.dev_roles().len() / size_of::<u16>(),
+        );
         let mut buffer = vec![0u16; count];
         self.buffer
             .dev_roles()
