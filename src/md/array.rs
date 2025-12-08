@@ -1,10 +1,12 @@
 use crate::block_device::{BlockCount, BlockDevice, BlockDeviceReader, BlockNumber, BlockSize};
+use crate::ext::MultiMap;
 use crate::md::config::MdConfig;
 use crate::md::definition::MdArrayDefinition;
 use crate::md::diagnosis::Diagnosis;
 use crate::md::units::SectorNumber;
 use crate::md::MdDevice;
-use itertools::Itertools;
+use itertools::{Either, Itertools};
+use std::collections::HashMap;
 use std::io;
 use std::io::{Read, Seek, SeekFrom};
 use std::rc::Rc;
@@ -24,8 +26,32 @@ where
         let devices = devices.into_iter().map(Into::into).collect_vec();
         let config =
             MdConfig::from_superblocks(devices.iter().map(|device| device.superblock.clone()));
+        let (devices, conflicting_devices): (HashMap<_, _>, Vec<_>) =
+            HashMap::from_multi_iter(devices.into_iter().map(|device| {
+                (
+                    device
+                        .superblock
+                        .as_option()
+                        .map(|superblock| superblock.device_role_index()),
+                    device,
+                )
+            }))
+            .into_iter()
+            .partition_map(|(device_role_index, devices)| match device_role_index {
+                None => Either::Right(devices),
+                Some(device_role_index) => match devices.len() {
+                    1 => Either::Left((device_role_index, devices[0].clone())),
+                    _ => Either::Right(devices),
+                },
+            });
+        let conflicting_devices = conflicting_devices.into_iter().flatten().collect_vec();
+
         Self {
-            definition: Rc::new(MdArrayDefinition { devices, config }),
+            definition: Rc::new(MdArrayDefinition {
+                config,
+                devices,
+                conflicting_devices,
+            }),
         }
     }
 
@@ -76,7 +102,7 @@ where
                 let device = self
                     .definition
                     .devices
-                    .get(usize::from(device_number))
+                    .get(&usize::from(device_number))
                     .ok_or(io::ErrorKind::InvalidInput)?
                     .as_ref()
                     .try_clone()?;

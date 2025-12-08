@@ -15,8 +15,9 @@ pub struct MdArrayDefinition<D>
 where
     D: BlockDevice + Read + Seek,
 {
-    pub devices: Vec<Rc<MdDevice<D>>>,
     pub config: Option<MdConfig>,
+    pub devices: HashMap<usize, Rc<MdDevice<D>>>,
+    pub conflicting_devices: Vec<Rc<MdDevice<D>>>,
 }
 
 impl<D> MdArrayDefinition<D>
@@ -40,8 +41,12 @@ where
         }
     }
 
+    fn all_devices(&self) -> impl Iterator<Item = &Rc<MdDevice<D>>> {
+        self.devices.values().chain(self.conflicting_devices.iter())
+    }
+
     fn diagnose_device_too_small_problem(&self) -> Option<HashSet<Rc<MdDeviceId>>> {
-        let set = HashSet::from_iter(self.devices.iter().filter_map(|device| {
+        let set = HashSet::from_iter(self.all_devices().filter_map(|device| {
             match device.superblock.as_ref() {
                 MdDeviceSuperblock::TooSmall => Some(device.id.clone()),
                 _ => None,
@@ -56,7 +61,7 @@ where
     }
 
     fn diagnose_missing_superblock_problem(&self) -> Option<HashSet<Rc<MdDeviceId>>> {
-        let set = HashSet::from_iter(self.devices.iter().filter_map(|device| {
+        let set = HashSet::from_iter(self.all_devices().filter_map(|device| {
             match device.superblock.as_ref() {
                 MdDeviceSuperblock::Missing => Some(device.id.clone()),
                 _ => None,
@@ -71,7 +76,7 @@ where
     }
 
     fn diagnose_array_uuid_problem(&self) -> Option<HashMap<ArrayUuid, Vec<Rc<MdDeviceId>>>> {
-        let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+        let map = HashMap::from_multi_iter(self.all_devices().filter_map(|device| {
             device
                 .superblock
                 .as_option()
@@ -86,7 +91,7 @@ where
     }
 
     fn diagnose_array_name_problem(&self) -> Option<HashMap<OsString, Vec<Rc<MdDeviceId>>>> {
-        let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+        let map = HashMap::from_multi_iter(self.all_devices().filter_map(|device| {
             device
                 .superblock
                 .as_option()
@@ -102,7 +107,7 @@ where
     }
 
     fn diagnose_algorithm_problem(&self) -> Option<HashMap<MdAlgorithm, Vec<Rc<MdDeviceId>>>> {
-        let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+        let map = HashMap::from_multi_iter(self.all_devices().filter_map(|device| {
             device
                 .superblock
                 .as_option()
@@ -117,7 +122,7 @@ where
     }
 
     fn diagnose_size_problem(&self) -> Option<HashMap<SectorCount<u64>, Vec<Rc<MdDeviceId>>>> {
-        let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+        let map = HashMap::from_multi_iter(self.all_devices().filter_map(|device| {
             device
                 .superblock
                 .as_option()
@@ -134,7 +139,7 @@ where
     fn diagnose_chunk_size_problem(
         &self,
     ) -> Option<HashMap<SectorCount<u32>, Vec<Rc<MdDeviceId>>>> {
-        let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+        let map = HashMap::from_multi_iter(self.all_devices().filter_map(|device| {
             device
                 .superblock
                 .as_option()
@@ -149,7 +154,7 @@ where
     }
 
     fn diagnose_device_count_problem(&self) -> Option<HashMap<DeviceCount, Vec<Rc<MdDeviceId>>>> {
-        let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+        let map = HashMap::from_multi_iter(self.all_devices().filter_map(|device| {
             device
                 .superblock
                 .as_option()
@@ -166,7 +171,7 @@ where
     fn diagnose_reshape_problem(
         &self,
     ) -> Option<HashMap<Option<ReshapeStatus>, Vec<Rc<MdDeviceId>>>> {
-        let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+        let map = HashMap::from_multi_iter(self.all_devices().filter_map(|device| {
             device
                 .superblock
                 .as_option()
@@ -183,7 +188,7 @@ where
     fn diagnose_event_count_problem(
         &self,
     ) -> Option<HashMap<MetadataEventCount, Vec<Rc<MdDeviceId>>>> {
-        let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+        let map = HashMap::from_multi_iter(self.all_devices().filter_map(|device| {
             device
                 .superblock
                 .as_option()
@@ -199,7 +204,7 @@ where
 
     fn diagnose_device_role_index_problem(&self) -> Option<HashMap<usize, Vec<Rc<MdDeviceId>>>> {
         let map: HashMap<_, _> =
-            HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+            HashMap::from_multi_iter(self.all_devices().filter_map(|device| {
                 device
                     .superblock
                     .as_option()
@@ -219,7 +224,7 @@ where
     fn diagnose_device_roles_problem(
         &self,
     ) -> Option<HashMap<Vec<MdDeviceRole>, Vec<Rc<MdDeviceId>>>> {
-        let map = HashMap::from_multi_iter(self.devices.iter().filter_map(|device| {
+        let map = HashMap::from_multi_iter(self.all_devices().filter_map(|device| {
             device
                 .superblock
                 .as_option()
