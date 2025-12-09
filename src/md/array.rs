@@ -39,13 +39,13 @@ where
                             .zip_longest(roles)
                             .map(|pair| match pair {
                                 EitherOrBoth::Both(left, right) => {
-                                    if left.is_spare() {
+                                    if left.is_spare() || right.is_invalid() || left.is_faulty() {
                                         Some(right)
-                                    } else if right.is_spare() || left.is_invalid() {
-                                        Some(left)
-                                    } else if right.is_invalid() || left.is_faulty() {
-                                        Some(right)
-                                    } else if right.is_faulty() || left == right {
+                                    } else if right.is_spare()
+                                        || left.is_invalid()
+                                        || right.is_faulty()
+                                        || left == right
+                                    {
                                         Some(left)
                                     } else {
                                         None
