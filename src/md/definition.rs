@@ -1,8 +1,8 @@
 use crate::block_device::BlockDevice;
 use crate::ext::MultiMap;
 use crate::md::algorithm::MdAlgorithm;
-use crate::md::config::MdConfig;
 use crate::md::diagnosis::Diagnosis;
+use crate::md::format::MdFormat;
 use crate::md::superblock::{ArrayUuid, MdDeviceRole, ReshapeStatus};
 use crate::md::units::{DeviceCount, DeviceNumber, MetadataEventCount, SectorCount};
 use crate::md::{MdDevice, MdDeviceId, MdDeviceSuperblock};
@@ -15,7 +15,7 @@ pub struct MdArrayDefinition<D>
 where
     D: BlockDevice + Read + Seek,
 {
-    pub config: Option<MdConfig>,
+    pub format: Option<MdFormat>,
     pub devices: HashMap<DeviceNumber, Rc<MdDevice<D>>>,
     pub inactive_devices: Vec<Rc<MdDevice<D>>>,
 }

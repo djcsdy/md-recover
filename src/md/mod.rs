@@ -1,9 +1,9 @@
 mod algorithm;
 mod array;
-mod config;
 mod definition;
 mod device;
 mod diagnosis;
+mod format;
 mod raid5;
 mod raid6;
 pub mod superblock;

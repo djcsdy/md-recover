@@ -3,14 +3,14 @@ use crate::md::units::{DeviceCount, SectorCount};
 use crate::md::MdDeviceSuperblock;
 
 #[derive(PartialEq, Clone, Hash, Debug)]
-pub struct MdConfig {
+pub struct MdFormat {
     pub algorithm: MdAlgorithm,
     pub device_count: DeviceCount,
     pub sectors_per_device: SectorCount<u64>,
     pub chunk_size: SectorCount<u32>,
 }
 
-impl MdConfig {
+impl MdFormat {
     pub fn from_superblock(superblock: &MdDeviceSuperblock) -> Option<Self> {
         superblock.as_option().map(|superblock| Self {
             algorithm: superblock.algorithm(),

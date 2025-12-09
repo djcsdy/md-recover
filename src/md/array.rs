@@ -1,8 +1,8 @@
 use crate::block_device::{BlockCount, BlockDevice, BlockDeviceReader, BlockNumber, BlockSize};
 use crate::ext::MultiMap;
-use crate::md::config::MdConfig;
 use crate::md::definition::MdArrayDefinition;
 use crate::md::diagnosis::Diagnosis;
+use crate::md::format::MdFormat;
 use crate::md::units::SectorNumber;
 use crate::md::MdDevice;
 use itertools::{Either, EitherOrBoth, Itertools};
@@ -58,9 +58,9 @@ where
                 })
             })
             .flatten();
-        let config = devices
+        let format = devices
             .iter()
-            .map(|device| MdConfig::from_superblock(device.superblock.as_ref()))
+            .map(|device| MdFormat::from_superblock(device.superblock.as_ref()))
             .reduce(|a, b| if a == b { a } else { None })
             .flatten();
         let (devices, inactive_devices): (HashMap<_, _>, Vec<_>) =
@@ -90,7 +90,7 @@ where
 
         Self {
             definition: Rc::new(MdArrayDefinition {
-                config,
+                format,
                 devices,
                 inactive_devices,
             }),
@@ -113,7 +113,7 @@ where
     fn block_count(&self) -> io::Result<BlockCount> {
         Ok(self
             .definition
-            .config
+            .format
             .as_ref()
             .ok_or(io::ErrorKind::InvalidData)?
             .data_sector_count()
@@ -126,16 +126,16 @@ where
             Err(io::ErrorKind::InvalidInput)?;
         }
 
-        let config = self
+        let format = self
             .definition
-            .config
+            .format
             .as_ref()
             .ok_or(io::ErrorKind::InvalidData)?;
 
-        let block = config.algorithm.read_sector(
+        let block = format.algorithm.read_sector(
             SectorNumber::from_block_number(block_number),
-            config.chunk_size,
-            config.device_count,
+            format.chunk_size,
+            format.device_count,
             |device_number, sector_number, buf| {
                 if buf.len() < 512 {
                     Err(io::ErrorKind::InvalidInput)?;
