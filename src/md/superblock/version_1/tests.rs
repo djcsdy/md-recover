@@ -328,7 +328,7 @@ fn view_of_superblock_version_1() {
         view.reshape_status().reshape_position().read(),
         SectorNumber(0xe30dc65274cef739)
     );
-    assert_eq!(view.reshape_status().delta_disks().read(), 1);
+    assert_eq!(view.reshape_status().delta_devices().read(), 1);
     assert_eq!(view.reshape_status().new_layout().read(), 0x979a6999);
     assert_eq!(view.reshape_status().new_chunk_size().read(), 65536);
     assert_eq!(view.reshape_status().new_offset().read(), 0);

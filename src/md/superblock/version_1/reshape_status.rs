@@ -12,7 +12,7 @@ pub use self::{
 binary_layout!(layout, LittleEndian, {
     new_level: u32,
     reshape_position: SectorNumber as u64,
-    delta_disks: u32,
+    delta_devices: u32,
     new_layout: u32,
     new_chunk_size: u32,
     new_offset: u32
@@ -26,7 +26,7 @@ impl<S: AsRef<[u8]>> From<ReshapeStatusVersion1<S>> for ReshapeStatus {
                 value.new_layout().read(),
             ),
             reshape_position: value.reshape_position().read(),
-            delta_disks: value.delta_disks().read(),
+            delta_devices: value.delta_devices().read(),
             new_chunk_size: value.new_chunk_size().read(),
             new_offset: value.new_offset().read(),
         }

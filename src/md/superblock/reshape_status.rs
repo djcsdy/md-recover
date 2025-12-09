@@ -5,7 +5,7 @@ use crate::md::units::SectorNumber;
 pub struct ReshapeStatus {
     pub new_algorithm: MdAlgorithm,
     pub reshape_position: SectorNumber,
-    pub delta_disks: u32,
+    pub delta_devices: u32,
     pub new_chunk_size: u32,
     pub new_offset: u32,
 }
