@@ -117,10 +117,12 @@ where
     }
 
     fn block_count(&self) -> io::Result<BlockCount> {
+        // FIXME: Handle the boundary between the new format and the old.
         Ok(self
             .definition
-            .format
+            .new_format
             .as_ref()
+            .or(self.definition.format.as_ref())
             .ok_or(io::ErrorKind::InvalidData)?
             .data_sector_count()
             .ok_or(io::ErrorKind::InvalidData)?
@@ -132,10 +134,12 @@ where
             Err(io::ErrorKind::InvalidInput)?;
         }
 
+        // FIXME: Handle the boundary between the new format and the old.
         let format = self
             .definition
-            .format
+            .new_format
             .as_ref()
+            .or(self.definition.format.as_ref())
             .ok_or(io::ErrorKind::InvalidData)?;
 
         let block = format.algorithm.read_sector(
