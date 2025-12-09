@@ -63,6 +63,11 @@ where
             .map(|device| MdFormat::from_superblock(device.superblock.as_ref()))
             .reduce(|a, b| if a == b { a } else { None })
             .flatten();
+        let new_format = devices
+            .iter()
+            .map(|device| MdFormat::from_superblock_reshape_status(device.superblock.as_ref()))
+            .reduce(|a, b| if a == b { a } else { None })
+            .flatten();
         let (devices, inactive_devices): (HashMap<_, _>, Vec<_>) =
             HashMap::from_multi_iter(devices.into_iter().map(|device| {
                 (
@@ -91,6 +96,7 @@ where
         Self {
             definition: Rc::new(MdArrayDefinition {
                 format,
+                new_format,
                 devices,
                 inactive_devices,
             }),

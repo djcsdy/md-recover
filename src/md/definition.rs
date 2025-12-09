@@ -16,6 +16,7 @@ where
     D: BlockDevice + Read + Seek,
 {
     pub format: Option<MdFormat>,
+    pub new_format: Option<MdFormat>,
     pub devices: HashMap<DeviceNumber, Rc<MdDevice<D>>>,
     pub inactive_devices: Vec<Rc<MdDevice<D>>>,
 }
