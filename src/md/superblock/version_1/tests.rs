@@ -330,7 +330,10 @@ fn view_of_superblock_version_1() {
     );
     assert_eq!(view.reshape_status().delta_devices().read(), DeviceCount(1));
     assert_eq!(view.reshape_status().new_layout().read(), 0x979a6999);
-    assert_eq!(view.reshape_status().new_chunk_size().read(), 65536);
+    assert_eq!(
+        view.reshape_status().new_chunk_size().read(),
+        SectorCount(65536)
+    );
     assert_eq!(view.reshape_status().new_offset().read(), 0);
     assert_eq!(view.data_offset().read(), 0xfae3d184a79c8efd);
     assert_eq!(view.data_size().read(), 0x588ab17ce9f1a413);

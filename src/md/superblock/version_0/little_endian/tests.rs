@@ -473,7 +473,10 @@ fn view_of_little_endian_superblock_version_0() {
     assert_eq!(view.reshape_status().new_level().read(), 0);
     assert_eq!(view.reshape_status().delta_devices().read(), DeviceCount(0));
     assert_eq!(view.reshape_status().new_layout().read(), 0);
-    assert_eq!(view.reshape_status().new_chunk_size().read(), 0);
+    assert_eq!(
+        view.reshape_status().new_chunk_size().read(),
+        SectorCount(0)
+    );
     assert_eq!(view.layout().read(), 0xc49704fc);
     assert_eq!(view.chunk_size().read(), SectorCount(65536));
     assert_eq!(view.root_pv().read(), 0xbdbdd227);

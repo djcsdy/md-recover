@@ -2,7 +2,7 @@ use binary_layout::prelude::*;
 
 use crate::md::algorithm::MdAlgorithm;
 use crate::md::superblock::reshape_status::ReshapeStatus;
-use crate::md::units::{DeviceCount, SectorNumber};
+use crate::md::units::{DeviceCount, SectorCount, SectorNumber};
 
 #[allow(unused_imports)]
 pub use self::{
@@ -14,7 +14,7 @@ binary_layout!(layout, LittleEndian, {
     new_level: u32,
     delta_devices: DeviceCount as u32,
     new_layout: u32,
-    new_chunk_size: u32
+    new_chunk_size: SectorCount<u32> as u32
 });
 
 impl<S: AsRef<[u8]>> From<ReshapeStatusVersion0<S>> for ReshapeStatus {
