@@ -5,7 +5,7 @@ use crate::md::definition::MdArrayDefinition;
 use crate::md::diagnosis::Diagnosis;
 use crate::md::units::SectorNumber;
 use crate::md::MdDevice;
-use itertools::{Either, Itertools};
+use itertools::{Either, EitherOrBoth, Itertools};
 use std::collections::HashMap;
 use std::io;
 use std::io::{Read, Seek, SeekFrom};
@@ -24,6 +24,40 @@ where
 {
     pub fn open(devices: impl IntoIterator<Item = impl Into<Rc<MdDevice<D>>>>) -> Self {
         let devices = devices.into_iter().map(Into::into).collect_vec();
+        let roles = devices
+            .iter()
+            .map(|device| {
+                device
+                    .superblock
+                    .as_option()
+                    .map(|superblock| superblock.device_roles())
+            })
+            .reduce(|acc, roles| {
+                acc.and_then(|acc| {
+                    roles.and_then(|roles| {
+                        acc.into_iter()
+                            .zip_longest(roles)
+                            .map(|pair| match pair {
+                                EitherOrBoth::Both(left, right) => {
+                                    if left.is_spare() {
+                                        Some(right)
+                                    } else if right.is_spare() || left.is_invalid() {
+                                        Some(left)
+                                    } else if right.is_invalid() || left.is_faulty() {
+                                        Some(right)
+                                    } else if right.is_faulty() || left == right {
+                                        Some(left)
+                                    } else {
+                                        None
+                                    }
+                                }
+                                EitherOrBoth::Left(role) | EitherOrBoth::Right(role) => Some(role),
+                            })
+                            .collect()
+                    })
+                })
+            })
+            .flatten();
         let config = devices
             .iter()
             .map(|device| MdConfig::from_superblock(device.superblock.as_ref()))
@@ -37,12 +71,10 @@ where
                         .as_option()
                         .map(|superblock| superblock.device_role_index())
                         .and_then(|index| {
-                            config.as_ref().and_then(|config| {
-                                config
-                                    .device_roles
-                                    .get(index)
-                                    .and_then(|role| role.device_number())
-                            })
+                            roles
+                                .as_ref()
+                                .and_then(|roles| roles.get(index))
+                                .and_then(|role| role.device_number())
                         }),
                     device,
                 )

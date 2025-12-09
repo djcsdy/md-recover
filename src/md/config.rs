@@ -1,5 +1,4 @@
 use crate::md::algorithm::MdAlgorithm;
-use crate::md::superblock::MdDeviceRole;
 use crate::md::units::{DeviceCount, SectorCount};
 use crate::md::MdDeviceSuperblock;
 
@@ -9,7 +8,6 @@ pub struct MdConfig {
     pub device_count: DeviceCount,
     pub sectors_per_device: SectorCount<u64>,
     pub chunk_size: SectorCount<u32>,
-    pub device_roles: Vec<MdDeviceRole>,
 }
 
 impl MdConfig {
@@ -19,7 +17,6 @@ impl MdConfig {
             device_count: superblock.raid_device_count(),
             sectors_per_device: superblock.sectors_per_device(),
             chunk_size: superblock.chunk_size(),
-            device_roles: superblock.device_roles(),
         })
     }
 
@@ -33,7 +30,6 @@ impl MdConfig {
                         .checked_add(status.delta_devices)?,
                     sectors_per_device: superblock.sectors_per_device(),
                     chunk_size: status.new_chunk_size,
-                    device_roles: superblock.device_roles(),
                 })
             })
         })
