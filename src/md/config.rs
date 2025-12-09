@@ -23,6 +23,22 @@ impl MdConfig {
         })
     }
 
+    pub fn from_superblock_reshape_status(superblock: &MdDeviceSuperblock) -> Option<Self> {
+        superblock.as_option().and_then(|superblock| {
+            superblock.reshape_status().and_then(|status| {
+                Some(Self {
+                    algorithm: status.new_algorithm,
+                    device_count: superblock
+                        .raid_device_count()
+                        .checked_add(status.delta_devices)?,
+                    sectors_per_device: superblock.sectors_per_device(),
+                    chunk_size: status.new_chunk_size,
+                    device_roles: superblock.device_roles(),
+                })
+            })
+        })
+    }
+
     pub fn parity_device_count(&self) -> Option<DeviceCount> {
         self.algorithm.parity_device_count()
     }
