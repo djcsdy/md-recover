@@ -8,6 +8,12 @@ use std::convert::Infallible;
 #[display("{_0} devices")]
 pub struct DeviceCount(pub u32);
 
+impl DeviceCount {
+    pub fn checked_add(self, rhs: Self) -> Option<Self> {
+        Some(Self(self.0.checked_add(rhs.0)?))
+    }
+}
+
 impl LayoutAs<u32> for DeviceCount {
     type ReadError = Infallible;
     type WriteError = Infallible;
