@@ -3,7 +3,9 @@ use crate::md::superblock::reshape_status::ReshapeStatus;
 use crate::md::superblock::version_0::device_descriptor::DeviceDescriptor;
 use crate::md::superblock::version_0::{big_endian, little_endian};
 use crate::md::superblock::{ArrayUuid, MdDeviceRole, Superblock};
-use crate::md::units::{CheckpointEventCount, DeviceCount, MetadataEventCount, SectorCount};
+use crate::md::units::{
+    CheckpointEventCount, DeviceCount, MetadataEventCount, SectorCount, SectorNumber,
+};
 use std::ffi::OsStr;
 use std::io;
 use std::io::Read;
@@ -137,6 +139,10 @@ impl Superblock for SuperblockVersion0 {
 
     fn reshape_status(&self) -> Option<ReshapeStatus> {
         Some(self.reshape_status.clone())
+    }
+
+    fn data_offset(&self) -> SectorNumber {
+        SectorNumber(0)
     }
 
     fn device_role_index(&self) -> usize {

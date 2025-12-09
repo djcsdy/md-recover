@@ -5,7 +5,7 @@ use crate::md::superblock::version_1::features::Features;
 use crate::md::superblock::version_1::ppl_info::PplInfo;
 use crate::md::superblock::version_1::reshape_status::NestedReshapeStatusVersion1;
 use crate::md::superblock::{ArrayUuid, MdDeviceRole, Superblock};
-use crate::md::units::{DeviceCount, MetadataEventCount, SectorCount};
+use crate::md::units::{DeviceCount, MetadataEventCount, SectorCount, SectorNumber};
 use binary_layout::binary_layout;
 use byteorder::{ByteOrder, LittleEndian, ReadBytesExt};
 use std::cmp::min;
@@ -29,7 +29,7 @@ binary_layout!(layout, LittleEndian, {
     raid_device_count: DeviceCount as u32,
     bitmap_offset_or_ppl_info: [u8; 4],
     reshape_status: NestedReshapeStatusVersion1,
-    data_offset: u64,
+    data_offset: SectorNumber as u64,
     data_size: u64,
     super_offset: u64,
     recovery_offset_or_journal_tail: u64,
@@ -191,6 +191,10 @@ impl<S: AsRef<[u8]>> Superblock for SuperblockVersion1<S> {
         } else {
             None
         }
+    }
+
+    fn data_offset(&self) -> SectorNumber {
+        self.buffer.data_offset().read()
     }
 
     fn device_role_index(&self) -> usize {
