@@ -1,7 +1,9 @@
 use crate::block_device::BlockNumber;
 use crate::md::units::{ChunkNumber, SectorCount};
+use binary_layout::LayoutAs;
 use derive_more::{Display, From, Into};
 use std::cmp::Ordering;
+use std::convert::Infallible;
 use std::ops::{Add, Sub};
 
 #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Hash, Debug, From, Into, Display)]
@@ -42,5 +44,18 @@ where
 {
     fn partial_cmp(&self, other: &SectorCount<C>) -> Option<Ordering> {
         self.0.partial_cmp(&other.0.into())
+    }
+}
+
+impl LayoutAs<u64> for SectorNumber {
+    type ReadError = Infallible;
+    type WriteError = Infallible;
+
+    fn try_read(v: u64) -> Result<Self, Self::ReadError> {
+        Ok(Self(v))
+    }
+
+    fn try_write(v: Self) -> Result<u64, Self::WriteError> {
+        Ok(v.0)
     }
 }

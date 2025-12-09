@@ -1,7 +1,7 @@
 use crate::md::superblock::version_1::device_flags::DeviceFlags;
 use crate::md::superblock::version_1::features::Features;
 use crate::md::superblock::version_1::superblock::layout;
-use crate::md::units::{DeviceCount, MetadataEventCount, SectorCount};
+use crate::md::units::{DeviceCount, MetadataEventCount, SectorCount, SectorNumber};
 
 const DATA: [u8; 4096] = [
     0xfc, 0x4e, 0x2b, 0xa9, // magic
@@ -326,7 +326,7 @@ fn view_of_superblock_version_1() {
     assert_eq!(view.reshape_status().new_level().read(), 6);
     assert_eq!(
         view.reshape_status().reshape_position().read(),
-        0xe30dc65274cef739
+        SectorNumber(0xe30dc65274cef739)
     );
     assert_eq!(view.reshape_status().delta_disks().read(), 1);
     assert_eq!(view.reshape_status().new_layout().read(), 0x979a6999);

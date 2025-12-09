@@ -2,6 +2,7 @@ use binary_layout::prelude::*;
 
 use crate::md::algorithm::MdAlgorithm;
 use crate::md::superblock::reshape_status::ReshapeStatus;
+use crate::md::units::SectorNumber;
 
 #[allow(unused_imports)]
 pub use self::{
@@ -9,7 +10,7 @@ pub use self::{
 };
 
 binary_layout!(layout, LittleEndian, {
-    reshape_position: u64,
+    reshape_position: SectorNumber as u64,
     new_level: u32,
     delta_disks: u32,
     new_layout: u32,

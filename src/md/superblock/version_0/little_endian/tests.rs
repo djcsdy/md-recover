@@ -1,7 +1,7 @@
 use crate::md::superblock::version_0::little_endian;
 use crate::md::superblock::version_0::little_endian::device_descriptor::DeviceDescriptorLittleEndian;
 use crate::md::units::{
-    CheckpointEventCount, DeviceCount, DeviceNumber, MetadataEventCount, SectorCount,
+    CheckpointEventCount, DeviceCount, DeviceNumber, MetadataEventCount, SectorCount, SectorNumber,
 };
 
 const DATA: [u8; 4096] = [
@@ -466,7 +466,10 @@ fn view_of_little_endian_superblock_version_0() {
         CheckpointEventCount(0x7d613e63f79eea5b)
     );
     assert_eq!(view.recovery_checkpoint().read(), 0x46e39b46);
-    assert_eq!(view.reshape_status().reshape_position().read(), 0);
+    assert_eq!(
+        view.reshape_status().reshape_position().read(),
+        SectorNumber(0)
+    );
     assert_eq!(view.reshape_status().new_level().read(), 0);
     assert_eq!(view.reshape_status().delta_disks().read(), 0);
     assert_eq!(view.reshape_status().new_layout().read(), 0);
