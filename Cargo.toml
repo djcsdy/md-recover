@@ -24,4 +24,4 @@ uuid = "=1.26.0"
 
 [dev-dependencies]
 anyhow = "=1.0.104"
-flate2 = "=1.1.9"
+flate2 = "=1.1.10"
