@@ -13,4 +13,5 @@ mod units;
 #[allow(unused_imports)]
 pub use self::{
     directory::Ext4Directory, file::Ext4File, fs::Ext4Fs, regular_file::Ext4RegularFile,
+    units::InodeNumber,
 };
