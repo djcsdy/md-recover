@@ -15,7 +15,7 @@ binary_layout!(layout, LittleEndian, {
     delta_devices: DeviceCount as u32,
     new_layout: u32,
     new_chunk_size: SectorCount<u32> as u32,
-    new_offset: u32
+    delta_offset: i32
 });
 
 impl<S: AsRef<[u8]>> From<ReshapeStatusVersion1<S>> for ReshapeStatus {
@@ -28,7 +28,7 @@ impl<S: AsRef<[u8]>> From<ReshapeStatusVersion1<S>> for ReshapeStatus {
             reshape_position: value.reshape_position().read(),
             delta_devices: value.delta_devices().read(),
             new_chunk_size: value.new_chunk_size().read(),
-            new_offset: value.new_offset().read(),
+            delta_offset: value.delta_offset().read(),
         }
     }
 }

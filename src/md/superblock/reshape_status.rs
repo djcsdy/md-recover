@@ -7,5 +7,5 @@ pub struct ReshapeStatus {
     pub reshape_position: SectorNumber,
     pub delta_devices: DeviceCount,
     pub new_chunk_size: SectorCount<u32>,
-    pub new_offset: u32,
+    pub delta_offset: i32,
 }

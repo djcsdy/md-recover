@@ -334,7 +334,7 @@ fn view_of_superblock_version_1() {
         view.reshape_status().new_chunk_size().read(),
         SectorCount(65536)
     );
-    assert_eq!(view.reshape_status().new_offset().read(), 0);
+    assert_eq!(view.reshape_status().delta_offset().read(), 0);
     assert_eq!(view.data_offset().read(), SectorNumber(0xfae3d184a79c8efd));
     assert_eq!(view.data_size().read(), 0x588ab17ce9f1a413);
     assert_eq!(view.super_offset().read(), 0xf544698b366331f0);

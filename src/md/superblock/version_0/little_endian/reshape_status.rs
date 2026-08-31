@@ -27,7 +27,7 @@ impl<S: AsRef<[u8]>> From<ReshapeStatusVersion0<S>> for ReshapeStatus {
             reshape_position: value.reshape_position().read(),
             delta_devices: value.delta_devices().read(),
             new_chunk_size: value.new_chunk_size().read(),
-            new_offset: 0,
+            delta_offset: 0,
         }
     }
 }
