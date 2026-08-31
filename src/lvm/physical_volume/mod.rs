@@ -1,4 +1,5 @@
 mod label;
+mod location;
 
 use crate::block_device::BlockDevice;
 use std::io;
