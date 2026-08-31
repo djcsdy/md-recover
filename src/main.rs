@@ -15,6 +15,7 @@ mod block_device;
 mod ext;
 mod ext4;
 mod ioctl;
+mod lvm;
 mod md;
 
 #[derive(Parser, Debug)]
