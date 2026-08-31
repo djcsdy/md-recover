@@ -5,7 +5,7 @@ const EXT4_CRC32C: Crc<u32> = Crc::<u32>::new(&Algorithm {
     ..CRC_32_ISCSI
 });
 
-pub const EXT4_CRC32C_INITIAL: u32 = EXT4_CRC32C.algorithm.init;
+pub const EXT4_CRC32C_INITIAL: u32 = EXT4_CRC32C.algorithm.init.reverse_bits();
 
 pub fn ext4_crc32c<B: AsRef<[u8]>>(initial: u32, bytes: B) -> u32 {
     let mut digest = EXT4_CRC32C.digest_with_initial(initial.reverse_bits());
