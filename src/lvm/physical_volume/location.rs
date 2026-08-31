@@ -1,4 +1,6 @@
 use binary_layout::binary_layout;
+use std::io;
+use std::io::Read;
 
 binary_layout!(layout, LittleEndian, {
     offset_bytes: u64,
@@ -26,5 +28,13 @@ impl<S: AsRef<[u8]>> DiskLocation<S> {
 
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
+    }
+}
+
+impl DiskLocation<Vec<u8>> {
+    pub fn read<R: Read>(mut reader: R) -> io::Result<Self> {
+        let mut buf = vec![0u8; layout::SIZE.unwrap()];
+        reader.read_exact(&mut buf)?;
+        Ok(Self::new(buf))
     }
 }
