@@ -1,3 +1,5 @@
+mod label;
+
 use crate::block_device::BlockDevice;
 use std::io;
 use std::io::{Read, Seek};
