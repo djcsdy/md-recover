@@ -37,4 +37,16 @@ impl DiskLocation<Vec<u8>> {
         reader.read_exact(&mut buf)?;
         Ok(Self::new(buf))
     }
+
+    pub fn read_all<R: Read>(mut reader: R) -> io::Result<Vec<Self>> {
+        let mut locations = Vec::with_capacity(1);
+        loop {
+            let location = Self::read(&mut reader)?;
+            if location.is_end_marker() {
+                return Ok(locations);
+            } else {
+                locations.push(location);
+            }
+        }
+    }
 }
