@@ -5,14 +5,14 @@ use std::io;
 use std::io::{Read, Seek};
 
 #[derive(Clone)]
-pub struct LvmVolumeGroup<D>
+pub struct VolumeGroup<D>
 where
     D: BlockDevice + Read + Seek,
 {
     physical_volumes: Vec<LvmPhysicalVolume<D>>,
 }
 
-impl<D> LvmVolumeGroup<D>
+impl<D> VolumeGroup<D>
 where
     D: BlockDevice + Read + Seek,
 {
