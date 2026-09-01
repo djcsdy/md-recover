@@ -4,13 +4,13 @@ use std::io;
 use std::io::Read;
 
 #[derive(Clone)]
-pub struct LvmPhysicalVolumeHeader {
+pub struct PhysicalVolumeHeader {
     device_size_bytes: u64,
     data_areas: Vec<DiskLocation<Vec<u8>>>,
     metadata_areas: Vec<DiskLocation<Vec<u8>>>,
 }
 
-impl LvmPhysicalVolumeHeader {
+impl PhysicalVolumeHeader {
     pub fn read<R: Read>(mut reader: R) -> io::Result<Self> {
         let device_size_bytes = reader.read_u64::<LittleEndian>()?;
         let data_areas = DiskLocation::read_all(&mut reader)?;

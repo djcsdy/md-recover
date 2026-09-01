@@ -3,7 +3,7 @@ mod label;
 mod location;
 
 use crate::block_device::BlockDevice;
-use crate::lvm::physical_volume::header::LvmPhysicalVolumeHeader;
+use crate::lvm::physical_volume::header::PhysicalVolumeHeader;
 use crate::lvm::physical_volume::label::LvmLabel;
 use std::io;
 use std::io::{Read, Seek};
@@ -13,7 +13,7 @@ pub struct PhysicalVolume<D>
 where
     D: BlockDevice + Read + Seek,
 {
-    header: LvmPhysicalVolumeHeader,
+    header: PhysicalVolumeHeader,
     device: D,
 }
 
@@ -28,7 +28,7 @@ where
             return Err(io::ErrorKind::InvalidData.into());
         }
 
-        let header = LvmPhysicalVolumeHeader::read(label.header().as_slice())?;
+        let header = PhysicalVolumeHeader::read(label.header().as_slice())?;
 
         Ok(Self { header, device })
     }
