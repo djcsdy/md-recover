@@ -7,6 +7,7 @@ binary_layout!(layout, LittleEndian, {
     size_bytes: u64,
 });
 
+#[derive(Clone)]
 pub struct DiskLocation<S: AsRef<[u8]>>(S);
 
 impl<S: AsRef<[u8]>> DiskLocation<S> {
