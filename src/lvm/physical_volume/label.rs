@@ -70,4 +70,16 @@ impl LvmLabel {
             header,
         })
     }
+
+    pub fn sector_number(&self) -> SectorNumber {
+        self.sector_number
+    }
+
+    pub fn label_type(&self) -> &[u8; 8] {
+        &self.label_type
+    }
+
+    pub fn header(&self) -> &Vec<u8> {
+        &self.header
+    }
 }
