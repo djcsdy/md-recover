@@ -53,12 +53,16 @@ impl LvmLabel {
             return Err(io::ErrorKind::InvalidData.into());
         }
 
-        let header_offset = reader.read_u32::<LittleEndian>()?;
+        let header_offset = usize::try_from(reader.read_u32::<LittleEndian>()?).unwrap();
+
+        if header_offset > sector.len() {
+            return Err(io::ErrorKind::InvalidData.into());
+        }
 
         let mut label_type = [0u8; 8];
         reader.read_exact(&mut label_type)?;
 
-        let header = sector[usize::try_from(header_offset).unwrap()..].into();
+        let header = sector[header_offset..].into();
 
         Ok(LvmLabel {
             sector_number,
