@@ -3,6 +3,7 @@ use byteorder::{LittleEndian, ReadBytesExt};
 use std::io;
 use std::io::Read;
 
+#[derive(Clone)]
 pub struct LvmPhysicalVolumeHeader {
     device_size_bytes: u64,
     data_areas: Vec<DiskLocation<Vec<u8>>>,
