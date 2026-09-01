@@ -1,5 +1,5 @@
 use crate::block_device::BlockDevice;
-use crate::lvm::LvmPhysicalVolume;
+use crate::lvm::PhysicalVolume;
 use itertools::Itertools;
 use std::io;
 use std::io::{Read, Seek};
@@ -9,14 +9,14 @@ pub struct VolumeGroup<D>
 where
     D: BlockDevice + Read + Seek,
 {
-    physical_volumes: Vec<LvmPhysicalVolume<D>>,
+    physical_volumes: Vec<PhysicalVolume<D>>,
 }
 
 impl<D> VolumeGroup<D>
 where
     D: BlockDevice + Read + Seek,
 {
-    pub fn open(physical_volumes: Vec<LvmPhysicalVolume<D>>) -> Self {
+    pub fn open(physical_volumes: Vec<PhysicalVolume<D>>) -> Self {
         Self { physical_volumes }
     }
 

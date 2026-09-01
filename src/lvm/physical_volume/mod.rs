@@ -9,7 +9,7 @@ use std::io;
 use std::io::{Read, Seek};
 
 #[derive(Clone)]
-pub struct LvmPhysicalVolume<D>
+pub struct PhysicalVolume<D>
 where
     D: BlockDevice + Read + Seek,
 {
@@ -17,7 +17,7 @@ where
     device: D,
 }
 
-impl<D> LvmPhysicalVolume<D>
+impl<D> PhysicalVolume<D>
 where
     D: BlockDevice + Read + Seek,
 {
