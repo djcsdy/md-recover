@@ -27,4 +27,20 @@ impl PhysicalVolumeHeader {
             metadata_areas,
         })
     }
+
+    pub fn uuid(&self) -> &[u8; 32] {
+        &self.uuid
+    }
+
+    pub fn device_size_bytes(&self) -> u64 {
+        self.device_size_bytes
+    }
+
+    pub fn data_areas(&self) -> &Vec<DiskLocation<Vec<u8>>> {
+        &self.data_areas
+    }
+
+    pub fn metadata_areas(&self) -> &Vec<DiskLocation<Vec<u8>>> {
+        &self.metadata_areas
+    }
 }
