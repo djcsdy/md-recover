@@ -25,6 +25,7 @@ num_enum = "=0.7.6"
 num-integer = "=0.1.47"
 os_display = "=0.1.4"
 uuid = "=1.26.0"
+winnow = { version = "1.0.4", features = ["simd"] }
 
 [dev-dependencies]
 anyhow = "=1.0.104"

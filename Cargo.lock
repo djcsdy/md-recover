@@ -423,6 +423,7 @@ dependencies = [
  "num_enum",
  "os_display",
  "uuid",
+ "winnow",
 ]
 
 [[package]]
