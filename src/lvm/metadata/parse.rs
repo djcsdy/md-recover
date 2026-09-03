@@ -81,11 +81,13 @@ where
     <Input as Stream>::Token: AsChar + Clone,
     Error: ParserError<Input>,
 {
-    lexeme((
-        identifier_first_char,
-        repeat::<_, _, (), _, _>(0.., identifier_char),
-    ))
-    .take()
+    lexeme(
+        (
+            identifier_first_char,
+            repeat::<_, _, (), _, _>(0.., identifier_char),
+        )
+            .take(),
+    )
     .parse_to()
     .parse_next(input)
 }
