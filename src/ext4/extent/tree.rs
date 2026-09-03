@@ -213,7 +213,7 @@ impl<S: AsRef<[u8]>> ExtentTreeInternal<S> {
             None => 0,
         };
 
-        if self.view().entries_and_tail().as_ref().len() < entries_size + tail_size {
+        if self.view().entries_and_tail().len() < entries_size + tail_size {
             return false;
         }
 
