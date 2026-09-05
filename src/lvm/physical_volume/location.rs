@@ -1,6 +1,6 @@
 use binary_layout::binary_layout;
 use std::io;
-use std::io::Read;
+use std::io::{Read, Seek, SeekFrom};
 
 binary_layout!(layout, LittleEndian, {
     offset_bytes: u64,
@@ -49,5 +49,10 @@ impl DiskLocation<Vec<u8>> {
                 locations.push(location);
             }
         }
+    }
+
+    pub fn take<D: Read + Seek>(&self, mut device: D) -> io::Result<io::Take<D>> {
+        device.seek(SeekFrom::Start(self.offset_bytes()))?;
+        Ok(device.take(self.size_bytes()))
     }
 }
