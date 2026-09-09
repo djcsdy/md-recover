@@ -1,5 +1,6 @@
+use crate::lvm::crc::LVM_CRC;
 use crate::lvm::metadata::location::MetadataLocation;
-use binary_layout::binary_layout;
+use binary_layout::{binary_layout, Field};
 use std::io;
 use std::io::Read;
 
@@ -12,50 +13,61 @@ binary_layout!(layout, LittleEndian, {
 });
 
 #[derive(Clone)]
-pub struct MetadataAreaHeader<S: AsRef<[u8]>> {
-    storage: S,
-    metadata_locations: Vec<MetadataLocation<Vec<u8>>>,
+pub struct MetadataAreaHeader {
+    start: u64,
+    size: u64,
+    metadata_locations: Vec<MetadataLocation>,
 }
 
-impl<S: AsRef<[u8]>> MetadataAreaHeader<S> {
-    pub fn checksum(&self) -> u32 {
-        self.view().checksum().read()
-    }
-
-    pub fn magic(&self) -> [u8; 16] {
-        *self.view().magic()
-    }
-
-    pub fn version(&self) -> u32 {
-        self.view().version().read()
-    }
-
+impl MetadataAreaHeader {
     pub fn start(&self) -> u64 {
-        self.view().start().read()
+        self.start
     }
 
     pub fn size(&self) -> u64 {
-        self.view().size().read()
+        self.size
     }
 
-    pub fn metadata_locations(&self) -> &Vec<MetadataLocation<Vec<u8>>> {
+    pub fn metadata_locations(&self) -> &Vec<MetadataLocation> {
         &self.metadata_locations
-    }
-
-    fn view(&self) -> layout::View<&[u8]> {
-        layout::View::new(self.storage.as_ref())
     }
 }
 
-impl MetadataAreaHeader<Vec<u8>> {
+impl MetadataAreaHeader {
     pub fn read(mut reader: impl Read) -> io::Result<Self> {
-        let mut storage = vec![0u8; layout::SIZE.unwrap()];
-        reader.read_exact(&mut storage)?;
+        let mut header = vec![0u8; layout::SIZE.unwrap()];
+        reader.read_exact(&mut header)?;
 
-        let metadata_locations = MetadataLocation::read_all(&mut reader)?;
+        let mut metadata_locations = Vec::with_capacity(1);
+
+        loop {
+            let mut buf = [0u8; MetadataLocation::SIZE_BYTES];
+            reader.read_exact(&mut buf)?;
+            header.extend_from_slice(&buf);
+
+            let metadata_location = MetadataLocation::new(buf);
+
+            if metadata_location.is_end_marker() {
+                break;
+            } else {
+                metadata_locations.push(metadata_location);
+            }
+        }
+
+        let actual_checksum = LVM_CRC.checksum(&header[layout::magic::OFFSET..]);
+
+        let view = layout::View::new(header);
+
+        if view.magic() != b" LVM2 x[5A%r0N*>"
+            || actual_checksum != view.checksum().read()
+            || view.version().read() != 1
+        {
+            return Err(io::ErrorKind::InvalidData.into());
+        }
 
         Ok(Self {
-            storage,
+            start: view.start().read(),
+            size: view.size().read(),
             metadata_locations,
         })
     }

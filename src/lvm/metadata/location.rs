@@ -1,6 +1,4 @@
 use binary_layout::binary_layout;
-use std::io;
-use std::io::Read;
 
 binary_layout!(layout, LittleEndian, {
     offset: u64,
@@ -10,10 +8,12 @@ binary_layout!(layout, LittleEndian, {
 });
 
 #[derive(Clone)]
-pub struct MetadataLocation<S: AsRef<[u8]>>(S);
+pub struct MetadataLocation([u8; Self::SIZE_BYTES]);
 
-impl<S: AsRef<[u8]>> MetadataLocation<S> {
-    pub fn new(storage: S) -> Self {
+impl MetadataLocation {
+    pub const SIZE_BYTES: usize = layout::SIZE.unwrap();
+
+    pub fn new(storage: [u8; Self::SIZE_BYTES]) -> Self {
         Self(storage)
     }
 
@@ -39,25 +39,5 @@ impl<S: AsRef<[u8]>> MetadataLocation<S> {
 
     fn view(&self) -> layout::View<&[u8]> {
         layout::View::new(self.0.as_ref())
-    }
-}
-
-impl MetadataLocation<Vec<u8>> {
-    pub fn read<R: Read>(mut reader: R) -> io::Result<Self> {
-        let mut buf = vec![0u8; layout::SIZE.unwrap()];
-        reader.read_exact(&mut buf)?;
-        Ok(Self::new(buf))
-    }
-
-    pub fn read_all<R: Read>(mut reader: R) -> io::Result<Vec<Self>> {
-        let mut locations = Vec::with_capacity(1);
-        loop {
-            let location = Self::read(&mut reader)?;
-            if location.is_end_marker() {
-                return Ok(locations);
-            } else {
-                locations.push(location);
-            }
-        }
     }
 }
