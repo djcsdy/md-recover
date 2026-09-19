@@ -51,8 +51,12 @@ impl DiskLocation<Vec<u8>> {
         }
     }
 
+    pub fn seek(&self, mut device: impl Read + Seek) -> io::Result<u64> {
+        device.seek(SeekFrom::Start(self.offset_bytes()))
+    }
+
     pub fn take<D: Read + Seek>(&self, mut device: D) -> io::Result<io::Take<D>> {
-        device.seek(SeekFrom::Start(self.offset_bytes()))?;
+        self.seek(&mut device)?;
         Ok(device.take(self.size_bytes()))
     }
 }
