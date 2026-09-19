@@ -3,6 +3,7 @@ mod label;
 mod location;
 
 use crate::block_device::BlockDevice;
+use crate::lvm::metadata::MetadataArea;
 use crate::lvm::physical_volume::header::PhysicalVolumeHeader;
 use crate::lvm::physical_volume::label::LvmLabel;
 use std::io;
@@ -14,6 +15,7 @@ where
     D: BlockDevice + Read + Seek,
 {
     header: PhysicalVolumeHeader,
+    metadata_areas: Vec<MetadataArea>,
     device: D,
 }
 
@@ -30,12 +32,23 @@ where
 
         let header = PhysicalVolumeHeader::read(label.header().as_slice())?;
 
-        Ok(Self { header, device })
+        let mut metadata_areas = Vec::new();
+        for location in header.metadata_areas() {
+            location.seek(&mut device)?;
+            metadata_areas.push(MetadataArea::read(&mut device)?);
+        }
+
+        Ok(Self {
+            header,
+            metadata_areas,
+            device,
+        })
     }
 
     pub fn try_clone(&self) -> io::Result<Self> {
         self.device.try_clone().map(|device| Self {
             header: self.header.clone(),
+            metadata_areas: self.metadata_areas.clone(),
             device,
         })
     }
