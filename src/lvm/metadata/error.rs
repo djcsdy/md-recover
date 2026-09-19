@@ -1,2 +1,4 @@
 #[derive(Eq, PartialEq, Clone, Hash, Debug)]
-pub enum MetadataParseError {}
+pub struct MetadataParseError {
+    pub bytes: Vec<u8>,
+}
