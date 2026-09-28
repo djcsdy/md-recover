@@ -35,4 +35,8 @@ impl MetadataArea {
 
         Ok(Self { metadata })
     }
+
+    pub fn metadata(&self) -> &Vec<Result<Metadata, MetadataSyntaxError>> {
+        &self.metadata
+    }
 }
