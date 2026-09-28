@@ -45,6 +45,10 @@ where
         })
     }
 
+    pub fn metadata_areas(&self) -> &Vec<MetadataArea> {
+        &self.metadata_areas
+    }
+
     pub fn try_clone(&self) -> io::Result<Self> {
         self.device.try_clone().map(|device| Self {
             header: self.header.clone(),
