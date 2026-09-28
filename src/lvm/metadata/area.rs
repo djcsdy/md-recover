@@ -1,5 +1,5 @@
 use crate::lvm::metadata::area_header::MetadataAreaHeader;
-use crate::lvm::metadata::error::MetadataParseError;
+use crate::lvm::metadata::error::MetadataSyntaxError;
 use crate::lvm::metadata::{parse, Metadata};
 use std::io;
 use std::io::{Read, Seek, SeekFrom};
@@ -7,7 +7,7 @@ use winnow::error::EmptyError;
 
 #[derive(Clone, Debug)]
 pub struct MetadataArea {
-    metadata: Vec<Result<Metadata, MetadataParseError>>,
+    metadata: Vec<Result<Metadata, MetadataSyntaxError>>,
 }
 
 impl MetadataArea {
@@ -29,7 +29,7 @@ impl MetadataArea {
 
             metadata.push(
                 parse::metadata::<_, EmptyError>(&mut buf.as_slice())
-                    .map_err(|_| MetadataParseError { bytes: buf }),
+                    .map_err(|_| MetadataSyntaxError { bytes: buf }),
             )
         }
 
