@@ -1,4 +1,4 @@
-use crate::lvm::metadata::MetadataValue;
+use crate::lvm::metadata::{Metadata, MetadataValue};
 use std::collections::HashMap;
 use winnow::ascii::{digit1, escaped, multispace0};
 use winnow::combinator::{alt, delimited, preceded, repeat, separated, terminated};
@@ -7,14 +7,16 @@ use winnow::stream::{Accumulate, AsChar, Compare, ParseSlice, Stream, StreamIsPa
 use winnow::token::{any, none_of, one_of};
 use winnow::Parser;
 
-pub fn metadata<Input, Error>(input: &mut Input) -> Result<HashMap<String, MetadataValue>, Error>
+pub fn metadata<Input, Error>(input: &mut Input) -> Result<Metadata, Error>
 where
     Input: StreamIsPartial + Stream + Compare<char>,
     <Input as Stream>::Slice: ParseSlice<u64> + ParseSlice<String>,
     <Input as Stream>::Token: AsChar + Clone,
     Error: ParserError<Input>,
 {
-    preceded(multispace0, object_body).parse_next(input)
+    preceded(multispace0, object_body)
+        .parse_next(input)
+        .map(|root| Metadata { root })
 }
 
 fn integer<Input, Error>(input: &mut Input) -> Result<u64, Error>
@@ -157,7 +159,7 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::lvm::metadata::{parse, MetadataValue};
+    use crate::lvm::metadata::{parse, Metadata, MetadataValue};
     use std::collections::HashMap;
     use winnow::error::ContextError;
     use winnow::Parser;
@@ -182,33 +184,35 @@ mod test {
                     "}\n",
                 ))
                 .map_err(anyhow::Error::msg)?,
-            HashMap::from([(
-                "vg_name".to_owned(),
-                MetadataValue::Object(HashMap::from([
-                    ("seqno".to_owned(), MetadataValue::Integer(12)),
-                    ("extent_size".to_owned(), MetadataValue::Integer(8192)),
-                    (
-                        "physical_volumes".to_owned(),
-                        MetadataValue::Object(HashMap::from([(
-                            "pv0".to_owned(),
-                            MetadataValue::Object(HashMap::from([
-                                (
-                                    "device".to_owned(),
-                                    MetadataValue::String("/dev/sda2".to_owned())
-                                ),
-                                (
-                                    "status".to_owned(),
-                                    MetadataValue::Array(vec![MetadataValue::String(
-                                        "ALLOCATABLE".to_owned()
-                                    )])
-                                ),
-                                ("pe_start".to_owned(), MetadataValue::Integer(2048)),
-                                ("pe_count".to_owned(), MetadataValue::Integer(123456))
-                            ]))
-                        )]))
-                    )
-                ]))
-            )])
+            Metadata {
+                root: HashMap::from([(
+                    "vg_name".to_owned(),
+                    MetadataValue::Object(HashMap::from([
+                        ("seqno".to_owned(), MetadataValue::Integer(12)),
+                        ("extent_size".to_owned(), MetadataValue::Integer(8192)),
+                        (
+                            "physical_volumes".to_owned(),
+                            MetadataValue::Object(HashMap::from([(
+                                "pv0".to_owned(),
+                                MetadataValue::Object(HashMap::from([
+                                    (
+                                        "device".to_owned(),
+                                        MetadataValue::String("/dev/sda2".to_owned())
+                                    ),
+                                    (
+                                        "status".to_owned(),
+                                        MetadataValue::Array(vec![MetadataValue::String(
+                                            "ALLOCATABLE".to_owned()
+                                        )])
+                                    ),
+                                    ("pe_start".to_owned(), MetadataValue::Integer(2048)),
+                                    ("pe_count".to_owned(), MetadataValue::Integer(123456))
+                                ]))
+                            )]))
+                        )
+                    ]))
+                )])
+            }
         );
 
         Ok(())

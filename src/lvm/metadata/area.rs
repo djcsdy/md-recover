@@ -1,14 +1,13 @@
 use crate::lvm::metadata::area_header::MetadataAreaHeader;
 use crate::lvm::metadata::error::MetadataParseError;
-use crate::lvm::metadata::{parse, MetadataValue};
-use std::collections::HashMap;
+use crate::lvm::metadata::{parse, Metadata};
 use std::io;
 use std::io::{Read, Seek, SeekFrom};
 use winnow::error::EmptyError;
 
 #[derive(Clone, Debug)]
 pub struct MetadataArea {
-    metadata: Vec<Result<HashMap<String, MetadataValue>, MetadataParseError>>,
+    metadata: Vec<Result<Metadata, MetadataParseError>>,
 }
 
 impl MetadataArea {
