@@ -8,8 +8,6 @@ use winnow::error::EmptyError;
 
 #[derive(Clone, Debug)]
 pub struct MetadataArea {
-    expected_start: u64,
-    actual_start: u64,
     metadata: Vec<Result<HashMap<String, MetadataValue>, MetadataParseError>>,
 }
 
@@ -18,6 +16,10 @@ impl MetadataArea {
         let actual_start = reader.stream_position()?;
 
         let header = MetadataAreaHeader::read(&mut reader)?;
+
+        if actual_start != header.start() {
+            return Err(io::ErrorKind::InvalidData.into());
+        }
 
         let mut metadata = Vec::new();
         for location in header.metadata_locations() {
@@ -32,10 +34,6 @@ impl MetadataArea {
             )
         }
 
-        Ok(Self {
-            expected_start: header.start(),
-            actual_start,
-            metadata,
-        })
+        Ok(Self { metadata })
     }
 }
