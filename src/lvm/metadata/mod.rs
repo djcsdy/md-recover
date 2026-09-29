@@ -21,13 +21,10 @@ impl Metadata {
         self.volume_group().map(|(name, _)| name)
     }
 
-    pub fn uuid(&self) -> Result<&String, MetadataError> {
+    pub fn uuid(&self) -> Result<&str, MetadataError> {
         self.volume_group_metadata()
             .and_then(|metadata| metadata.get("uuid").ok_or(MetadataError::InvalidUuid))
-            .and_then(|uuid| match uuid {
-                MetadataValue::String(uuid) => Ok(uuid),
-                _ => Err(MetadataError::InvalidUuid),
-            })
+            .and_then(|uuid| uuid.as_str().ok_or(MetadataError::InvalidUuid))
     }
 
     fn volume_group(&self) -> Result<(&String, &HashMap<String, MetadataValue>), MetadataError> {
@@ -35,9 +32,11 @@ impl Metadata {
             .iter()
             .exactly_one()
             .map_err(|_| MetadataError::InvalidVolumeGroup)
-            .and_then(|(volume_group_name, value)| match value {
-                MetadataValue::Object(metadata) => Ok((volume_group_name, metadata)),
-                _ => Err(MetadataError::InvalidVolumeGroup),
+            .and_then(|(volume_group_name, value)| {
+                value
+                    .as_object()
+                    .map(|metadata| (volume_group_name, metadata))
+                    .ok_or(MetadataError::InvalidVolumeGroup)
             })
     }
 
