@@ -6,8 +6,7 @@ mod parse;
 mod value;
 
 #[allow(unused_imports)]
-pub use self::{area::MetadataArea, value::MetadataValue};
-use crate::lvm::metadata::error::MetadataError;
+pub use self::{area::MetadataArea, error::MetadataError, value::MetadataValue};
 use itertools::Itertools;
 use std::collections::HashMap;
 
