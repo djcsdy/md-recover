@@ -6,6 +6,8 @@ pub enum MetadataError {
     InvalidVolumeGroup,
     #[error("invalid volume group UUID")]
     InvalidUuid,
+    #[error("invalid sequence number")]
+    InvalidSequenceNumber,
     #[error("invalid LVM metadata syntax")]
     Syntax,
 }

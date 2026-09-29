@@ -27,6 +27,20 @@ impl Metadata {
             .and_then(|uuid| uuid.as_str().ok_or(MetadataError::InvalidUuid))
     }
 
+    pub fn sequence_number(&self) -> Result<u64, MetadataError> {
+        self.volume_group_metadata()
+            .and_then(|metadata| {
+                metadata
+                    .get("seqno")
+                    .ok_or(MetadataError::InvalidSequenceNumber)
+            })
+            .and_then(|sequence_number| {
+                sequence_number
+                    .as_u64()
+                    .ok_or(MetadataError::InvalidSequenceNumber)
+            })
+    }
+
     fn volume_group(&self) -> Result<(&String, &HashMap<String, MetadataValue>), MetadataError> {
         self.root
             .iter()
