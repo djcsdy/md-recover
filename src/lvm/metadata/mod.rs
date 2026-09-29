@@ -6,9 +6,12 @@ mod parse;
 mod value;
 
 #[allow(unused_imports)]
-pub use self::{area::MetadataArea, error::MetadataError, value::MetadataValue};
+pub use self::{
+    area::MetadataArea, error::MetadataError, error::MetadataSyntaxError, value::MetadataValue,
+};
 use itertools::Itertools;
 use std::collections::HashMap;
+use winnow::error::EmptyError;
 
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub struct Metadata {
@@ -16,6 +19,11 @@ pub struct Metadata {
 }
 
 impl Metadata {
+    pub fn parse<Buffer: AsRef<[u8]>>(buffer: Buffer) -> Result<Self, MetadataSyntaxError<Buffer>> {
+        parse::metadata::<_, EmptyError>(&mut buffer.as_ref())
+            .map_err(|_| MetadataSyntaxError { buffer })
+    }
+
     pub fn volume_group_name(&self) -> Result<&String, MetadataError> {
         self.volume_group().map(|(name, _)| name)
     }

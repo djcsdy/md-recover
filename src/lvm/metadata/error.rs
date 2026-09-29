@@ -14,6 +14,6 @@ pub enum MetadataError {
 
 #[derive(Eq, PartialEq, Clone, Hash, Debug, Error)]
 #[error("invalid LVM metadata syntax")]
-pub struct MetadataSyntaxError {
-    pub bytes: Vec<u8>,
+pub struct MetadataSyntaxError<Buffer: AsRef<[u8]>> {
+    pub buffer: Buffer,
 }
