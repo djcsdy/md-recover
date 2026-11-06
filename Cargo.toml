@@ -29,4 +29,4 @@ winnow = { version = "=1.0.5", features = ["simd"] }
 
 [dev-dependencies]
 anyhow = "=1.0.104"
-flate2 = "=1.1.10"
+flate2 = "=1.1.11"
