@@ -17,3 +17,9 @@ pub enum MetadataError {
 pub struct MetadataSyntaxError<Buffer: AsRef<[u8]>> {
     pub buffer: Buffer,
 }
+
+impl<Buffer: AsRef<[u8]>> From<&MetadataSyntaxError<Buffer>> for MetadataError {
+    fn from(_: &MetadataSyntaxError<Buffer>) -> Self {
+        Self::Syntax
+    }
+}
