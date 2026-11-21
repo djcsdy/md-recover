@@ -43,3 +43,9 @@ impl From<&str> for MetadataValue {
         Self::String(value.into())
     }
 }
+
+impl From<u64> for MetadataValue {
+    fn from(value: u64) -> Self {
+        Self::Integer(value)
+    }
+}

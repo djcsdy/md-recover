@@ -58,7 +58,7 @@ mod test {
             super::object_item::<_, ContextError>
                 .parse("seqno = 12\n")
                 .map_err(anyhow::Error::msg)?,
-            ("seqno".to_owned(), MetadataValue::Integer(12))
+            ("seqno".to_owned(), 12.into())
         );
 
         assert_eq!(

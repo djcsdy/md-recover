@@ -57,8 +57,8 @@ mod test {
                 root: HashMap::from([(
                     "vg_name".to_owned(),
                     MetadataValue::Object(HashMap::from([
-                        ("seqno".to_owned(), MetadataValue::Integer(12)),
-                        ("extent_size".to_owned(), MetadataValue::Integer(8192)),
+                        ("seqno".to_owned(), 12.into()),
+                        ("extent_size".to_owned(), 8192.into()),
                         (
                             "physical_volumes".to_owned(),
                             MetadataValue::Object(HashMap::from([(
@@ -69,8 +69,8 @@ mod test {
                                         "status".to_owned(),
                                         MetadataValue::Array(vec!["ALLOCATABLE".into()])
                                     ),
-                                    ("pe_start".to_owned(), MetadataValue::Integer(2048)),
-                                    ("pe_count".to_owned(), MetadataValue::Integer(123456))
+                                    ("pe_start".to_owned(), 2048.into()),
+                                    ("pe_count".to_owned(), 123456.into())
                                 ]))
                             )]))
                         )

@@ -18,7 +18,6 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::lvm::metadata::MetadataValue;
     use winnow::error::ContextError;
     use winnow::Parser;
 
@@ -28,11 +27,7 @@ mod test {
             super::array::<_, ContextError>
                 .parse("[1, 2,\n3]\n")
                 .map_err(anyhow::Error::msg)?,
-            vec![
-                MetadataValue::Integer(1),
-                MetadataValue::Integer(2),
-                MetadataValue::Integer(3)
-            ]
+            vec![1.into(), 2.into(), 3.into()]
         );
 
         assert!(super::array::<_, ContextError>.parse("[1,2,3,]").is_err());
