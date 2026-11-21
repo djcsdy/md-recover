@@ -47,7 +47,6 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::lvm::metadata::MetadataValue;
     use std::collections::HashMap;
     use winnow::error::ContextError;
     use winnow::Parser;
@@ -67,10 +66,11 @@ mod test {
                 .map_err(anyhow::Error::msg)?,
             (
                 "pv0".to_owned(),
-                MetadataValue::Object(HashMap::from([
+                [
                     ("id".to_owned(), "a".into()),
                     ("device".to_owned(), "/dev/sda2".into())
-                ]))
+                ]
+                .into()
             )
         );
 

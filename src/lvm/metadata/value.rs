@@ -55,3 +55,9 @@ impl From<Vec<MetadataValue>> for MetadataValue {
         Self::Array(value)
     }
 }
+
+impl<const N: usize> From<[(String, MetadataValue); N]> for MetadataValue {
+    fn from(value: [(String, MetadataValue); N]) -> Self {
+        Self::Object(value.into())
+    }
+}

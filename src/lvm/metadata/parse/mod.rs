@@ -28,7 +28,7 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::lvm::metadata::{Metadata, MetadataValue};
+    use crate::lvm::metadata::Metadata;
     use std::collections::HashMap;
     use winnow::error::ContextError;
     use winnow::Parser;
@@ -56,22 +56,25 @@ mod test {
             Metadata {
                 root: HashMap::from([(
                     "vg_name".to_owned(),
-                    MetadataValue::Object(HashMap::from([
+                    [
                         ("seqno".to_owned(), 12.into()),
                         ("extent_size".to_owned(), 8192.into()),
                         (
                             "physical_volumes".to_owned(),
-                            MetadataValue::Object(HashMap::from([(
+                            [(
                                 "pv0".to_owned(),
-                                MetadataValue::Object(HashMap::from([
+                                [
                                     ("device".to_owned(), "/dev/sda2".into()),
                                     ("status".to_owned(), vec!["ALLOCATABLE".into()].into()),
                                     ("pe_start".to_owned(), 2048.into()),
                                     ("pe_count".to_owned(), 123456.into())
-                                ]))
-                            )]))
+                                ]
+                                .into()
+                            )]
+                            .into()
                         )
-                    ]))
+                    ]
+                    .into()
                 )])
             }
         );
