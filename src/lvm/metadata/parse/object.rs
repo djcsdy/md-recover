@@ -8,7 +8,7 @@ use winnow::error::ParserError;
 use winnow::stream::{AsChar, Compare, ParseSlice, Stream, StreamIsPartial};
 use winnow::Parser;
 
-pub fn object_item<Input, Error>(input: &mut Input) -> Result<(String, MetadataValue), Error>
+fn object_item<Input, Error>(input: &mut Input) -> Result<(String, MetadataValue), Error>
 where
     Input: StreamIsPartial + Stream + Compare<char>,
     <Input as Stream>::Slice: ParseSlice<u64> + ParseSlice<String>,
