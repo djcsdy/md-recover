@@ -37,3 +37,9 @@ impl MetadataValue {
         }
     }
 }
+
+impl From<&str> for MetadataValue {
+    fn from(value: &str) -> Self {
+        Self::String(value.into())
+    }
+}

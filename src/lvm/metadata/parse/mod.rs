@@ -64,15 +64,10 @@ mod test {
                             MetadataValue::Object(HashMap::from([(
                                 "pv0".to_owned(),
                                 MetadataValue::Object(HashMap::from([
-                                    (
-                                        "device".to_owned(),
-                                        MetadataValue::String("/dev/sda2".to_owned())
-                                    ),
+                                    ("device".to_owned(), "/dev/sda2".into()),
                                     (
                                         "status".to_owned(),
-                                        MetadataValue::Array(vec![MetadataValue::String(
-                                            "ALLOCATABLE".to_owned()
-                                        )])
+                                        MetadataValue::Array(vec!["ALLOCATABLE".into()])
                                     ),
                                     ("pe_start".to_owned(), MetadataValue::Integer(2048)),
                                     ("pe_count".to_owned(), MetadataValue::Integer(123456))

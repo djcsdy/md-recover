@@ -68,11 +68,8 @@ mod test {
             (
                 "pv0".to_owned(),
                 MetadataValue::Object(HashMap::from([
-                    ("id".to_owned(), MetadataValue::String("a".to_owned())),
-                    (
-                        "device".to_owned(),
-                        MetadataValue::String("/dev/sda2".to_owned())
-                    )
+                    ("id".to_owned(), "a".into()),
+                    ("device".to_owned(), "/dev/sda2".into())
                 ]))
             )
         );
@@ -87,11 +84,8 @@ mod test {
                 .parse("{\nid=\"a\"\ndevice=\"/dev/sda2\"\n}\n")
                 .map_err(anyhow::Error::msg)?,
             HashMap::from([
-                ("id".to_owned(), MetadataValue::String("a".to_owned())),
-                (
-                    "device".to_owned(),
-                    MetadataValue::String("/dev/sda2".to_owned())
-                )
+                ("id".to_owned(), "a".into()),
+                ("device".to_owned(), "/dev/sda2".into())
             ])
         );
 
