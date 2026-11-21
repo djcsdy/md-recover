@@ -1,11 +1,7 @@
-use std::collections::HashMap;
-
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub enum MetadataValue {
     String(String),
     Integer(u64),
-    Array(Vec<MetadataValue>),
-    Object(HashMap<String, MetadataValue>),
 }
 
 impl MetadataValue {
@@ -22,20 +18,6 @@ impl MetadataValue {
             _ => None,
         }
     }
-
-    pub fn as_array(&self) -> Option<&[MetadataValue]> {
-        match self {
-            MetadataValue::Array(value) => Some(value),
-            _ => None,
-        }
-    }
-
-    pub fn as_object(&self) -> Option<&HashMap<String, MetadataValue>> {
-        match self {
-            MetadataValue::Object(value) => Some(value),
-            _ => None,
-        }
-    }
 }
 
 impl From<&str> for MetadataValue {
@@ -47,17 +29,5 @@ impl From<&str> for MetadataValue {
 impl From<u64> for MetadataValue {
     fn from(value: u64) -> Self {
         Self::Integer(value)
-    }
-}
-
-impl From<Vec<MetadataValue>> for MetadataValue {
-    fn from(value: Vec<MetadataValue>) -> Self {
-        Self::Array(value)
-    }
-}
-
-impl<const N: usize> From<[(String, MetadataValue); N]> for MetadataValue {
-    fn from(value: [(String, MetadataValue); N]) -> Self {
-        Self::Object(value.into())
     }
 }

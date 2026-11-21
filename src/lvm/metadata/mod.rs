@@ -2,6 +2,7 @@ mod area;
 mod area_header;
 mod error;
 mod location;
+mod node;
 mod parse;
 mod value;
 
@@ -9,13 +10,14 @@ mod value;
 pub use self::{
     area::MetadataArea, error::MetadataError, error::MetadataSyntaxError, value::MetadataValue,
 };
+use crate::lvm::metadata::node::MetadataNode;
 use itertools::Itertools;
 use std::collections::HashMap;
 use winnow::error::EmptyError;
 
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub struct Metadata {
-    root: HashMap<String, MetadataValue>,
+    root: HashMap<String, MetadataNode>,
 }
 
 impl Metadata {
@@ -48,7 +50,7 @@ impl Metadata {
             })
     }
 
-    fn volume_group(&self) -> Result<(&String, &HashMap<String, MetadataValue>), MetadataError> {
+    fn volume_group(&self) -> Result<(&String, &HashMap<String, MetadataNode>), MetadataError> {
         self.root
             .iter()
             .exactly_one()
@@ -61,7 +63,7 @@ impl Metadata {
             })
     }
 
-    fn volume_group_metadata(&self) -> Result<&HashMap<String, MetadataValue>, MetadataError> {
+    fn volume_group_metadata(&self) -> Result<&HashMap<String, MetadataNode>, MetadataError> {
         self.volume_group().map(|(_, metadata)| metadata)
     }
 }

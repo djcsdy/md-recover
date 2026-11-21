@@ -1,4 +1,4 @@
-use crate::lvm::metadata::parse::{array, integer, object, string};
+use crate::lvm::metadata::parse::{integer, string};
 use crate::lvm::metadata::MetadataValue;
 use winnow::combinator::alt;
 use winnow::error::ParserError;
@@ -15,8 +15,6 @@ where
     alt((
         integer::integer.map(MetadataValue::Integer),
         string::quoted_string.map(MetadataValue::String),
-        array::array.map(MetadataValue::Array),
-        object::object.map(MetadataValue::Object),
     ))
     .parse_next(input)
 }
