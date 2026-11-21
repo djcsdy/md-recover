@@ -49,3 +49,9 @@ impl From<u64> for MetadataValue {
         Self::Integer(value)
     }
 }
+
+impl From<Vec<MetadataValue>> for MetadataValue {
+    fn from(value: Vec<MetadataValue>) -> Self {
+        Self::Array(value)
+    }
+}
